@@ -1,0 +1,26 @@
+/*Error message*/
+
+.error-message {
+    position: fixed;
+    bottom: 6rem;
+    padding: 0.5rem;
+    width: 60%;
+    color: #82181a;
+    border-radius: 0.5rem;
+    border: 1px solid #ff6467;
+    background: #ffc9c9;
+}
+
+/*Unload Animation*/
+
+@keyframes unloadArrow {
+    from {
+        transform: translateY(10px);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+.unload-arrow {
+    animation: unloadArrow 1.5s ease-out infinite;
+}

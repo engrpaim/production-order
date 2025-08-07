@@ -1,0 +1,28 @@
+.condition-data {
+    display: flex;
+    align-items: center;
+    font-size: 0.7rem;
+    font-style: normal;
+    font-weight: normal;
+    height: 100%;
+    width: 100%;
+    min-width: fit-content;
+    gap: 1rem;
+}
+
+.condition-data h1 {
+    font-size: 1.2rem;
+    font-style: normal;
+    font-weight: normal;
+}
+
+.check-svg svg {
+    color: #31c950;
+    width: 1.7rem;
+    height: 2rem;
+}
+.wrong-svg svg {
+    color: #fb2c36;
+    width: 1.7rem;
+    height: 2rem;
+}

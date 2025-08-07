@@ -1,0 +1,122 @@
+@keyframes floatInFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes ipLogo {
+    from {
+        opacity: 1;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.location-container {
+    display: flex;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    color: white;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    min-width: fit-content;
+    padding: 2rem 0;
+    border-radius: 2rem;
+    background: #6991c7;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    animation: floatInFromBottom 0.3s ease-out forwards;
+    pointer-events: auto;
+}
+
+.location-contents h1 {
+    font-size: 1.5rem;
+    font-weight: normal;
+}
+.location-contents {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin: 2rem;
+}
+
+.location-right {
+    margin-right: 4rem;
+    width: 4rem;
+    height: 4rem;
+    animation: ipLogo 0.7s ease-out infinite alternate;
+}
+
+.location-left {
+    margin-left: 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.location-middle {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/*Error*/
+
+.error-location-container {
+    display: flex;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    color: white;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    min-width: fit-content;
+    padding: 2rem 0;
+    border-radius: 2rem;
+    background: #ff6467;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    animation: floatInFromBottom 0.3s ease-out forwards;
+    pointer-events: auto;
+}
+
+.error-location-contents h1 {
+    font-size: 1.5rem;
+    font-weight: normal;
+}
+.error-location-contents {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin: 2rem;
+}
+
+.error-location-right {
+    margin-right: 4rem;
+    width: 5rem;
+    height: 5rem;
+}
+
+.error-location-left {
+    margin-left: 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.error-location-middle {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
