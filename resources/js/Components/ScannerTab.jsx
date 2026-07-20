@@ -37,7 +37,7 @@ export default function ScannerTab({routing ,order,location,model, data,workOrde
 
             }else if(e.includes('00;') || e.includes('01;')){
 
-                console.log(scannedItems);
+                console.log('asdasdas',scannedItems);
                 const FindLoading = location.permission.toUpperCase() == 'LOADING' ?["Nickel 1", "Nickel 2", "Basket Number"]: ["Unloader", "Container", "Poly Bag","Endorsed To"];
                 const hasValidKey = FindLoading.every(key => key in scannedItems);
 

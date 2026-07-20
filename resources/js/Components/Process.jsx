@@ -19,6 +19,7 @@ export default function Process({ data, model, location, routing, order, error }
 
     let isCorrectRoute = false;
     if (location && routing) {
+       
         isCorrectRoute = routing.find(obj => obj.Description.toLowerCase() === location.location.toLowerCase()) ? location.location : false;
     }
 
