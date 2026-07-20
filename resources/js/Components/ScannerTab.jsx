@@ -1,13 +1,13 @@
-import React,{ useState ,useEffect} from 'react';
+import React,{ useState } from 'react';
 import { router } from '@inertiajs/react';
 import QrLogo from '../SVG/qrLogo';
 import ScannedItems from '../Components/scannedItems';
 import ErrorComponent from '../Components/ErrorComponent';
 import '../../css/process.css';
-export default function ScannerTab({routing ,order,location,model, data,workOrder }){
+export default function ScannerTab({routing ,order,location,model, data,workOrder,error }){
     const [ErrorCheck , setErrorCheck] = useState(false);
-    const [Message , setMessage] = useState(false);
-
+    const [Message , setMessage] = useState(error);
+    console.log('Scanner tabss: ' ,routing ,order,location,model, data,workOrder );
     let isCorrectRoute = false;
     if(location && routing){
          isCorrectRoute = routing.find(obj => obj.Description.toLowerCase() === location.location.toLowerCase()) ?location.location: false ;
@@ -17,11 +17,11 @@ export default function ScannerTab({routing ,order,location,model, data,workOrde
 
         const handleRemove = (itemName) => {
                 setScannedItems(prev => {
-                const updated = { ...prev };
-                delete updated[itemName];
-                return updated;
+                    const updated = { ...prev };
+                    delete updated[itemName];
+                    return updated;
                 });
-            };
+        };
 
         const handleAddDetails= (e) => {
             if(e.includes('?')){
@@ -38,19 +38,18 @@ export default function ScannerTab({routing ,order,location,model, data,workOrde
             }else if(e.includes('00;') || e.includes('01;')){
 
                 console.log(scannedItems);
-                const FindLoading = ["Nickel 1", "Nickel 2", "Basket Number"];
+                const FindLoading = location.permission.toUpperCase() == 'LOADING' ?["Nickel 1", "Nickel 2", "Basket Number"]: ["Unloader", "Container", "Poly Bag","Endorsed To"];
                 const hasValidKey = FindLoading.every(key => key in scannedItems);
 
+                let IdCode = e.split(';')[0].trim();
+
+                if(IdCode == '00'){
+                    IdCode = 'Operator';
+                }else{
+                    IdCode = 'PIC';
+                }
+                console.log('POSTING: ',hasValidKey , location.permission.toUpperCase());
                 if(hasValidKey && location.permission.toUpperCase() == 'LOADING'){
-
-                    let IdCode = e.split(';')[0].trim();
-
-                    if(IdCode == '00'){
-                        IdCode = 'Operator';
-                    }else{
-                        IdCode = 'PIC';
-                    }
-
                     const IdName = e.split(';')[2].trim();
 
                     setScannedItems(any =>({
@@ -69,10 +68,38 @@ export default function ScannerTab({routing ,order,location,model, data,workOrde
                             'scanned_data': scannedItems,
                             'location'  : location,
                             'model_order' : model,
-                            'workOrder': workOrder,
+                            'workOrder': data && data.ID ?data.ID :'',
                             'IdName' : IdName,
                             'IdCode' : IdCode,
                             'daily_check_file' : data,
+                            'current':location && location.permission ? location.permission:false
+                        },
+                        
+                        onSuccess: (page) => {
+                            console.log('Saving Loading!');
+                        },
+                        onError: (errors) => {
+                            console.error('Error scanned:', errors);
+                        }
+                    });
+
+                }else if( hasValidKey && location.permission.toUpperCase() == 'UNLOADING'){
+                    console.log('VALID KEYS!',hasValidKey);
+                    setErrorCheck(false);
+                    setScanInputValue('');
+                     const IdName = e.split(';')[2].trim();
+                    router.visit('/production-order/encode', {
+                        method: 'post',
+                        data:
+                        {
+                            'scanned_data': scannedItems,
+                            'location'  : location,
+                            'model_order' : model,
+                            'workOrder': data && data.ID ?data.ID :'',
+                            'IdName' : IdName,
+                            'IdCode' : IdCode,
+                            'daily_check_file' : data,
+                            'current':location && location.permission ? location.permission:false
                         },
 
                          onSuccess: (page) => {
@@ -82,8 +109,8 @@ export default function ScannerTab({routing ,order,location,model, data,workOrde
                             console.error('Error scanned:', errors);
                         }
                     });
-
                 }else{
+                    console.log('SCANNEDD ITEM: ',scannedItems);
                     setMessage( 'Please scan all details first!');
                     setErrorCheck(true);
                     setScanInputValue('');
@@ -119,7 +146,7 @@ export default function ScannerTab({routing ,order,location,model, data,workOrde
         const checkIfOrderExist = order && Object.keys(order).length > 0 ? true : false;
         const IsAllowedScan = [checkIfRouteIsCorrect,checkIfModelExist,checkIfDataExist];
         const isAllowed = IsAllowedScan.some(value => value === false ? true : false);
-        console.log(IsAllowedScan );
+        console.log('Scanned :',data,order,routing);
 
 
     return(

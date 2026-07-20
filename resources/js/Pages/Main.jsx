@@ -8,47 +8,38 @@ export default function Main() {
     //Get last segment
         const currentUrl = window.location.pathname.split('/').filter(Boolean).pop() || 'Home';
 
-        // Capitalize the first letter for title
         const capitalizedFirstLetter = currentUrl.charAt(0).toUpperCase()+currentUrl.slice(1);
 
-         // Access appName prop from Inertia page props (not used here)
-        const { appName, serial ,data ,model , routing ,location, order} = usePage().props;
+        const { appName, serial ,data ,model , routing ,location, order,error} = usePage().props;
+      
         const [ handleData , setData ] = useState(data);
         const [ handleModel,setModelOrder] = useState(model);
         const [ handleOrder,setOrder] = useState(order);
-
+        const [ handleError,setError] = useState(error);
         useEffect(() => {
+
             setData(data);
-        }, [data]);
-
-        useEffect(() => {
-            console.log(model);
             setModelOrder(model);
-        }, [model]);
-
-        useEffect(() => {
-            console.log(order);
             setOrder(order);
-        }, [order]);
-
-        //Output Checker (developement phase)
-        console.log(capitalizedFirstLetter.toLowerCase() == 'encode');
-
-        let content;
-
-        if(capitalizedFirstLetter.toLowerCase() == 'encode'){
-            content = <Process data={handleData} model={handleModel} location={location} routing={routing} order={order}/>
-        }
-
+            setError(error);
+        
+        }, [data,model,order,error]);
+        
+          console.log('Production Order: ' , data, model ,order , ' State: ' , handleData , handleModel,handleOrder,handleError);
     return (
         <>
             <Head title={capitalizedFirstLetter} />
-
-            <MainLayout>
-                <div className='children-container'>
-                     {content}
-               </div>
-            </MainLayout>
+            <div>
+                <MainLayout>
+                    <div className='children-container'>
+                        {
+                            capitalizedFirstLetter.toLowerCase() == 'encode' ?
+                                <Process data={handleData} model={handleModel} location={location} routing={routing} order={handleOrder} error={handleError}/>
+                            :null
+                        }
+                    </div>
+                </MainLayout>
+            </div>
         </>
     );
 }

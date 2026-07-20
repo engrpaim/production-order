@@ -1,6 +1,5 @@
 import React from 'react';
 import {Head, usePage} from '@inertiajs/react';
-import '../../css/MainLayout.css';
 
 /**
  * MainLayout component that wraps page content with navigation and sets the page title dynamically
@@ -13,8 +12,7 @@ import '../../css/MainLayout.css';
  */
 export default function MainLayout({children}){
     return(
-        <>
-
+        <div className='main-container'>
             <nav className='nav-container'>
                 <div className='nav-item-container'>
                     <div className='nav-left'>
@@ -27,7 +25,7 @@ export default function MainLayout({children}){
                     </div>
                 </div>
             </nav>
-             <main className="">{children}</main>
-        </>
+            <main className="">{children}</main>
+        </div>
     );
 }

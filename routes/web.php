@@ -9,9 +9,7 @@ use App\Models\MachineAllocation;
 
 
 Route::get('/production-order', function () {
-    return Inertia::render('Main', [
-        'appName' => config('app.name'),
-    ]);
+    return redirect('/production-order/encode');
 });
 
 Route::get('/production-order/home', function () {

@@ -35,24 +35,4 @@ class ProductionOrderModel extends Model
         'Daily_Check' => 'json',
         'Model_Details' => 'json',
     ];
-
-    public function scopeIsNotEmpty($query, $column)
-    {
-        return $query->whereNotNull($column)->where($column, '!=', '');
-    }
-
-    public function scopeWithStatus($query, $status)
-    {
-        return $query->where('Status', $status);
-    }
-
-    public function scopeWithWorkOrder($query, $workOrder)
-    {
-        return $query->where('Work_Order', $workOrder);
-    }
-
-    public function scopeWithModelName($query, $modelName)
-    {
-        return $query->where('Model_Name', $modelName);
-    }
 }

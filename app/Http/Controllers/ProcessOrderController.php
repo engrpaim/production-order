@@ -17,11 +17,11 @@ class ProcessOrderController extends Controller
     {
         //Get Request Serial
         $serial  = $request->query('serial');
-
+     
         //Get Machine Permission
         $clientIP = $request->ip();
         $machineAllocation = MachineAllocation::where('ip_address', $clientIP)->first();
-
+       
         if( $serial != '' ||  $serial != null){
 
             // @return if Serial exist in DailyCheckFile table exit if not return error
@@ -37,7 +37,7 @@ class ProcessOrderController extends Controller
 
             // @return Routing details
             $routing = RoutingCheck::where('RoutingCode', $record->RoutingCode)->get();
-
+           
             // @return Model details
             $modelDetails = OrderModelList::where('Model',$record->Model_Name)->first();
 
@@ -68,6 +68,7 @@ class ProcessOrderController extends Controller
 
      public function saveLoading(Request $request)
     {
+       
         /**
          * Handle scanned in Process.jsx.
          *
@@ -101,8 +102,10 @@ class ProcessOrderController extends Controller
             $request->input('daily_check_file') ? $daily_check = $request->input('daily_check_file') : $daily_check = null;
             $request->input('IdName') ? $loader = $request->input('IdName') : $loader = null;
             $request->input('model_order') ? $model_order = $request->input('model_order'):$model_order = null;
+            $current = $request->input('current') ? $request->input('current'):null;
 
-            if($scanned_data  != null &&  $workOrder != null && $location != null && $daily_check != null && $workOrder != '' && $workOrder != null){
+            
+            if($current == 'loading'){
                 /*Check if work order exist*/
                 try{
                     $checkIfExist = ProductionOrderModel::where('Work_Order',$workOrder)->first();
@@ -128,15 +131,10 @@ class ProcessOrderController extends Controller
                 $dailyCheckLoading = filterInput($daily_check);
                 // dump($modelDetailsLoading ,    $machineDetailsLoading ,  $dailyCheckLoading);
 
-                if($location["permission"] === 'loading')
-                {
-                    $location["permission"] ? $currentLocation = "loaded" : $currentLocation = null;
-                    $permissionOperation =
-                    [
-                        'Status' => $currentLocation,
-                    ];
-                }
-
+               
+                    
+                
+                
                 // dd($request->all());
 
                 ProductionOrderModel::create(
@@ -154,9 +152,25 @@ class ProcessOrderController extends Controller
                             'Model_Details' =>  $modelDetailsLoading,
                             'Daily_Check' =>   $dailyCheckLoading,
                             'CurrentLocation' => trim($location["location"]),
+                            'Status' => 'loaded',
 
-                        ],$permissionOperation
+                        ]
                     ));
+            }else if($current == 'unloading' && $workOrder){
+                
+                $PolyBag = $scanned_data["Poly Bag"] ? $scanned_data["Poly Bag"]:null;
+                $Unloader = $scanned_data["Unloader"] ? $scanned_data["Unloader"]:null;
+                $Endorsed_To = $scanned_data["Endorsed To"] ? $scanned_data["Endorsed To"]:null;
+                $Container = $scanned_data["Container"] ? $scanned_data["Container"]:null;
+                ProductionOrderModel::where('Work_Order' ,$workOrder)->update([
+                    'PolyBag' => $PolyBag,
+                    'Unloader' => $Unloader,
+                    'Endorsed_To' => $Endorsed_To,
+                    'Container' => $Container,
+                    'Unloading_time' => Carbon::now(),
+                    'Status' => 'unloaded',
+                ]);
+                
             }
 
         }
