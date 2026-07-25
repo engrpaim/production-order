@@ -27,13 +27,19 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    min-width: fit-content;
-    padding: 1rem;
-    border-radius: 1rem;
+    padding: 2rem;
     background: #f8f8f8;
     box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
     animation: floatInFromBottom 0.3s ease-out forwards;
-    pointer-events: auto;
+    flex-wrap: nowrap;
+    gap:1rem;
+    overflow: auto;
+}
+.location-permission{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 }
 
 .location-contents h1 {
@@ -69,7 +75,6 @@
 }
 
 /*Error*/
-
 .error-location-container {
     display: flex;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
@@ -80,7 +85,6 @@
     width: 100%;
     min-width: fit-content;
     padding: 2rem 0;
-    border-radius: 1rem;
     background: #ff6467;
     box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
     animation: floatInFromBottom 0.3s ease-out forwards;
@@ -94,10 +98,13 @@
 .error-location-contents {
     display: flex;
     flex-direction: row;
+    min-width: fit-content;
     justify-content: space-between;
     align-items: center;
     width: 100%;
     margin: 2rem;
+    gap:1rem;
+    flex-wrap: wrap;
 }
 
 .error-location-right {
@@ -109,6 +116,7 @@
 .error-location-left {
     margin-left: 4rem;
     display: flex;
+    min-width: fit-content;
     flex-direction: column;
     gap: 1rem;
 }

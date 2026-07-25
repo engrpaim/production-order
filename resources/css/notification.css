@@ -1,0 +1,41 @@
+.notification-container {
+    position: fixed;
+    width: 100%;
+    height: 10vh;
+    height: 100%;
+    width: 100%;
+    z-index: 2;
+    display: flex;
+    justify-content: flex-end; 
+    align-items: flex-end;
+    color: #ffffff;
+    
+}
+.error-notification p ,.success-notification p {
+    color: #ffffff;
+}
+.error-notification {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 1rem;
+    width: 20rem;
+    min-width: fit-content;
+    padding: 1.5rem 2rem;
+    background:#FB2C36;
+    margin: 3rem 2rem;
+}
+
+.success-notification {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 1rem;
+    width: 20rem;
+    min-width: fit-content;
+    padding: 1.5rem 2rem;
+    background:#15a134;
+    margin: 3rem 2rem;
+}

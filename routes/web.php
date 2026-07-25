@@ -9,7 +9,7 @@ use App\Models\MachineAllocation;
 
 
 Route::get('/production-order', function () {
-    return redirect('/production-order/encode');
+    return redirect('/production-order/home');
 });
 
 Route::get('/production-order/home', function () {
@@ -22,11 +22,7 @@ Route::get('/production-order/encode', [ProcessOrderController::class, 'getDaily
 
 Route::post('/production-order/encode', [ProcessOrderController::class, 'saveLoading']);
 
-Route::get('/production-order/view', function () {
-    return Inertia::render('Main', [
-        'appName' => config('app.name'),
-    ]);
-});
+Route::get('/production-order/view', [ProcessOrderController::class, 'getProductionOrder']);
 
 
 

@@ -11,13 +11,15 @@ use App\Models\MachineAllocation;
 use App\Models\ProductionOrderModel;
 use Illuminate\Routing\Events\Routing;
 use Carbon\Carbon;
+use Nette\Schema\Message;
+
 class ProcessOrderController extends Controller
 {
     public function getDailyCheck(Request $request)
     {
         //Get Request Serial
         $serial  = $request->query('serial');
-     
+      
         //Get Machine Permission
         $clientIP = $request->ip();
         $machineAllocation = MachineAllocation::where('ip_address', $clientIP)->first();
@@ -26,13 +28,14 @@ class ProcessOrderController extends Controller
 
             // @return if Serial exist in DailyCheckFile table exit if not return error
             $record = DailyCheckFile::where('ID', $serial)->first();
-
+        
             if(!$record){
                 return Inertia::render('Main', [
-                'appName' => config('app.name'),
-                'location' => $machineAllocation ? $machineAllocation->toArray() : null,
+                    'appName' => config('app.name'),
+                    'location' => $machineAllocation ? $machineAllocation->toArray() : null,
+                    'loading' => false,
+                    'message' =>[ 'message' =>'Record not found in daily checkfile!' , 'theme' => 'error-notification']
                 ]);
-                exit;
             }
 
             // @return Routing details
@@ -40,9 +43,10 @@ class ProcessOrderController extends Controller
            
             // @return Model details
             $modelDetails = OrderModelList::where('Model',$record->Model_Name)->first();
-
+             
             // @return Production Order
             $productionFind = ProductionOrderModel::where('Work_Order',$serial)->first();
+  
 
             return Inertia::render('Main', [
                 'appName' => config('app.name'),
@@ -52,16 +56,17 @@ class ProcessOrderController extends Controller
                 'routing' => $routing ? $routing->toArray(): null,
                 'location' => $machineAllocation ? $machineAllocation->toArray() : null,
                 'order' => $productionFind ? $productionFind->toArray(): null,
+                'loading' => false,
+                'message' =>[ 'message' =>'Record Found!' , 'theme' => 'success-notification']
             ]);
 
         }else{
-
-              //Default data if no serial is provided
-              return Inertia::render('Main', [
-                'appName' => config('app.name'),
-                'location' => $machineAllocation ? $machineAllocation->toArray() : null,
-              ]);
-
+          
+             return Inertia::render('Main', [
+                    'appName' => config('app.name'),
+                    'location' => $machineAllocation ? $machineAllocation->toArray() : null,
+                    'loading' => false,
+                ]);
         }
 
     }
@@ -159,7 +164,7 @@ class ProcessOrderController extends Controller
             }else if($current == 'unloading' && $workOrder){
                 
                 $PolyBag = $scanned_data["Poly Bag"] ? $scanned_data["Poly Bag"]:null;
-                $Unloader = $scanned_data["Unloader"] ? $scanned_data["Unloader"]:null;
+                $Unloader = $request->input('IdName') ? $request->input('IdName') :  null;
                 $Endorsed_To = $scanned_data["Endorsed To"] ? $scanned_data["Endorsed To"]:null;
                 $Container = $scanned_data["Container"] ? $scanned_data["Container"]:null;
                 ProductionOrderModel::where('Work_Order' ,$workOrder)->update([
@@ -175,4 +180,18 @@ class ProcessOrderController extends Controller
 
         }
     }
+
+    public function getProductionOrder(Request $request){
+        $get = $request->all();
+        
+        if(!$get){
+            $result = ProductionOrderModel::orderBy('id', 'desc')->paginate(10, ['*'], 'user');
+            return Inertia::render('Main', [
+                'orderList' => $result
+            ]);
+        }
+        
+    }
 }
+
+

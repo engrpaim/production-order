@@ -1,0 +1,64 @@
+.loader-container{
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    gap:1rem;
+    justify-content: center;
+    align-items: center;
+    background: rgb(248, 140, 140.0.1);
+    height: 100%;
+    width: 100%;
+    z-index: 2;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.10);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    gap:2rem;
+    pointer-events: auto;
+}
+
+/* HTML: <div class="loader"></div> */
+.loader {
+  --d:10px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  color: #257db0;
+  box-shadow: 
+    calc(1*var(--d))      calc(0*var(--d))     0 0,
+    calc(0.707*var(--d))  calc(0.707*var(--d)) 0 1px,
+    calc(0*var(--d))      calc(1*var(--d))     0 2px,
+    calc(-0.707*var(--d)) calc(0.707*var(--d)) 0 3px,
+    calc(-1*var(--d))     calc(0*var(--d))     0 4px,
+    calc(-0.707*var(--d)) calc(-0.707*var(--d))0 5px,
+    calc(0*var(--d))      calc(-1*var(--d))    0 6px;
+  animation: l27 1s infinite steps(8);
+}
+
+.loader-design{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background:white;
+    padding:2rem 5rem;
+    border-radius: 1rem;
+    gap:2rem;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  
+}
+@keyframes l27 {
+  100% {transform: rotate(1turn)}
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.blinking {
+  animation: blink 2s ease-in-out infinite;
+}

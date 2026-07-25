@@ -16,7 +16,7 @@ export default function MainLayout({children}){
             <nav className='nav-container'>
                 <div className='nav-item-container'>
                     <div className='nav-left'>
-                        <h1>Production Order</h1>
+                        <h1><a href='/production-order/home'>Production Order</a></h1>
                     </div>
                     <div className='nav-right'>
                         <a href="/production-order/home">Home</a>
@@ -25,7 +25,7 @@ export default function MainLayout({children}){
                     </div>
                 </div>
             </nav>
-            <main className="">{children}</main>
+            <main>{children}</main>
         </div>
     );
 }

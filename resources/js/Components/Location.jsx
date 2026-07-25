@@ -17,7 +17,7 @@ export default function Location({ location }) {
                                     location.permission &&
                                     (
                                         <div className='location-permission'>
-                                            <h1><strong>Permission:&nbsp;</strong>{location.permission ? location.permission.toUpperCase() : 'Unknown'}</h1>
+                                            <h1><strong>Permission:&nbsp;</strong></h1><h1 style={{ color:'#780000'}}>{location.permission ? location.permission.toUpperCase() : 'Unknown'}</h1>
                                         </div>
                                     )
                                 }
@@ -60,6 +60,7 @@ export default function Location({ location }) {
                         </div>
                     </div>
                 )}
+                  <span style={{ color:'#0C183C' , fontSize:'10px'}}>Production Order by Automation Engineer</span>
         </>
     );
 };
