@@ -24,7 +24,11 @@ Route::post('/production-order/encode', [ProcessOrderController::class, 'saveLoa
 
 Route::get('/production-order/view', [ProcessOrderController::class, 'getProductionOrder']);
 
-
+Route::get('/production-order/admin', function () {
+    return Inertia::render('Main', [
+        'appName' => config('app.name'),
+    ]);
+});
 
 Route::get('/', function () {
     return redirect('/production-order');

@@ -9,13 +9,15 @@ import HomePicture from '../../assests/P2Plating.png'
 import AILoader from '../Components/AILoader';
 import Notification from '../Components/Notification';
 import ViewAll from '../Components/ViewAll';
+import Admin from '../Components/Admin';
+
 export default function Main() {
     //Get last segment
         const currentUrl = window.location.pathname.split('/').filter(Boolean).pop() || 'Home';
 
         const capitalizedFirstLetter = currentUrl.charAt(0).toUpperCase()+currentUrl.slice(1);
 
-        const { appName, serial ,data ,model , routing ,location, order,error,loading,message , orderList} = usePage().props;
+        const { appName, serial ,data ,model , routing ,location, order,error,loading,message , orderList , filter_serial} = usePage().props;
       
         const [ handleData , setData ] = useState(data);
         const [ handleModel,setModelOrder] = useState(model);
@@ -45,7 +47,7 @@ export default function Main() {
         }, [data,model,order,error,loader,message]);
         
           console.log('Production Order: ' , data, model ,order , ' State: ' , handleData , handleModel,handleOrder,handleError );
-          console.log('View List: ' , orderList);
+          console.log('View List: ' , orderList,capitalizedFirstLetter);
     return (
         <>
            <Head title={capitalizedFirstLetter} />
@@ -62,9 +64,11 @@ export default function Main() {
                             capitalizedFirstLetter.toLowerCase() == 'encode' ?
                                 <Process  data={handleData} model={handleModel} location={location} routing={routing} order={handleOrder} error={handleError} loader={loader} setLoader={setLoader}/>
                             :capitalizedFirstLetter.toLowerCase() == 'view' ?
-                                <ViewAll list={orderList}/>
+                                <ViewAll list={orderList} setLoader={setLoader} filter_serial={filter_serial}/>
                             :capitalizedFirstLetter.toLowerCase() == 'home' ? 
                                 <Home/>
+                            :capitalizedFirstLetter.toLowerCase() == 'admin' ?
+                                <Admin/>
                             :null
                         }
                     </div>

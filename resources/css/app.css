@@ -32,7 +32,9 @@ h1 {
     height:fit-content;
 }
 
-
+.nav-left p {
+color:#d0ecfc;
+}
 .nav-container {
     position: fixed;
     display: flex;
@@ -63,7 +65,11 @@ h1 {
     align-items: center;
 }
 .nav-left{
-    
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    gap:1rem;
     font-size: 12px;    
 }
 .nav-right {

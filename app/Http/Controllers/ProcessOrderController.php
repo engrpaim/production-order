@@ -183,14 +183,47 @@ class ProcessOrderController extends Controller
 
     public function getProductionOrder(Request $request){
         $get = $request->all();
+
+        $model = $request->get('model') ?? null;
+        $date_start = $request->get('date_start') ?? null;
+        $date_end = $request->get('date_end') ?? null;
+        $serial = $request->get('serial') ?? null;
         
-        if(!$get){
-            $result = ProductionOrderModel::orderBy('id', 'desc')->paginate(10, ['*'], 'user');
+        $items = [
+            'Model_Name' => $model,
+            'Work_Order' => $serial,
+        ];
+
+        $query = ProductionOrderModel::query();
+
+        foreach($items as $key => $value){
+            if($value){
+                $query->where($key, 'LIKE', "%{$value}%");
+            }
+        }
+
+        if (!empty($date_start) && !empty($date_end)) {
+            $query->whereBetween('Loading_time', [
+                                                    Carbon::parse($date_start)->startOfDay(),
+                                                    Carbon::parse($date_end)->endOfDay(),
+                                                ]);
+        }
+
+        if( $get && count($get) > 1 ){
+            $result = $query->limit(1000)
+                            ->orderBy('id', 'desc')
+                            ->paginate(10,['*'], 'order')
+                            ->withQueryString();
+            return Inertia::render('Main', [
+                'orderList' => $result
+            ]);
+        }else{
+            $result = ProductionOrderModel::limit(1000)->orderBy('id', 'desc')->paginate(10, ['*'], 'order');
             return Inertia::render('Main', [
                 'orderList' => $result
             ]);
         }
-        
+            
     }
 }
 

@@ -21,7 +21,7 @@
 
 
 .process-container {
-    width: 60%;
+    width: 70%;
     display: flex;
     justify-content: center;
     flex-direction: column;
@@ -59,7 +59,7 @@
 }
 .process-scan-container svg {
     width: 2rem;
-    heigth: 2rem;
+    height: 2rem;
 }
 .process-scanner:focus {
     outline: 2px solid #007bff;
@@ -68,7 +68,7 @@
 /*Scanned Dsiplay*/
 
 .scanned-container {
-    width: 60%;
+    width: 70%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -84,10 +84,10 @@
     justify-content: center;
     width: 100%;
     min-width: fit-content;
-    
+ 
     flex-direction: column;
     align-items: center;
-    padding:1rem;
+    padding:2rem;
     background-image: linear-gradient(to top, #dee5e9 0%, #fffdfd 100%);
     box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 1px 1px 1px 1px;
 }
@@ -96,7 +96,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    width: 80%;
+    width:100%;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     flex-direction: row;
     margin: 1rem;
@@ -157,7 +157,6 @@
     gap:1rem;
     flex-direction: row;
     justify-content: center;
-    padding: 1rem;
 }
 
 .scanner-processor {

@@ -1,0 +1,16 @@
+.option-selector{
+    border:none;
+    padding:0.5rem;
+    background: rgb(19, 157, 238);
+    border-radius: 1rem 0rem 0rem 0rem;
+    
+}
+
+.option-selector.active {
+  background-color: #fbfdff;
+  color: #0056b3;
+  font-weight: bold;
+
+  box-shadow: -5px -1px 8px 1px rgba(0, 0, 0, 0.3);
+
+}
