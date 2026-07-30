@@ -15,6 +15,23 @@ use Nette\Schema\Message;
 
 class ProcessOrderController extends Controller
 {
+     public function dataBaseBank(string $database)
+     {
+            $bank = [
+                'model' =>  OrderModelList::class,
+            ];
+
+            return $bank[$database];
+    }
+
+    public function delete(array $data ,string $database){
+         $db = $this->dataBaseBank( $database);
+         $deleteData = $db::find($data['id']);
+         if(!$deleteData ) return false;
+         $result = $deleteData->delete();
+         return $result;
+    }
+
     public function getDailyCheck(Request $request)
     {
         //Get Request Serial
@@ -212,18 +229,104 @@ class ProcessOrderController extends Controller
         if( $get && count($get) > 1 ){
             $result = $query->limit(1000)
                             ->orderBy('id', 'desc')
-                            ->paginate(10,['*'], 'order')
+                            ->paginate(15,['*'], 'order')
                             ->withQueryString();
             return Inertia::render('Main', [
                 'orderList' => $result
             ]);
         }else{
-            $result = ProductionOrderModel::limit(1000)->orderBy('id', 'desc')->paginate(10, ['*'], 'order');
+            $result = ProductionOrderModel::limit(1000)->orderBy('id', 'desc')->paginate(25, ['*'], 'order');
             return Inertia::render('Main', [
                 'orderList' => $result
             ]);
         }
             
+    }
+    //Admin controller
+    
+    protected function refresh(string $message, string $theme ,string $action){
+        switch($action){
+            case 'model':
+                
+                $model = OrderModelList::orderBy('id', 'desc')->paginate(10, ['*'], 'model');
+
+                return [
+                    'appName' => config('app.name'),
+                    'model_manage' =>  $model ?? null, 
+                    'message' => [ 'message' => $message , 'theme' =>$theme ]
+                ]; 
+
+            default:
+                break;
+        }
+                     
+        
+    }
+
+    public function getAdminManagement(Request $request){
+
+        $data = $request->all();
+       
+        $filter = $data['filter_manage'] ?? false;
+        $model_manage = $data['model_manage'] ?? false;
+       
+        $model = OrderModelList::orderBy('id', 'desc')
+                                 ->paginate(10, ['*'], 'model');
+        if(!$filter && !$model_manage ){
+            
+            return Inertia::render('Main', [
+                'appName' => config('app.name'),
+                'model_manage' =>  $model ?? null
+            ]);
+        }
+ 
+        switch( $filter ){
+            case 'model_manage':
+                $model = OrderModelList::where('model','LIKE',"%{$model_manage }%")->orderBy('id', 'desc')
+                            ->paginate(10,['*'], 'order')
+                            ->withQueryString();
+                return Inertia::render('Main', [
+                    'appName' => config('app.name'),
+                    'model_manage' =>  $model ?? null
+                ]);
+                
+            default:
+                return Inertia::render('Main', [
+                    'appName' => config('app.name'),
+                    'model_manage' =>  $model ?? null
+                ]);
+                
+        }
+
+    }
+    
+   
+    public function postAdminHandler(Request $request){
+          
+            $data = $request->all();
+            
+            $action = $data['action'];
+            $requestData = $data['data'];
+            $database = $data['database'];
+
+            if(!$action && !$requestData  && !$database ) return redirect()->back();
+           
+
+            switch($action){
+                case 'delete':
+                    $result = $this->delete($requestData,$database);
+
+                    if($result){
+                       $refresh =$this->refresh('Deleted Successfully' , 'success-notification' , 'model' );
+                       return Inertia::render('Main',  $refresh );
+                    }
+
+                    return redirect()->back();
+                default:
+                    return redirect()->back();
+                    
+            }
+           
     }
 }
 

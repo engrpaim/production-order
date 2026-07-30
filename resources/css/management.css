@@ -1,16 +1,119 @@
+@keyframes floatInFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 .option-selector{
     border:none;
     padding:0.5rem;
     background: rgb(19, 157, 238);
     border-radius: 1rem 0rem 0rem 0rem;
-    
+    color: #fbfdff;
+    cursor: pointer;
+}
+
+.manage-content{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background: #f8fbfc;
+    padding: 2rem;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;  
+    gap: 1rem;
 }
 
 .option-selector.active {
   background-color: #fbfdff;
   color: #0056b3;
   font-weight: bold;
-
   box-shadow: -5px -1px 8px 1px rgba(0, 0, 0, 0.3);
 
+}
+
+.management-view{
+    margin:0rem;
+    padding:1rem;
+    border: 1px solid rgb(241, 235, 235);
+}
+
+.management-content{
+    min-height: 60vh;
+    width: 100%;
+}
+
+.management-option{
+    background: rgb(195, 231, 255);
+    padding:0.2rem;
+    border: 1px solid rgb(0, 37, 117);
+    border-radius: 5px;
+    cursor: pointer;
+    color: #0056b3;
+    margin: 0.5rem 0rem;
+}
+
+.management-option.active{
+    background: rgba(248, 243, 169, 0.993);
+    transform: translateY(-2px);
+    font-weight:bold;
+}
+.management-option:hover{
+    background: rgb(251, 255, 188);
+    border: 1px solid rgb(20, 92, 248);
+    transform: translateY(-1px);
+}
+
+.management-button-container{
+    display: flex;
+    height: fit-content;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap:0.2rem;
+}
+.management-filter-container{
+     display: flex;
+    height: fit-content;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap:1rem;
+    background: #e5ebf1;
+    padding:0.5rem;
+}
+.manage-content-header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+}
+
+.manage-delete{
+    margin:0.2rem;
+    background:rgb(190, 19, 19);
+    border:none;
+    padding:0.2rem 0.4rem;
+    color:white;
+    border-radius: 5px;
+}
+
+.manage-delete:hover{
+    background:rgb(255, 33, 33);
+}
+
+.manage-update{
+    margin:0.2rem;
+    background:rgb(19, 122, 190);
+    border:none;
+    padding:0.2rem 0.4rem;
+    color:white;
+    border-radius: 5px;
+}
+
+.manage-update:hover{
+    background:rgb(63, 168, 255);
 }

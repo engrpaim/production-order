@@ -97,7 +97,7 @@ export default function Process({ data, model, location, routing, order, error, 
                                     </div>
                                 </div>
                                 <div className='scanned-body'>
-                                    <div>
+                                    <div className='scanned-row'>
                                         <div className='scanned-data'>
                                             <label>Model&nbsp;Name:</label>
                                             <input style={{ color: '#780000', fontWeight: 'bold' }} value={data && data.Model_Name ? data.Model_Name : ''} disabled={true} />
@@ -115,7 +115,7 @@ export default function Process({ data, model, location, routing, order, error, 
                                             <input style={{ color: '#780000' }} value={data && data.Lot_No ? data.Lot_No : ''} disabled={true} />
                                         </div>
                                     </div>
-                                    <div>
+                                    <div className='scanned-row'>
                                         <div className='scanned-data'>
                                             <label>Media&nbsp;Size:</label>
                                             <input value={model && model.Media_Size ? model.Media_Size : ''} disabled={true} />
@@ -133,7 +133,7 @@ export default function Process({ data, model, location, routing, order, error, 
                                             <input value={model && model.Post_Treatment ? model.Post_Treatment : ''} disabled={true} />
                                         </div>
                                     </div>
-                                    <div>
+                                    <div className='scanned-row'>
                                         <div className='scanned-data'>
                                             <label>Nickel&nbsp;1:&nbsp;</label>
                                             <input value={order && order.Nickel_1 ? order.Nickel_1 : ''} disabled={true} />

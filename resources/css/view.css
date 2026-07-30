@@ -11,7 +11,7 @@
 .view-main{
     display: flex;
     flex-direction: column;
-    margin-top: 7rem;
+    margin: 7rem 0rem;
     justify-content: center;
     align-items: center;
     width: 100%;
@@ -28,8 +28,9 @@
     gap: 1rem;
 }
 .view-table{
-    height: 45vh;
+    height: 70vh;
     overflow: auto;
+    animation: floatInFromBottom 1s ease-out forwards;
 }
 .view-table table{
     text-align: center;
@@ -37,7 +38,7 @@
     width: 100%;
     padding:1rem;
     overflow: auto;
-    animation: floatInFromBottom 0.5s ease-out forwards;
+  
 }
 .view-table table tr{
     cursor: pointer;
@@ -67,6 +68,8 @@
     justify-content: end;
     align-items: center;
     gap:1rem;
+    padding: 0.5rem;
+    background: #daeaf5;
     
 }
 

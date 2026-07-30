@@ -18,7 +18,9 @@ return new class extends Migration
             $table->string('Pre_Treatment')->nullable();
             $table->string('Post_Treatment')->nullable();
             $table->string('Condition_Number')->nullable();
-            $table->string('Allowed_Lines')->nullable();
+            $table->json('Allowed_Lines')->nullable();
+            $table->string('Ip_Address')->nullable();
+            $table->string('Author')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
         });

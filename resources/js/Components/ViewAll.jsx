@@ -21,9 +21,10 @@ export default function ViewAll({ list, setLoader}) {
         if(!details || action === 'clear') return window.location.href = '/production-order/view'
         const params = details
         await router.get('/production-order/view',details, {
-        preserveState: true,
-        preserveScroll: true
-    });
+            preserveState: true,
+            preserveScroll: true,
+            
+        });
     }
     console.log('Current Data: ',data,list.data === null);
     return (
