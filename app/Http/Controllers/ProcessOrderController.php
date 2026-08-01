@@ -32,6 +32,18 @@ class ProcessOrderController extends Controller
          return $result;
     }
 
+    public function updateData(array $data , string $database){
+       
+         
+         $id = $data['id'];
+       
+        if(!$id || !$database) return false;
+        $db = $this->dataBaseBank($database);
+
+        $update = $db::where('id' , $id)->update($data);
+
+    }
+
     public function getDailyCheck(Request $request)
     {
         //Get Request Serial
@@ -135,7 +147,6 @@ class ProcessOrderController extends Controller
                     dd('Already Exist!' . $e->getMessage());
                 }
 
-
                 if($checkIfExist){
                      return Inertia::render('Main', [
                         'appName' => config('app.name'),
@@ -235,7 +246,7 @@ class ProcessOrderController extends Controller
                 'orderList' => $result
             ]);
         }else{
-            $result = ProductionOrderModel::limit(1000)->orderBy('id', 'desc')->paginate(25, ['*'], 'order');
+            $result = ProductionOrderModel::limit(1000)->orderBy('id', 'desc')->paginate(15, ['*'], 'order');
             return Inertia::render('Main', [
                 'orderList' => $result
             ]);
@@ -302,9 +313,8 @@ class ProcessOrderController extends Controller
     
    
     public function postAdminHandler(Request $request){
-          
+                
             $data = $request->all();
-            
             $action = $data['action'];
             $requestData = $data['data'];
             $database = $data['database'];
@@ -320,8 +330,15 @@ class ProcessOrderController extends Controller
                        $refresh =$this->refresh('Deleted Successfully' , 'success-notification' , 'model' );
                        return Inertia::render('Main',  $refresh );
                     }
-
                     return redirect()->back();
+                 case 'update':
+                    $result = $this->updateData($requestData ,$database);
+                    if($result){
+                       $refresh =$this->refresh('Updated Successfully' , 'success-notification' , 'model' );
+                       return Inertia::render('Main',  $refresh );
+                    }
+                    return redirect()->back();
+                    dd($request->all());
                 default:
                     return redirect()->back();
                     

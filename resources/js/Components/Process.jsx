@@ -12,7 +12,6 @@ import ScannerTab from './ScannerTab';
 
 export default function Process({ data, model, location, routing, order, error, loader, setLoader }) {
 
-    console.log(location.permission);
 
 
 
@@ -104,7 +103,7 @@ export default function Process({ data, model, location, routing, order, error, 
                                         </div>
                                         <div className='scanned-data'>
                                             <label>Quantity:&nbsp;</label>
-                                            <input value={data && data.Quantity ? data.Quantity : ''} disabled={true} />
+                                            <input type="number" value={data && data.Quantity ? data.Quantity : ''} disabled={true} />
                                         </div>
                                         <div className='scanned-data'>
                                             <label>Route Code:&nbsp;</label>
@@ -172,7 +171,7 @@ export default function Process({ data, model, location, routing, order, error, 
                                                         <h1>UNLOADING</h1>
                                                     </div>
                                                 </div>
-                                                <div style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}>
+                                                <div style={{ display: 'flex',flexWrap:'wrap', flexDirection: 'row', gap: '1rem',justifyContent:'center',alignItems:'center' }}>
                                                     <div className='scanned-data'>
                                                         <label>Unloader</label>
                                                         <input value={order && order.Unloader ? order.Unloader : ''} onChange={''} disabled={true} />

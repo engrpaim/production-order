@@ -9,24 +9,27 @@
     */
 }
 
-
-
 import { Link, router } from "@inertiajs/react";
-import { useState } from "react"
+import { useState, useRef } from "react"
 import AILoader from "./AILoader";
 import Notification from "./Notification";
+import {handleEnterNext , checkIfRequired} from '../Utilities/UtilityFunctions'
+
 export default function ModelAdmin({ model_manage }) {
 
     const [optionSelected, setOptionSelected] = useState('list');
     const [filterSearch, setFilterSearch] = useState(false);
-    const [manageActions, setManageActions] = useState(false);
+    const [manageActions, setManageActions] = useState({});
     const [laoder, setLoader] = useState(false);
     const [NotificationState, setNotifcation] = useState(false);
     const [currentLine , setCurrentLine] = useState(false);
-
-    const [QueryParams, setQueryParams] = useState(false)
+    const [updateModel , setUpdateModel] = useState(false);
+    const [redIndex , setRedIndex] = useState(false);
+    const [QueryParams, setQueryParams] = useState(false);
     const searchParams = new URLSearchParams(window.location.href);
-    console.log('Model Management: ', model_manage,manageActions);
+
+    const [submitted , setSubmitted ] = useState(false);
+    console.log('Model Management: ', model_manage,'XXX',manageActions);
 
     /**
      * 
@@ -37,6 +40,7 @@ export default function ModelAdmin({ model_manage }) {
 
     const handleGetDetails = async (data) => {
         setLoader(true);
+
         if (!data) setTimeout(() => {
             setLoader(false);
             window.location.href = '/production-order/admin'
@@ -56,6 +60,7 @@ export default function ModelAdmin({ model_manage }) {
     //Notification for state checking
     function TurnOffNotification() {
         setTimeout(() => {
+            setSubmitted(false);
             setNotifcation(false);
             setFilterSearch(null);
         }, 2000)
@@ -71,20 +76,36 @@ export default function ModelAdmin({ model_manage }) {
      * 
      */
 
-    const handlePost = async (action, data, database) => {
+    const handlePost = async (action, data, database,e) => {
         
-        
+        setSubmitted(true);
         setLoader(true);
-        setManageActions(false);
+        const required = checkIfRequired(e)
+      
 
-        if (!action || !data || !database) setTimeout(() => {
+        //return if 
+        if(required.count > 1 ){
+            const red = required.index
+            console.log('Testingss...' ,required ,red);
+            setRedIndex(red);
             setLoader(false)
-            setNotifcation({ message: `Data not found, cannot proceed ${action}`, theme: 'error-notification' });
+            setNotifcation({ message: `All input is required!`, theme: 'error-notification' });
             TurnOffNotification()
-        }, 2000)
-
+            return
+        }
         
+        if (!action || !data || !database){
 
+            setTimeout(() => {
+                setLoader(false)
+                setNotifcation({ message: `Data not found, cannot proceed ${action}`, theme: 'error-notification' });
+                TurnOffNotification()
+                return;
+            }, 2000)
+
+            return
+        }
+        setManageActions(false);
         await router.post('/production-order/admin',
             {
                 action: action,
@@ -107,8 +128,25 @@ export default function ModelAdmin({ model_manage }) {
 
 
 
+    const handleInputValues =(action,data,model)=>{
+        console.log('Handle current values: ',data);
+       
+        if(!data){
+            setLoader(false)
+            setNotifcation({ message: `Data not found!`, theme: 'error-notification' });
+            TurnOffNotification()
+            return
+        }
 
+        setManageActions({ action: action, data:data, model: model })
 
+        Object.entries(data).map(([key,values])=>{
+            console.log(key,values,updateModel);
+            if(!key.includes('_at') && !key.includes('action') )   setUpdateModel((prev)=>({...prev, [key]:values}))
+        })
+        
+    }
+   
     return (
 
         <div className="management-content">
@@ -151,7 +189,7 @@ export default function ModelAdmin({ model_manage }) {
                     {
                         optionSelected === 'list' ?
                             <div className="justify-center">
-                                <div className="view-table">
+                                <div className="view-table-2">
                                     {
                                         NotificationState && <Notification message={NotificationState.message ?? ''} theme={NotificationState.theme ?? ''} />
                                     }
@@ -183,30 +221,88 @@ export default function ModelAdmin({ model_manage }) {
                                                             <div className="loader-row">
                                                                 <div className="loader-data">
                                                                     <p>Model:</p>
-                                                                    <input placeholder="model"/>
+                                                                    <input 
+                                                                            value={updateModel.Model}
+                                                                            idName="Model" 
+                                                                            onChange={(e)=>setUpdateModel({...updateModel , Model:e.target.value})} 
+                                                                            onKeyDown={(e)=>{
+                                                                                                
+                                                                                                handleEnterNext(e)
+                                                                            }}
+                                                                            className={submitted && redIndex.includes('Model') ?'red-required':submitted?'green-required':'' }
+                                                                            placeholder="model"/>
                                                                 </div>
                                                                 <div className="loader-data">
                                                                     <p>Media size:</p>
-                                                                    <input placeholder="media size"/>
+                                                                    <input
+                                                                        value={updateModel.Media_Size}
+                                                                        idName="Media_Size"
+                                                                        onChange={(e)=>setUpdateModel({...updateModel ,Media_Size:e.target.value})} 
+                                                                        onKeyDown={(e)=>handleEnterNext(e)}
+                                                                        className={submitted && redIndex.includes('Media_Size') ?'red-required':submitted?'green-required':'' }
+                                                                        placeholder="media size"/>
                                                                 </div>
                                                                 <div className="loader-data">
                                                                     <p>Pre-Treatment:</p>
-                                                                    <input placeholder="pre-treatment"/>
+                                                                    <input
+                                                                        value={updateModel.Pre_Treatment}
+                                                                        onChange={(e)=>setUpdateModel({...updateModel ,Pre_Treatment:e.target.value})} 
+                                                                        onKeyDown={(e)=>handleEnterNext(e)}
+                                                                        idName="Pre_Treatment"
+                                                                        className={submitted && redIndex.includes('Pre_Treatment') ?'red-required':submitted?'green-required':'' }
+                                                                        placeholder="pre-treatment"/>
                                                                 </div>
                                                             </div>
                                                             <div className="loader-row">
                                                                 <div className="loader-data">
                                                                     <p>Post-Treatment:</p>
-                                                                    <input placeholder="post-treatment"/>
+                                                                    <input
+                                                                        value={updateModel.Post_Treatment}
+                                                                        onChange={(e)=>setUpdateModel({...updateModel ,Post_Treatment:e.target.value})} 
+                                                                        onKeyDown={(e)=>handleEnterNext(e)} 
+                                                                        idName="Post_Treatment"
+                                                                        className={submitted && redIndex.includes('Post_Treatment') ?'red-required':submitted?'green-required':'' }
+                                                                        placeholder="post-treatment"/>
                                                                 </div>
                                                                 <div className="loader-data">
                                                                     <p>Allowed lines:</p>
-                                                                    <input placeholder="Allowed Lines"/>
+                                                                    <select
+                                                                        className={manageActions.data && manageActions.data.Allowed_Lines && Object.entries(JSON.parse(manageActions.data.Allowed_Lines)).length < 0 && submitted && redIndex.includes('quantity') ?'red-required':submitted?'green-required':'' }
+                                                                        >
+                                                                        <option value="" disabled selected>allowed lines</option>
+                                                                        <option value="Plant line 1" >Plant line 1</option>
+                                                                        <option value="Plant line 1" >Plant line 2</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div className="loader-data">
+                                                                    <p>Quantity:</p>
+                                                                    <input
+                                                                        value={updateModel.Quantity}
+                                                                        type="number" 
+                                                                        onChange={(e)=>setUpdateModel({...updateModel ,Quantity: e.target.value})} 
+                                                                        onKeyDown={(e)=>handleEnterNext(e)}
+                                                                        idName="Quantity"
+                                                                        className={submitted && redIndex.includes('Quantity') ?'red-required':submitted?'green-required':'' } 
+                                                                        placeholder="quantity"/>
                                                                 </div>
                                                             </div>
+
+                                                            <div className="loader-row">
+                                                                <div className="loader-data">
+                                                                    <p>Code:</p>
+                                                                    <input
+                                                                        value={updateModel.Model_Code}
+                                                                        onChange={(e)=>setUpdateModel({...updateModel ,Model_Code:e.target.value})}  
+                                                                        onKeyDown={(e)=>handleEnterNext(e)}
+                                                                        idName="Model_Code"
+                                                                        className={submitted && redIndex.includes('Model_Code') ?'red-required':submitted?'green-required':'' } 
+                                                                        placeholder="model code"/>
+                                                                </div>
+                                                            </div>
+                                                            
                                                             <div className="loader-row">
                                                                 <div className="loader-data" style={{ width:'fit-content' }}>
-                                                                        <p>Current Allowed Lines</p>
+                                                                        <p>Current Allowed Lines:&nbsp;</p>
                                                                         {
                                                                             manageActions.data && manageActions.data.Allowed_Lines && 
                                                                             Object.entries(JSON.parse(manageActions.data.Allowed_Lines)).map((([key,items])=>
@@ -221,23 +317,14 @@ export default function ModelAdmin({ model_manage }) {
                                                             </div>
                                                             <div className="loader-row">
                                                                 <div className="loader-data" style={{ width:'fit-content' }}>
-                                                                        <p>New Allowed Lines</p>
-                                                                        {
-                                                                            manageActions.data && manageActions.data.Allowed_Lines && 
-                                                                            Object.entries(JSON.parse(manageActions.data.Allowed_Lines)).map((([key,items])=>
-                                                                                    <>
-                                                                                        <span>
-                                                                                            {items}
-                                                                                        </span>
-                                                                                    </>
-                                                                                ))
-                                                                        }
+                                                                        <p>New Allowed Lines:&nbsp;</p>
+                                                                        
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <div>
                                                             <button onClick={() => setManageActions(false)} className="manage-delete">Cancel</button>
-                                                            <button onClick={() => handlePost('update', manageActions, 'model')} className="manage-update">Confirm</button>
+                                                            <button onClick={(e) => handlePost('update', updateModel, 'model',e)} className="manage-update">Confirm</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -247,13 +334,13 @@ export default function ModelAdmin({ model_manage }) {
                                     <table>
                                         <thead>
                                             <tr>
-                                                <th style={{ width: '18rem' }}>Model</th>
-                                                <th style={{ width: '12rem' }}>Media size</th>
-                                                <th style={{ width: '12rem' }}>Pre-Treatment</th>
-                                                <th style={{ width: '10rem' }}>Post-Treatment</th>
+                                                <th style={{ minWidth: '18rem' }}>Model</th>
+                                                <th style={{ minWidth: '12rem' }}>Media size</th>
+                                                <th style={{ minWidth: '12rem' }}>Pre-Treatment</th>
+                                                <th style={{ minWidth: '10rem' }}>Post-Treatment</th>
                                                 <th>Condition #</th>
-                                                <th style={{ width: '5rem' }}>Allowed lines</th>
-                                                <th>Action</th>
+                                                <th style={{ minWidth: '7rem' }}>Allowed lines</th>
+                                                <th style={{ minWidth: '10rem' }}>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -268,20 +355,20 @@ export default function ModelAdmin({ model_manage }) {
                                                                 <td>{value.Pre_Treatment ?? '-'}</td>
                                                                 <td>{value.Post_Treatment ?? '-'}</td>
                                                                 <td>{value.Condition_Number ?? '-'}</td>
-                                                                <td style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}>
+                                                                <td style={{ display: 'flex', flexDirection: 'row', gap: '1rem' , justifyContent:'center' }}>
 
                                                                     {/* {
                                                                         value.Allowed_Lines ?
                                                                             JSON.parse(value.Allowed_Lines).map((items) => <p style={{ padding: '0.2rem 1rem', background: '#FEF9C2', borderRadius: '1rem' }}>{items}</p>) : '-'
                                                                     } */}
 
-                                                                    <a>check</a>
+                                                                    <a style={{ color:'#155DFC' , textDecoration:'underline' }}>check</a>
 
                                                                 </td>
                                                                 <td>
                                                                     <div>
                                                                         <button onClick={() => setManageActions({ action: 'delete', id: value.id ?? '-', model: value.Model ?? '-' })} className="manage-delete">Delete</button>
-                                                                        <button onClick={() => setManageActions({ action: 'update', data: value ?? '-', model: value.Model ?? '-' })} className="manage-update">Update</button>
+                                                                        <button onClick={() => handleInputValues('update',  value ?? '-', value.Model ?? '-' )} className="manage-update">Update</button>
                                                                     </div>
                                                                 </td>
                                                             </tr>

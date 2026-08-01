@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('Order_Models', function (Blueprint $table) {
             $table->id();
-            $table->string('Model')->nullable();
+            $table->string('Model')->unique()->required();
             $table->string('Media_Size')->nullable();
             $table->string('Pre_Treatment')->nullable();
             $table->string('Post_Treatment')->nullable();
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('Order_Models');
+      
     }
 };

@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class OrderModelList extends Model
 {
     use HasFactory;
+
     protected $table = 'order_models';
+
     protected $fillable = [
         'Model',
         'Media_Size',
@@ -17,6 +19,8 @@ class OrderModelList extends Model
         'Condition_Number',
         'Allowed_Lines',
         'Ip_Address',
+        'Quantity',
+        'Model_Code',
         'Author', 
     ];
 
