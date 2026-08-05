@@ -20,12 +20,11 @@ class OrderModelList extends Model
         'Allowed_Lines',
         'Ip_Address',
         'Quantity',
-        'Model_Code',
         'Author', 
     ];
 
     protected $casts = [ 
-        'Allowed_Lines'
+        'Allowed_Lines' => 'json',
     ];
 
 }

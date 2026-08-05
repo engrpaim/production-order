@@ -40,6 +40,8 @@
   justify-content: center;
   align-items: center;
   background: white;
+  min-height: fit-content;
+  max-height: 90%;
   padding: 2rem 5rem;
   border-radius: 1rem;
   gap: 2rem;
@@ -83,6 +85,8 @@
 .loader-row {
   display: flex;
   flex-direction: row;
+  align-items: center;
+  margin: 1px;
   gap: 1rem;
 }
 
@@ -102,13 +106,15 @@
   gap: 2rem;
 }
 
-.loader-data input {
+.loader-data input , .loader-data select {
   text-align: center;
   padding: 3px;
+  min-width: fit-content;
   height: fit-content;
   border: 1px solid rgb(196, 190, 190);
   border-radius: 7px;
 }
+
 
 .loader-data input:focus {
   outline: 1px solid #257db0;
@@ -117,7 +123,7 @@
 .loader-data span {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   background: #257db0;
   min-width: 7rem;
   padding: 4px 15px;
@@ -136,4 +142,20 @@
   padding: 0.1rem 0.45rem;
   border-radius: 30px;
   cursor: pointer;
+}
+
+.add-btn{
+  display: flex;
+  justify-content: center;
+  border:none;
+  background-color: rgb(93, 218, 93);
+  padding: 4px 10px;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-btn:hover{
+  transform: translateY(-1px);
+  background-color: rgb(70, 161, 70);
 }

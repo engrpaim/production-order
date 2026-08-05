@@ -3,7 +3,7 @@ const checkIfRequired =(e)=>{
     const input = document.querySelectorAll('input');
     const arr = Array.from(input)
     const indexArray = [];
-    console.log(arr);
+    console.log('Check array' , arr);
     let countEmpty = 0;
     arr.map((items,index)=>{
         console.log(items.value);
@@ -13,6 +13,7 @@ const checkIfRequired =(e)=>{
             indexArray.push(items.getAttribute("idName"))
         }
     })
+    console.log('index array',indexArray,countEmpty );
 
     return { count:countEmpty , index:indexArray}
    

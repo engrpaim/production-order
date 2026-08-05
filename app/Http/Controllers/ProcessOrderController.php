@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\DailyCheckFile;
 use App\Models\OrderModelList;
+use App\Models\Parameters;
 use App\Models\RoutingCheck;
 use App\Models\MachineAllocation;
 use App\Models\ProductionOrderModel;
@@ -19,12 +20,14 @@ class ProcessOrderController extends Controller
      {
             $bank = [
                 'model' =>  OrderModelList::class,
+                'parameter' =>  Parameters::class,
             ];
 
             return $bank[$database];
     }
 
     public function delete(array $data ,string $database){
+        
          $db = $this->dataBaseBank( $database);
          $deleteData = $db::find($data['id']);
          if(!$deleteData ) return false;
@@ -33,15 +36,24 @@ class ProcessOrderController extends Controller
     }
 
     public function updateData(array $data , string $database){
-       
-         
-         $id = $data['id'];
-       
+        $id = $data['id'];
         if(!$id || !$database) return false;
         $db = $this->dataBaseBank($database);
-
+        $data['updated_at'] = Carbon::now();
         $update = $db::where('id' , $id)->update($data);
+        if($update) return true;
+        return false;
+    }
 
+    public function createNewData(array $data , string $database){
+        $db = $this->dataBaseBank( $database);
+        $checkIfExist = $db::where('Model' , $data['Model'])->first();
+        if($checkIfExist || !$db) return false;
+
+        $CreateData = $db::create($data);
+
+        if($CreateData) return true;
+        return false;
     }
 
     public function getDailyCheck(Request $request)
@@ -239,14 +251,14 @@ class ProcessOrderController extends Controller
 
         if( $get && count($get) > 1 ){
             $result = $query->limit(1000)
-                            ->orderBy('id', 'desc')
+                            ->orderBy('updated_at', 'desc')
                             ->paginate(15,['*'], 'order')
                             ->withQueryString();
             return Inertia::render('Main', [
                 'orderList' => $result
             ]);
         }else{
-            $result = ProductionOrderModel::limit(1000)->orderBy('id', 'desc')->paginate(15, ['*'], 'order');
+            $result = ProductionOrderModel::limit(1000)->orderBy('updated_at', 'desc')->paginate(15, ['*'], 'order');
             return Inertia::render('Main', [
                 'orderList' => $result
             ]);
@@ -256,14 +268,16 @@ class ProcessOrderController extends Controller
     //Admin controller
     
     protected function refresh(string $message, string $theme ,string $action){
+        $model = OrderModelList::orderBy('updated_at', 'desc')->orderBy('updated_at', 'desc')->paginate(10, ['*'], 'model');
+        $parameter = Parameters::orderBy('updated_at', 'desc')->paginate(10,['*'],'paramters');
         switch($action){
             case 'model':
                 
-                $model = OrderModelList::orderBy('id', 'desc')->paginate(10, ['*'], 'model');
-
+                
                 return [
                     'appName' => config('app.name'),
                     'model_manage' =>  $model ?? null, 
+                    'parameter_manage' => $parameter??null,
                     'message' => [ 'message' => $message , 'theme' =>$theme ]
                 ]; 
 
@@ -277,34 +291,48 @@ class ProcessOrderController extends Controller
     public function getAdminManagement(Request $request){
 
         $data = $request->all();
-       
-        $filter = $data['filter_manage'] ?? false;
+        $filter = $data['filter_manage'] ?? false;// get unique identificcation
         $model_manage = $data['model_manage'] ?? false;
+        $parameter_type = $data['parameter_type'] ?? false;
+        $parameter_value = $data['parameter_value'] ?? false;
        
-        $model = OrderModelList::orderBy('id', 'desc')
+        $model = OrderModelList::orderBy('updated_at', 'desc')
                                  ->paginate(10, ['*'], 'model');
+        $parameter = Parameters::orderBy('updated_at', 'desc')->paginate(10,['*'],'paramters');
+
         if(!$filter && !$model_manage ){
             
             return Inertia::render('Main', [
                 'appName' => config('app.name'),
-                'model_manage' =>  $model ?? null
+                'model_manage' =>  $model ?? null,
+                'parameter_manage' => $parameter??null
             ]);
         }
  
         switch( $filter ){
             case 'model_manage':
-                $model = OrderModelList::where('model','LIKE',"%{$model_manage }%")->orderBy('id', 'desc')
+                $model = OrderModelList::where('model','LIKE',"%{$model_manage }%")->orderBy('updated_at', 'desc')
                             ->paginate(10,['*'], 'order')
                             ->withQueryString();
                 return Inertia::render('Main', [
                     'appName' => config('app.name'),
-                    'model_manage' =>  $model ?? null
+                    'model_manage' =>  $model ?? null,
+                    'parameter_manage' => $parameter??null
                 ]);
-                
+            case 'parameter_manage':
+                $parameter = Parameters::where('parameter','LIKE',"%{$parameter_value}%")->where('type','LIKE',"%{$parameter_type }%")->orderBy('updated_at', 'desc')
+                            ->paginate(10,['*'], 'param_filter')
+                            ->withQueryString();
+                return Inertia::render('Main', [
+                    'appName' => config('app.name'),
+                    'model_manage' =>  $model ?? null,
+                    'parameter_manage' => $parameter??null
+                ]);
             default:
                 return Inertia::render('Main', [
                     'appName' => config('app.name'),
-                    'model_manage' =>  $model ?? null
+                    'model_manage' =>  $model ?? null,
+                    'parameter_manage' => $parameter??null
                 ]);
                 
         }
@@ -313,7 +341,7 @@ class ProcessOrderController extends Controller
     
    
     public function postAdminHandler(Request $request){
-                
+
             $data = $request->all();
             $action = $data['action'];
             $requestData = $data['data'];
@@ -321,24 +349,42 @@ class ProcessOrderController extends Controller
 
             if(!$action && !$requestData  && !$database ) return redirect()->back();
            
-
+        
             switch($action){
+
                 case 'delete':
                     $result = $this->delete($requestData,$database);
-
                     if($result){
                        $refresh =$this->refresh('Deleted Successfully' , 'success-notification' , 'model' );
                        return Inertia::render('Main',  $refresh );
+                    }else{
+                       $refresh =$this->refresh('Error Delete!' , 'error-notification' , 'model' );
+                       return Inertia::render('Main',  $refresh );
                     }
-                    return redirect()->back();
-                 case 'update':
+
+                case 'update':
+
                     $result = $this->updateData($requestData ,$database);
                     if($result){
                        $refresh =$this->refresh('Updated Successfully' , 'success-notification' , 'model' );
                        return Inertia::render('Main',  $refresh );
+                    }else{
+                       $refresh =$this->refresh('Error update!' , 'error-notification' , 'model' );
+                       return Inertia::render('Main',  $refresh );
                     }
-                    return redirect()->back();
-                    dd($request->all());
+
+                case 'create':
+
+                    $result = $this->createNewData($requestData ,$database);
+                    if($result){
+                       $refresh =$this->refresh('Created Successfully' , 'success-notification' , 'model' );
+                       return Inertia::render('Main',  $refresh );
+                    }else{
+                        $refresh =$this->refresh('Model Already exsist!' , 'error-notification' , 'model' );
+                       return Inertia::render('Main',  $refresh );
+                    }
+                    
+                    break;
                 default:
                     return redirect()->back();
                     

@@ -5,8 +5,10 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ProcessOrderController;
 use App\Models\MachineAllocation;
-
-
+//default
+Route::get('/', function () {
+    return redirect('/production-order');
+});
 
 Route::get('/production-order', function () {
     return redirect('/production-order/home');
@@ -24,8 +26,8 @@ Route::post('/production-order/encode', [ProcessOrderController::class, 'saveLoa
 
 Route::get('/production-order/view', [ProcessOrderController::class, 'getProductionOrder']);
 
+//Admin routes
 Route::get('/production-order/admin',[ProcessOrderController::class, 'getAdminManagement']);
 Route::post('/production-order/admin',[ProcessOrderController::class, 'postAdminHandler']);
-Route::get('/', function () {
-    return redirect('/production-order');
-});
+
+

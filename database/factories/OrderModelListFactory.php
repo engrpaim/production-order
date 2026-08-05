@@ -22,7 +22,7 @@ class OrderModelListFactory extends Factory
             'Pre_Treatment'=> fake()->buildingNumber(),
             'Post_Treatment'=> fake()->buildingNumber(),
             'Condition_Number'=> fake()->buildingNumber(),
-            'Allowed_Lines'=> json_encode([fake()->buildingNumber(),fake()->name(),fake()->name()]),
+            'Allowed_Lines'=> array(fake()->buildingNumber(),fake()->name(),fake()->name()),
             'Ip_Address'=> fake()->buildingNumber(),
             'Author' => fake()->userName(), 
         ];

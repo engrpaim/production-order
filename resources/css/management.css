@@ -43,6 +43,7 @@
 
 .management-content{
     min-height: 60vh;
+    overflow: hidden;
     width: 100%;
 }
 
@@ -112,8 +113,23 @@
     padding:0.2rem 0.4rem;
     color:white;
     border-radius: 5px;
+    cursor: pointer;
 }
 
 .manage-update:hover{
     background:rgb(63, 168, 255);
+}
+
+.half-column{
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    padding:1.5rem;
+    margin:5px;
+    border-radius: 2rem;
+    height: 100vh;
+    background: none;
+    min-height: 60vh;
+    max-height: fit-content;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
