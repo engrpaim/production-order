@@ -21,6 +21,7 @@ class OrderModelList extends Model
         'Ip_Address',
         'Quantity',
         'Author', 
+        'Model_Code'
     ];
 
     protected $casts = [ 

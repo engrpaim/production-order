@@ -47,7 +47,22 @@ class ProcessOrderController extends Controller
 
     public function createNewData(array $data , string $database){
         $db = $this->dataBaseBank( $database);
-        $checkIfExist = $db::where('Model' , $data['Model'])->first();
+        
+        $finder = '';
+        
+        //column finder
+        switch($database){
+            case 'model':
+                $finder ='Model';
+                break;
+            case 'parameter':
+                $finder = 'parameter';
+                break;
+            default:
+                break;
+        }
+
+        $checkIfExist = $db::where($finder , $data[$finder])->first();
         if($checkIfExist || !$db) return false;
 
         $CreateData = $db::create($data);
@@ -270,14 +285,24 @@ class ProcessOrderController extends Controller
     protected function refresh(string $message, string $theme ,string $action){
         $model = OrderModelList::orderBy('updated_at', 'desc')->orderBy('updated_at', 'desc')->paginate(10, ['*'], 'model');
         $parameter = Parameters::orderBy('updated_at', 'desc')->paginate(10,['*'],'paramters');
+        
+        $selector_options = ['Media Size', 'Pre-treatment' , 'Post-treatment'  , 'Condition Number' ,'Nickel 1','Nickel 2','Poly Bag','Basket Number','Container','Endorsement'];
+        $finalResult = [];
+        foreach($selector_options as $items){
+            if($items){
+                $result = Parameters::select('parameter')->where('type' , $items)->orderBy('parameter', 'asc')->get();
+                $finalResult[$items]= $result ? array_column($result->toArray(),'parameter' ):null; 
+            }
+        }
+
         switch($action){
             case 'model':
-                
                 
                 return [
                     'appName' => config('app.name'),
                     'model_manage' =>  $model ?? null, 
                     'parameter_manage' => $parameter??null,
+                    'selector_parameters' =>  $finalResult, 
                     'message' => [ 'message' => $message , 'theme' =>$theme ]
                 ]; 
 
@@ -295,17 +320,29 @@ class ProcessOrderController extends Controller
         $model_manage = $data['model_manage'] ?? false;
         $parameter_type = $data['parameter_type'] ?? false;
         $parameter_value = $data['parameter_value'] ?? false;
-       
+        
+    
         $model = OrderModelList::orderBy('updated_at', 'desc')
                                  ->paginate(10, ['*'], 'model');
         $parameter = Parameters::orderBy('updated_at', 'desc')->paginate(10,['*'],'paramters');
+        
+        $selector_options = ['Media Size', 'Pre-treatment' , 'Post-treatment'  , 'Condition Number' ,'Nickel 1','Nickel 2','Poly Bag','Basket Number','Container','Endorsement'];
+        $finalResult = [];
+        foreach($selector_options as $items){
+            if($items){
+                $result = Parameters::select('parameter')->where('type' , $items)->orderBy('parameter', 'asc')->get();
+                $finalResult[$items]= $result ? array_column($result->toArray(),'parameter' ):null; 
+            }
+        }
 
         if(!$filter && !$model_manage ){
             
             return Inertia::render('Main', [
                 'appName' => config('app.name'),
                 'model_manage' =>  $model ?? null,
-                'parameter_manage' => $parameter??null
+                'parameter_manage' => $parameter??null,
+                'selector_parameters' =>  $finalResult,
+                
             ]);
         }
  
@@ -317,7 +354,8 @@ class ProcessOrderController extends Controller
                 return Inertia::render('Main', [
                     'appName' => config('app.name'),
                     'model_manage' =>  $model ?? null,
-                    'parameter_manage' => $parameter??null
+                    'parameter_manage' => $parameter??null,
+                    'selector_parameters' =>  $finalResult,
                 ]);
             case 'parameter_manage':
                 $parameter = Parameters::where('parameter','LIKE',"%{$parameter_value}%")->where('type','LIKE',"%{$parameter_type }%")->orderBy('updated_at', 'desc')
@@ -326,13 +364,15 @@ class ProcessOrderController extends Controller
                 return Inertia::render('Main', [
                     'appName' => config('app.name'),
                     'model_manage' =>  $model ?? null,
-                    'parameter_manage' => $parameter??null
+                    'parameter_manage' => $parameter??null,
+                    'selector_parameters' =>  $finalResult,
                 ]);
             default:
                 return Inertia::render('Main', [
                     'appName' => config('app.name'),
                     'model_manage' =>  $model ?? null,
-                    'parameter_manage' => $parameter??null
+                    'parameter_manage' => $parameter??null,
+                    'selector_parameters' =>  $finalResult,
                 ]);
                 
         }
@@ -348,8 +388,8 @@ class ProcessOrderController extends Controller
             $database = $data['database'];
 
             if(!$action && !$requestData  && !$database ) return redirect()->back();
-           
-        
+                
+            
             switch($action){
 
                 case 'delete':
@@ -372,15 +412,13 @@ class ProcessOrderController extends Controller
                        $refresh =$this->refresh('Error update!' , 'error-notification' , 'model' );
                        return Inertia::render('Main',  $refresh );
                     }
-
                 case 'create':
-
                     $result = $this->createNewData($requestData ,$database);
                     if($result){
                        $refresh =$this->refresh('Created Successfully' , 'success-notification' , 'model' );
                        return Inertia::render('Main',  $refresh );
                     }else{
-                        $refresh =$this->refresh('Model Already exsist!' , 'error-notification' , 'model' );
+                        $refresh =$this->refresh('Data Already exsist!' , 'error-notification' , 'model' );
                        return Inertia::render('Main',  $refresh );
                     }
                     

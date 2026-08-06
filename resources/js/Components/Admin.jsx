@@ -2,7 +2,7 @@ import { useState } from "react"
 import ModelAdmin from "./ModelAdmin";
 import MachineAdmin from "./MachineAdmin";
 import '../../css/management.css';
-export default function Admin({model_manage , parameter_manage}) {
+export default function Admin({model_manage , parameter_manage,selector_parameters}) {
     const [optionManagement, setOptionManagement] = useState('model');
     return (
         <div className="view-main">
@@ -19,7 +19,7 @@ export default function Admin({model_manage , parameter_manage}) {
                     </div>
                     <div className="management-view">
                         {
-                             optionManagement === 'model' ? <ModelAdmin model_manage={model_manage} parameter_manage={parameter_manage}/>
+                             optionManagement === 'model' ? <ModelAdmin model_manage={model_manage} parameter_manage={parameter_manage} selector_parameters={selector_parameters}/>
                             :optionManagement === 'machine' ? <MachineAdmin/>
                             :null}
                     </div>

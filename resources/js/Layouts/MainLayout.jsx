@@ -17,7 +17,7 @@ export default function MainLayout({children}){
                 <div className='nav-item-container'>
                     <div className='nav-left'>
                         <h1><a href='/production-order/home'>Production Order</a></h1>
-                        <p>V 1.0.0</p>
+                        <p>Alpha</p>
                     </div>
                     <div className='nav-right'>
                         <a href="/production-order/home">Home</a>

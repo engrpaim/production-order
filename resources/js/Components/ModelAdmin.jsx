@@ -15,8 +15,9 @@ import AILoader from "./AILoader";
 import Notification from "./Notification";
 import { handleEnterNext, checkIfRequired } from '../Utilities/UtilityFunctions'
 import DeleteModal from "./DeleteModal";
-
-export default function ModelAdmin({ model_manage, parameter_manage }) {
+import QRCode from "react-qr-code";
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+export default function ModelAdmin({ model_manage, parameter_manage, selector_parameters }) {
 
     const [optionSelected, setOptionSelected] = useState('list');
     const [filterSearch, setFilterSearch] = useState(false);
@@ -32,10 +33,25 @@ export default function ModelAdmin({ model_manage, parameter_manage }) {
     const [ParamManagement, setParamManagement] = useState({});
     const searchParams = new URLSearchParams(window.location.href);
 
+    //Qr Generation
+    const [qrGeneration, setQrGeneration] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     console.log('Model Management: ', model_manage, 'XXX', manageActions);
-    console.log('Paramete Mnagement:', parameter_manage, parameter_manage.links);
-
+    console.log('Paramete Mnagement:', parameter_manage, parameter_manage.links, selector_parameters);
+    const styles = StyleSheet.create({
+  page: {
+    padding: 30,
+    backgroundColor: '#ffffff',
+  },
+  section: {
+    margin: 10,
+    padding: 10,
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 10,
+  },
+});
     /**
      * 
      * return details of model management
@@ -88,12 +104,25 @@ export default function ModelAdmin({ model_manage, parameter_manage }) {
         setLoader(true);
         const required = checkIfRequired(e)
         setRedIndex(required.index);
-        const IsNotSet = data && data.Allowed_Lines && data.Allowed_Lines.length < 1 ? true : false
-        IsNotSet ? setRedIndex([...redIndex, 'Allowed_Lines']) : null
+        const IsNotSet = data && data.Allowed_Lines || data && data.Allowed_Lines && data.Allowed_Lines.length > 1 ? false : true
+
+
         console.log('Postting data: ', data, required.index, required.count, IsNotSet)
 
+        switch (database) {
+            case 'model':
+                if (IsNotSet && action !== 'delete' || updateModel && !updateModel.Allowed_Lines || updateModel && updateModel.Allowed_Lines.length < 1) {
+                    setLoader(false)
+                    setNotifcation({ message: `All input is required!`, theme: 'error-notification' });
+                    TurnOffNotification()
+                    return
+                }
+                break;
+            default:
+                break;
+        }
         //return if 
-        if (required.count > 1 || IsNotSet) {
+        if (required.count > 0) {
             setLoader(false)
             setNotifcation({ message: `All input is required!`, theme: 'error-notification' });
             TurnOffNotification()
@@ -150,20 +179,20 @@ export default function ModelAdmin({ model_manage, parameter_manage }) {
             return
         }
 
-        switch(database){
+        switch (database) {
             case 'model':
                 const allowedLines = data && data.Allowed_Lines ? data.Allowed_Lines : null;
                 data = { ...data, Allowed_Lines: allowedLines }
                 break;
             case 'parameter':
-                if(data) break;
+                if (data) break;
                 setManageActions({ action: action, data: null, model: model })
                 return
                 break;
             default:
                 break;
         }
-        
+
 
 
         setManageActions({ action: action, data: data, model: model })
@@ -209,7 +238,36 @@ export default function ModelAdmin({ model_manage, parameter_manage }) {
 
         }
     }
-    console.log('currentss:', updateModel, redIndex, ParamManagement);
+
+    const handleQrGeneration = (parameters, type, action) => {
+        console.log('Clicked!', parameters, type);
+        if (!parameters && !type && !action) return
+        switch (action) {
+            case 'all':
+                parameters.map((items) => {
+
+                    setQrGeneration((prev) => ({
+                        ...prev,
+                        qr: [
+                            ...(prev.qr || []), { parameters: items, type: type }
+                        ]
+                    }));
+                })
+                break;
+            case 'single':
+                setQrGeneration((prev) => ({
+                        ...prev,
+                        qr: [
+                            ...(prev.qr || []), { parameters: parameters, type: type }
+                        ]
+                    }));
+                    break;
+            default:
+                break
+        }
+
+    }
+    console.log('currentss:', qrGeneration);
     return (
 
         <div className="management-content">
@@ -224,11 +282,13 @@ export default function ModelAdmin({ model_manage, parameter_manage }) {
                         onClick={() => {
                             setOptionSelected('list')
                             setUpdateModel(false)
+                            setQrGeneration(false)
                         }}>Model List</button>
                     <button className={`management-option ${optionSelected === 'parameters' ? 'active' : ''}`}
                         onClick={() => {
                             setOptionSelected('parameters')
                             setUpdateModel(false)
+                            setQrGeneration(false)
                         }}>Parameters</button>
                     <button className={`add-btn ${optionSelected === 'add' ? 'active' : ''}`}
                         onClick={() => {
@@ -298,43 +358,61 @@ export default function ModelAdmin({ model_manage, parameter_manage }) {
                                                                     </div>
                                                                     <div className="loader-data">
                                                                         <p>Media size:</p>
-                                                                        <input
-                                                                            value={updateModel.Media_Size}
+                                                                        <select
+                                                                            value={updateModel && updateModel.Media_Size ? updateModel.Media_Size : ''}
                                                                             idName="Media_Size"
                                                                             onChange={(e) => setUpdateModel({ ...updateModel, Media_Size: e.target.value })}
                                                                             onKeyDown={(e) => handleEnterNext(e)}
                                                                             className={submitted && redIndex.includes('Media_Size') ? 'red-required' : submitted ? 'green-required' : ''}
-                                                                            placeholder="media size" />
+                                                                            placeholder="media size">
+                                                                            <option value='' disabled></option>
+                                                                            {
+                                                                                selector_parameters && selector_parameters?.['Media Size'] &&
+                                                                                selector_parameters?.['Media Size'].map((items) => (<option value={items}>{items}</option>))
+                                                                            }
+                                                                        </select>
                                                                     </div>
                                                                     <div className="loader-data">
                                                                         <p>Pre-Treatment:</p>
-                                                                        <input
-                                                                            value={updateModel.Pre_Treatment}
+                                                                        <select
+                                                                            value={updateModel && updateModel.Pre_Treatment ? updateModel.Pre_Treatment : ''}
                                                                             onChange={(e) => setUpdateModel({ ...updateModel, Pre_Treatment: e.target.value })}
                                                                             onKeyDown={(e) => handleEnterNext(e)}
                                                                             idName="Pre_Treatment"
                                                                             className={submitted && redIndex.includes('Pre_Treatment') ? 'red-required' : submitted ? 'green-required' : ''}
-                                                                            placeholder="pre-treatment" />
+                                                                            placeholder="pre-treatment" >
+                                                                            <option value='' disabled></option>
+                                                                            {
+                                                                                selector_parameters && selector_parameters?.['Pre-treatment'] &&
+                                                                                selector_parameters?.['Pre-treatment'].map((items) => (<option value={items}>{items}</option>))
+                                                                            }
+                                                                        </select>
                                                                     </div>
                                                                 </div>
                                                                 <div className="loader-row">
                                                                     <div className="loader-data">
                                                                         <p>Post-Treatment:</p>
-                                                                        <input
-                                                                            value={updateModel.Post_Treatment}
+                                                                        <select
+                                                                            value={updateModel && updateModel.Post_Treatment ? updateModel.Post_Treatment : ''}
                                                                             onChange={(e) => setUpdateModel({ ...updateModel, Post_Treatment: e.target.value })}
                                                                             onKeyDown={(e) => handleEnterNext(e)}
                                                                             idName="Post_Treatment"
                                                                             className={submitted && redIndex.includes('Post_Treatment') ? 'red-required' : submitted ? 'green-required' : ''}
-                                                                            placeholder="post-treatment" />
+                                                                            placeholder="post-treatment" >
+                                                                            <option value='' disabled></option>
+                                                                            {
+                                                                                selector_parameters && selector_parameters?.['Post-treatment'] &&
+                                                                                selector_parameters?.['Post-treatment'].map((items) => (<option value={items}>{items}</option>))
+                                                                            }
+                                                                        </select>
                                                                     </div>
                                                                     <div className="loader-data">
                                                                         <p>Allowed lines:</p>
                                                                         <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'row' }}>
                                                                             <select
-
+                                                                                idName="Allowed_Lines"
                                                                                 onChange={(e) => setCurrentLine(e.target.value)}
-                                                                                className={updateModel && updateModel.Allowed_Lines.length < 1 && submitted ? 'red-required' : submitted ? 'green-required' : ''}
+                                                                                className={updateModel && updateModel.Allowed_Lines && updateModel.Allowed_Lines.length < 1 && submitted ? 'red-required' : submitted ? 'green-required' : ''}
                                                                             >
                                                                                 <option value="" disabled selected={!currentLine ? true : false}>select line</option>
                                                                                 <option value="Plant line 1" >Plant line 1</option>
@@ -370,13 +448,19 @@ export default function ModelAdmin({ model_manage, parameter_manage }) {
                                                                     </div>
                                                                     <div className="loader-data">
                                                                         <p>Condition #:</p>
-                                                                        <input
-                                                                            value={updateModel.Condition_Number}
+                                                                        <select
+                                                                            value={updateModel && updateModel.Condition_Number ? updateModel.Condition_Number : ''}
                                                                             onChange={(e) => setUpdateModel({ ...updateModel, Condition_Number: e.target.value })}
                                                                             onKeyDown={(e) => handleEnterNext(e)}
                                                                             idName="Condition_Number"
                                                                             className={submitted && redIndex.includes('Condition_Number') ? 'red-required' : submitted ? 'green-required' : ''}
-                                                                            placeholder="condition number" />
+                                                                            placeholder="condition number"  >
+                                                                            <option value='' disabled></option>
+                                                                            {
+                                                                                selector_parameters && selector_parameters?.['Condition Number'] &&
+                                                                                selector_parameters?.['Condition Number'].map((items) => (<option value={items}>{items}</option>))
+                                                                            }
+                                                                        </select>
                                                                     </div>
                                                                 </div>
 
@@ -484,9 +568,7 @@ export default function ModelAdmin({ model_manage, parameter_manage }) {
                                                         value={updateModel && updateModel.Model ? updateModel.Model : ''}
                                                         idName="Model"
                                                         onChange={(e) => setUpdateModel({ ...updateModel, Model: e.target.value })}
-
                                                         onKeyDown={(e) => {
-
                                                             handleEnterNext(e)
                                                         }}
                                                         className={submitted && redIndex.includes('Model') ? 'red-required' : submitted ? 'green-required' : ''}
@@ -494,35 +576,53 @@ export default function ModelAdmin({ model_manage, parameter_manage }) {
                                                 </div>
                                                 <div className="loader-data">
                                                     <p>Media size:</p>
-                                                    <input
+                                                    <select
                                                         value={updateModel && updateModel.Media_Size ? updateModel.Media_Size : ''}
                                                         idName="Media_Size"
                                                         onChange={(e) => setUpdateModel({ ...updateModel, Media_Size: e.target.value })}
                                                         onKeyDown={(e) => handleEnterNext(e)}
                                                         className={submitted && redIndex.includes('Media_Size') ? 'red-required' : submitted ? 'green-required' : ''}
-                                                        placeholder="media size" />
+                                                        placeholder="media size">
+                                                        <option value='' disabled></option>
+                                                        {
+                                                            selector_parameters && selector_parameters?.['Media Size'] &&
+                                                            selector_parameters?.['Media Size'].map((items) => (<option value={items}>{items}</option>))
+                                                        }
+                                                    </select>
                                                 </div>
                                                 <div className="loader-data">
                                                     <p>Pre-Treatment:</p>
-                                                    <input
+                                                    <select
                                                         value={updateModel && updateModel.Pre_Treatment ? updateModel.Pre_Treatment : ''}
                                                         onChange={(e) => setUpdateModel({ ...updateModel, Pre_Treatment: e.target.value })}
                                                         onKeyDown={(e) => handleEnterNext(e)}
                                                         idName="Pre_Treatment"
                                                         className={submitted && redIndex.includes('Pre_Treatment') ? 'red-required' : submitted ? 'green-required' : ''}
-                                                        placeholder="pre-treatment" />
+                                                        placeholder="pre-treatment" >
+                                                        <option value='' disabled></option>
+                                                        {
+                                                            selector_parameters && selector_parameters?.['Pre-treatment'] &&
+                                                            selector_parameters?.['Pre-treatment'].map((items) => (<option value={items}>{items}</option>))
+                                                        }
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div className="loader-row">
                                                 <div className="loader-data">
                                                     <p>Post-Treatment:</p>
-                                                    <input
+                                                    <select
                                                         value={updateModel && updateModel.Post_Treatment ? updateModel.Post_Treatment : ''}
                                                         onChange={(e) => setUpdateModel({ ...updateModel, Post_Treatment: e.target.value })}
                                                         onKeyDown={(e) => handleEnterNext(e)}
                                                         idName="Post_Treatment"
                                                         className={submitted && redIndex.includes('Post_Treatment') ? 'red-required' : submitted ? 'green-required' : ''}
-                                                        placeholder="post-treatment" />
+                                                        placeholder="post-treatment" >
+                                                        <option value='' disabled></option>
+                                                        {
+                                                            selector_parameters && selector_parameters?.['Post-treatment'] &&
+                                                            selector_parameters?.['Post-treatment'].map((items) => (<option value={items}>{items}</option>))
+                                                        }
+                                                    </select>
                                                 </div>
                                                 <div className="loader-data">
                                                     <p>Allowed lines:</p>
@@ -530,7 +630,7 @@ export default function ModelAdmin({ model_manage, parameter_manage }) {
                                                         <select
 
                                                             onChange={(e) => setCurrentLine(e.target.value)}
-                                                            className={submitted && !updateModel || submitted && updateModel && updateModel.Allowed_Lines && updateModel.Allowed_Lines.length < 1 ? 'red-required' : submitted && updateModel ? 'green-required' : ''}
+                                                            className={submitted && !updateModel.Allowed_Lines || submitted && updateModel.Allowed_Lines && updateModel.Allowed_Lines.length <= 0 ? 'red-required' : submitted && updateModel ? 'green-required' : ''}
                                                         >
                                                             <option value="" disabled selected={!currentLine ? true : false}>select line</option>
                                                             <option value="Plant line 1" >Plant line 1</option>
@@ -566,13 +666,19 @@ export default function ModelAdmin({ model_manage, parameter_manage }) {
                                                 </div>
                                                 <div className="loader-data">
                                                     <p>Condition #:</p>
-                                                    <input
+                                                    <select
                                                         value={updateModel && updateModel.Condition_Number ? updateModel.Condition_Number : ''}
                                                         onChange={(e) => setUpdateModel({ ...updateModel, Condition_Number: e.target.value })}
                                                         onKeyDown={(e) => handleEnterNext(e)}
                                                         idName="Condition_Number"
                                                         className={submitted && redIndex.includes('Condition_Number') ? 'red-required' : submitted ? 'green-required' : ''}
-                                                        placeholder="condition number" />
+                                                        placeholder="condition number"  >
+                                                        <option value='' disabled></option>
+                                                        {
+                                                            selector_parameters && selector_parameters?.['Condition Number'] &&
+                                                            selector_parameters?.['Condition Number'].map((items) => (<option value={items}>{items}</option>))
+                                                        }
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div className="loader-row">
@@ -608,7 +714,7 @@ export default function ModelAdmin({ model_manage, parameter_manage }) {
                                             {
                                                 manageActions && manageActions.action === 'delete' ?
                                                     <DeleteModal manageActions={manageActions} handlePost={handlePost} setManageActions={setManageActions} />
-                                                    :manageActions && manageActions.action === 'update' ?
+                                                    : manageActions && manageActions.action === 'update' ?
                                                         <div className="loader-container">
                                                             <div className="loader-design">
                                                                 <div className="loader-content" >
@@ -630,9 +736,9 @@ export default function ModelAdmin({ model_manage, parameter_manage }) {
                                                                         <div className="loader-data">
                                                                             <p>Type:</p>
                                                                             <select value={updateModel.type}
-                                                                                    idName="type"
-                                                                                    className={submitted && redIndex.includes('type') ? 'red-required' : submitted ? 'green-required' : ''}
-                                                                                    onChange={(e) => setUpdateModel({ ...updateModel, type: e.target.value })}>
+                                                                                idName="type"
+                                                                                className={submitted && redIndex.includes('type') ? 'red-required' : submitted ? 'green-required' : ''}
+                                                                                onChange={(e) => setUpdateModel({ ...updateModel, type: e.target.value })}>
                                                                                 <option value="" selected></option>
                                                                                 <option value="Media Size">Media Size</option>
                                                                                 <option value="Pre-treatment">Pre-treatment</option>
@@ -649,140 +755,211 @@ export default function ModelAdmin({ model_manage, parameter_manage }) {
                                                                         </div>
                                                                     </div>
                                                                     <div>
-                                                                        <button onClick={() =>{ setManageActions(false)
-                                                                                                setUpdateModel(false);
-                                                                                        }} className="manage-delete">Cancel</button>
-                                                                        <button onClick={(e) => handlePost('add', updateModel, 'parameter', e)} className="manage-update">Confirm</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        :manageActions && manageActions.action === 'add' ?
-                                                        <div className="loader-container">
-                                                            <div className="loader-design">
-                                                                <div className="loader-content" >
-                                                                    <h4 style={{ marginBottom: '1rem' }}>Add Parameter</h4>
-                                                                    <div className="loader-column">
-                                                                        <div className="loader-data">
-                                                                            <p>Parameter:</p>
-                                                                            <input
-                                                                                value={updateModel.parameter}
-                                                                                idName="Model"
-                                                                                onChange={(e) => setUpdateModel({ ...updateModel, parameter: e.target.value })}
-                                                                                onKeyDown={(e) => {
-
-                                                                                    handleEnterNext(e)
-                                                                                }}
-                                                                                className={submitted && redIndex.includes('Model') ? 'red-required' : submitted ? 'green-required' : ''}
-                                                                                placeholder="model" />
-                                                                        </div>
-                                                                        <div className="loader-data">
-                                                                            <p>Type:</p>
-                                                                            <select value={updateModel.type} onChange={(e) => setUpdateModel({ ...updateModel, type: e.target.value })}>
-                                                                                <option value="" selected></option>
-                                                                                <option value="Media Size">Media Size</option>
-                                                                                <option value="Pre-treatment">Pre-treatment</option>
-                                                                                <option value="Post-treatment">Post-treatment</option>
-                                                                                <option value="Model Code">Model Code</option>
-                                                                                <option value="Condition Number">Condition Number</option>
-                                                                                <option value="Nickel 1">Nickel 1</option>
-                                                                                <option value="Nickel 2">Nickel 2</option>
-                                                                                <option value="Basket Number">Basket Number</option>
-                                                                                <option value="Poly Bag">Poly Bag</option>
-                                                                                <option value="Container">Container</option>
-                                                                                <option value="Endorsement">Endorsement</option>
-                                                                            </select>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div>
-                                                                        <button onClick={() =>{
-                                                                                                    setManageActions(false)
-                                                                                                    setUpdateModel(false);
-                                                                                                }} className="manage-delete">Cancel</button>
+                                                                        <button onClick={() => {
+                                                                            setManageActions(false)
+                                                                            setUpdateModel(false);
+                                                                        }} className="manage-delete">Cancel</button>
                                                                         <button onClick={(e) => handlePost('update', updateModel, 'parameter', e)} className="manage-update">Confirm</button>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        : null
+                                                        : manageActions && manageActions.action === 'add' ?
+                                                            <div className="loader-container">
+                                                                <div className="loader-design">
+                                                                    <div className="loader-content" >
+                                                                        <h4 style={{ marginBottom: '1rem' }}>Add Parameter</h4>
+                                                                        <div className="loader-column">
+                                                                            <div className="loader-data">
+                                                                                <p>Parameter:</p>
+                                                                                <input
+                                                                                    value={updateModel.parameter}
+                                                                                    idName="parameter"
+                                                                                    onChange={(e) => setUpdateModel({ ...updateModel, parameter: e.target.value })}
+                                                                                    onKeyDown={(e) => {
+
+                                                                                        handleEnterNext(e)
+                                                                                    }}
+                                                                                    className={submitted && redIndex.includes('parameter') ? 'red-required' : submitted ? 'green-required' : ''}
+                                                                                    placeholder="parameter" />
+                                                                            </div>
+                                                                            <div className="loader-data">
+                                                                                <p>Type:</p>
+                                                                                <select
+                                                                                    value={updateModel.type}
+                                                                                    idName="type"
+                                                                                    onChange={(e) => setUpdateModel({ ...updateModel, type: e.target.value })}
+                                                                                    className={submitted && redIndex.includes('type') ? 'red-required' : submitted ? 'green-required' : ''}
+                                                                                >
+                                                                                    <option value=""></option>
+                                                                                    <option value="Media Size">Media Size</option>
+                                                                                    <option value="Pre-treatment">Pre-treatment</option>
+                                                                                    <option value="Post-treatment">Post-treatment</option>
+                                                                                    <option value="Condition Number">Condition Number</option>
+                                                                                    <option value="Nickel 1">Nickel 1</option>
+                                                                                    <option value="Nickel 2">Nickel 2</option>
+                                                                                    <option value="Basket Number">Basket Number</option>
+                                                                                    <option value="Poly Bag">Poly Bag</option>
+                                                                                    <option value="Container">Container</option>
+                                                                                    <option value="Endorsement">Endorsement</option>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div>
+                                                                            <button onClick={() => {
+                                                                                setManageActions(false)
+                                                                                setUpdateModel(false);
+                                                                            }} className="manage-delete">Cancel</button>
+                                                                            <button onClick={(e) => handlePost('create', updateModel, 'parameter', e)} className="manage-update">Confirm</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            : null
                                             }
                                             <h4 style={{ marginBottom: '1rem' }}>Parameter Setting</h4>
-                                            <div className="half-column">
-                                                <div className="loader-row">
-                                                    <div className="loader-data" style={{ width: 'fit-content', gap: '0.2rem' }}>
-                                                        <label>Parameter:</label>
-                                                        <input onChange={(e) => setParamManagement({ ...ParamManagement, parameter_value: e.target.value, filter_manage: 'parameter_manage' })} placeholder="parameter" />
+                                            <div className="loader-row" style={{ alignItems:'start' }}>
+                                                <div className="half-column">
+                                                    <div className="loader-row">
+                                                        <div className="loader-data" style={{ width: 'fit-content', gap: '0.2rem' }}>
+                                                            <label>Parameter:</label>
+                                                            <input onChange={(e) => setParamManagement({ ...ParamManagement, parameter_value: e.target.value, filter_manage: 'parameter_manage' })} placeholder="parameter" />
+                                                        </div>
+                                                        <div className="loader-data" style={{ width: 'fit-content', gap: '0.2rem' }}>
+                                                            <label>Select Type:</label>
+                                                            <select onChange={(e) => setParamManagement({ ...ParamManagement, parameter_type: e.target.value, filter_manage: 'parameter_manage' })}>
+                                                                <option value="" selected></option>
+                                                                <option value="Media Size">Media Size</option>
+                                                                <option value="Pre-treatment">Pre-treatment</option>
+                                                                <option value="Post-treatment">Post-treatment</option>
+                                                                <option value="Model Code">Model Code</option>
+                                                                <option value="Condition Number">Condition Number</option>
+                                                                <option value="Nickel 1">Nickel 1</option>
+                                                                <option value="Nickel 2">Nickel 2</option>
+                                                                <option value="Basket Number">Basket Number</option>
+                                                                <option value="Poly Bag">Poly Bag</option>
+                                                                <option value="Container">Container</option>
+                                                                <option value="Endorsement">Endorsement</option>
+                                                            </select>
+                                                        </div>
+                                                        <button onClick={() => handleGetDetails(ParamManagement)} className="manage-update">Search</button>
+                                                        <button onClick={() => handleInputValues('add', null, null, 'parameter')} className="add-btn">Add&nbsp;+</button>
                                                     </div>
-                                                    <div className="loader-data" style={{ width: 'fit-content', gap: '0.2rem' }}>
-                                                        <label>Select Type:</label>
-                                                        <select onChange={(e) => setParamManagement({ ...ParamManagement, parameter_type: e.target.value, filter_manage: 'parameter_manage' })}>
-                                                            <option value="" selected></option>
-                                                            <option value="Media Size">Media Size</option>
-                                                            <option value="Pre-treatment">Pre-treatment</option>
-                                                            <option value="Post-treatment">Post-treatment</option>
-                                                            <option value="Model Code">Model Code</option>
-                                                            <option value="Condition Number">Condition Number</option>
-                                                            <option value="Nickel 1">Nickel 1</option>
-                                                            <option value="Nickel 2">Nickel 2</option>
-                                                            <option value="Basket Number">Basket Number</option>
-                                                            <option value="Poly Bag">Poly Bag</option>
-                                                            <option value="Container">Container</option>
-                                                            <option value="Endorsement">Endorsement</option>
-                                                        </select>
+                                                    <div className="view-table-2">
+                                                        <table>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Parameter</th>
+                                                                    <th>Type</th>
+                                                                    <th>Action</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+
+                                                                {
+                                                                    parameter_manage && parameter_manage.data && Object.entries(parameter_manage.data).length > 0 ?
+                                                                        Object.entries(parameter_manage.data).map(([key, values]) => {
+                                                                            return (
+                                                                                <tr>
+                                                                                    <td>{values.parameter}</td>
+                                                                                    <td>{values.type}</td>
+                                                                                    <td>
+                                                                                        <button onClick={() => setManageActions({ action: 'delete', id: values.id ?? '-', model: values.parameter ?? '-', database: 'parameter' })} className="manage-delete">Delete</button>
+                                                                                        <button onClick={() => handleInputValues('update', values ?? '-', values.parameter ?? '-', 'parameter')} className="manage-update">Update</button>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            )
+                                                                        }) : null
+                                                                }
+
+                                                            </tbody>
+                                                        </table>
+
                                                     </div>
-                                                    <button onClick={() => handleGetDetails(ParamManagement)} className="manage-update">Search</button>
-                                                    <button onClick={() => handleInputValues('add', null, null, 'parameter')} className="add-btn">Add&nbsp;+</button>
+                                                    <div className='page-container' style={{ alignSelf: 'self-center', width: '100%' }}>
+                                                        {
+                                                            parameter_manage && parameter_manage.links ?
+                                                                parameter_manage.links.map((link, index) =>
+                                                                    <span className='page-content'>
+                                                                        {
+                                                                            link.url ? (
+                                                                                <Link
+                                                                                    preserveState
+                                                                                    preserveScroll
+                                                                                    className='page-link'
+                                                                                    href={link.url}
+                                                                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                                                                    style={{ background: link.active ? '#B5E1FD' : '' }} />
+                                                                            ) : null
+                                                                        }
+                                                                    </span>
+                                                                ) : null
+                                                        }
+                                                    </div>
                                                 </div>
-                                                <div className="view-table-2">
-                                                    <table>
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Parameter</th>
-                                                                <th>Type</th>
-                                                                <th>Action</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-
-                                                            {
-                                                                parameter_manage && parameter_manage.data && Object.entries(parameter_manage.data).length > 0 ?
-                                                                    Object.entries(parameter_manage.data).map(([key, values]) => {
-                                                                        return (
-                                                                            <tr>
-                                                                                <td>{values.parameter}</td>
-                                                                                <td>{values.type}</td>
-                                                                                <td>
-                                                                                    <button onClick={() => setManageActions({ action: 'delete', id: values.id ?? '-', model: values.parameter ?? '-', database: 'parameter' })} className="manage-delete">Delete</button>
-                                                                                    <button onClick={() => handleInputValues('update', values ?? '-', values.parameter ?? '-', 'parameter')} className="manage-update">Update</button>
-                                                                                </td>
-                                                                            </tr>
-                                                                        )
-                                                                    }) : null
-                                                            }
-
-                                                        </tbody>
-                                                    </table>
-
-                                                </div>
-                                                <div className='page-container' style={{ alignSelf: 'self-center', width: '100%' }}>
-                                                    {
-                                                        parameter_manage && parameter_manage.links ?
-                                                            parameter_manage.links.map((link, index) =>
-                                                                <span className='page-content'>
-                                                                    {
-                                                                        link.url ? (
-                                                                            <Link
-                                                                                preserveState
-                                                                                preserveScroll
-                                                                                className='page-link'
-                                                                                href={link.url}
-                                                                                dangerouslySetInnerHTML={{ __html: link.label }}
-                                                                                style={{ background: link.active ? '#B5E1FD' : '' }} />
-                                                                        ) : null
-                                                                    }
-                                                                </span>
-                                                            ) : null
-                                                    }
+                                                <div className="half-column">
+                                                    <h4>QR Generatation</h4>
+                                                    <div className="loader-row">
+                                                        <div className="loader-data">
+                                                            <label>Select type:</label>
+                                                            <select
+                                                                onChange={(e) => setQrGeneration({ ...qrGeneration, type: e.target.value })}>
+                                                                <option></option>
+                                                                <option value="Basket Number">Basket Number</option>
+                                                                <option value="Container">Container</option>
+                                                                <option value="Endorsement">Endorsement</option>
+                                                                <option value="Nickel 1">Nickel 1</option>
+                                                                <option value="Nickel 2">Nickel 2</option>
+                                                                <option value="Poly Bag">Poly Bag</option>
+                                                            </select>
+                                                        </div>
+                                                        <button onClick={() => handleQrGeneration(selector_parameters?.[qrGeneration.type] ?? null, qrGeneration.type, 'all')} className="add-btn" disabled={!(qrGeneration && qrGeneration.type)}>All</button>
+                                                    </div>
+                                                    <div className="loader-row">
+                                                        <div className="loader-data">
+                                                            <label>Select Parameter:</label>
+                                                            <select onChange={(e) => setQrGeneration({ ...qrGeneration, single: e.target.value })}>
+                                                                <option></option>
+                                                                {
+                                                                    selector_parameters && qrGeneration && qrGeneration.type && selector_parameters?.[qrGeneration.type].map((items) => (<option>{items}</option>))
+                                                                }
+                                                            </select>
+                                                        </div>
+                                                        <button onClick={() => handleQrGeneration(qrGeneration.single ?? null, qrGeneration.type, 'single')} disabled={!(qrGeneration && qrGeneration.single)} className="add-btn">+</button>
+                                                    </div>
+                                                    <div className="loader-column">
+                                                     <p>Parameter List</p>
+                                                    <div className="qr-data">
+                                                        {
+                                                            qrGeneration && qrGeneration.qr ? qrGeneration.qr.map((codes)=>(
+                                                                <span>{codes.type}:&nbsp;{codes.parameters}<button className="close-btn">x</button></span>
+                                                            )): <span>Please select parameter</span>
+                                                        }
+                                                    </div>
+                                                    <div className="qr-data">
+                                                        {
+                                                            qrGeneration && qrGeneration.qr && qrGeneration.qr.map((codes)=>{
+                                                                return (
+                                                                    // <span>{codes.type}:&nbsp;{codes.parameters}<button className="close-btn">x</button></span>
+                                                                    <QRCode
+                                                                        value={codes.type + '?' + codes.parameters}
+                                                                        size={256}
+                                                                        bgColor="#ffffff"
+                                                                        fgColor="#000000"
+                                                                        level="H" />
+                                                                );
+                                                            })
+                                                        }
+                                                    </div>
+                                                     <Document>
+                                                        <Page size="A4" style={styles.page}>
+                                                        <View style={styles.section}>
+                                                            <Text style={styles.title}>Hello World</Text>
+                                                            <Text>This is a real vectorized PDF built with React.</Text>
+                                                        </View>
+                                                        </Page>
+                                                    </Document>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

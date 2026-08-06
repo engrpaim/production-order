@@ -17,7 +17,7 @@ export default function Main() {
 
         const capitalizedFirstLetter = currentUrl.charAt(0).toUpperCase()+currentUrl.slice(1);
 
-        const { appName, serial ,data ,model , routing ,location, order,error,loading,message , orderList , filter_serial , model_manage,parameter_manage} = usePage().props;
+        const { appName, serial ,data ,model , routing ,location, order,error,loading,message , orderList , filter_serial , model_manage,parameter_manage,selector_parameters} = usePage().props;
       
         const [ handleData , setData ] = useState(data);
         const [ handleModel,setModelOrder] = useState(model);
@@ -69,7 +69,7 @@ export default function Main() {
                             :capitalizedFirstLetter.toLowerCase() == 'home' ? 
                                 <Home/>
                             :capitalizedFirstLetter.toLowerCase() == 'admin' ?
-                                <Admin model_manage={model_manage} parameter_manage={parameter_manage}/>
+                                <Admin model_manage={model_manage} parameter_manage={parameter_manage} selector_parameters={selector_parameters}/>
                             :null
                         }
                     </div>
