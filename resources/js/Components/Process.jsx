@@ -12,14 +12,29 @@ import ScannerTab from './ScannerTab';
 
 export default function Process({ data, model, location, routing, order, error, loader, setLoader }) {
 
-
-
-
     let isCorrectRoute = false;
-    if (location && routing) {
+    let setInModel = false;
 
-        isCorrectRoute = routing.find(obj => obj.Description.toLowerCase() === location.location.toLowerCase()) ? location.location : false;
-    };
+    function mixingChecking() {
+       
+
+        if (location && routing) {
+
+            // Daily check file 
+            isCorrectRoute = routing.find(obj => obj.Description.toLowerCase() === location.location.toLowerCase()) ? location.location : false;
+
+
+            //Production order allowed
+            location && location.location.toUpperCase() && model && model.Allowed_Lines.map((items) => {
+                !setInModel && items.toUpperCase() === location.location.toUpperCase() ? setInModel = true : null
+            })
+            isCorrectRoute = setInModel
+
+        };
+
+        if (order) isCorrectRoute = location && order && location.location.toUpperCase() === order.CurrentLocation.toUpperCase() ? true : false
+    }
+    mixingChecking();
 
     const handleKeyDown = async (e) => {
         if (e.key === 'Enter') {
@@ -48,6 +63,7 @@ export default function Process({ data, model, location, routing, order, error, 
     if (checkIfOrderExist && order.Status) {
         DisplayStatus = order.Status.toUpperCase();
     }
+    console.log('DATA: ', data, model, order);
     return (
         <>
             {/*Default Display*/
@@ -150,57 +166,58 @@ export default function Process({ data, model, location, routing, order, error, 
                                             <input value={order && order.Loader ? order.Loader : ''} disabled={true} />
                                         </div>
                                     </div>
+
+                                    {order && order.CurrentLocation && <div className='scanned-data'><p><i><strong>Scanned in {order.CurrentLocation}.</strong></i></p></div>}
+
                                 </div>
                             </div>
 
-                            {!order ?
+                            {checkIfOrderExist && (order.Status.toUpperCase() == 'LOADED' || order.Status.toUpperCase() == 'UNLOADED') ?
                                 (
-                                    <div className='scanned-condition'>
-                                        <h1>Requirements</h1>
-                                        <Condition data={data} title={data ? "Serial Number is found in daily check file." : "Not found in daily check file."} />
-                                        <Condition data={model} title={model ? "Model Order is Already Registered." : "Model Order Need to be registered."} />
-                                        <Condition data={isCorrectRoute} title={isCorrectRoute ? `Currently at ${isCorrectRoute}` : "[Wrong Process Line!] STOP! CALL! WAIT! GO!"} />
-                                    </div>
-                                )
-                                : checkIfOrderExist && (order.Status.toUpperCase() == 'LOADED' || order.Status.toUpperCase() == 'UNLOADED') ?
-                                    (
-                                        <>
-                                            <div className='scanned-condition'>
-                                                <div className='scanned-header'>
-                                                    <div className='scanned-serial'>
-                                                        <h1>UNLOADING</h1>
-                                                    </div>
+                                    <>
+                                        <div className='scanned-condition'>
+                                            <div className='scanned-header'>
+                                                <div className='scanned-serial'>
+                                                    <h1>UNLOADING</h1>
                                                 </div>
-                                                <div style={{ display: 'flex',flexWrap:'wrap', flexDirection: 'row', gap: '1rem',justifyContent:'center',alignItems:'center' }}>
-                                                    <div className='scanned-data'>
-                                                        <label>Unloader</label>
-                                                        <input value={order && order.Unloader ? order.Unloader : ''} onChange={''} disabled={true} />
-                                                    </div>
-                                                    <div className='scanned-data'>
-                                                        <label>Container</label>
-                                                        <input value={order && order.Container ? order.Container : ''} onChange={''} disabled={true} />
-                                                    </div>
-                                                    <div className='scanned-data'>
-                                                        <label>Poly&nbsp;Bag</label>
-                                                        <input value={order && order.PolyBag ? order.PolyBag : ''} onChange={''} disabled={true} />
-                                                    </div>
-                                                    <div className='scanned-data'>
-                                                        <label>Endorsed&nbsp;To</label>
-                                                        <input value={order && order.Endorsed_To ? order.Endorsed_To : ''} onChange={''} disabled={true} />
-                                                    </div>
-
+                                            </div>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'row', gap: '1rem', justifyContent: 'center', alignItems: 'center' }}>
+                                                <div className='scanned-data'>
+                                                    <label>Unloader</label>
+                                                    <input value={order && order.Unloader ? order.Unloader : ''} onChange={''} disabled={true} />
+                                                </div>
+                                                <div className='scanned-data'>
+                                                    <label>Container</label>
+                                                    <input value={order && order.Container ? order.Container : ''} onChange={''} disabled={true} />
+                                                </div>
+                                                <div className='scanned-data'>
+                                                    <label>Poly&nbsp;Bag</label>
+                                                    <input value={order && order.PolyBag ? order.PolyBag : ''} onChange={''} disabled={true} />
+                                                </div>
+                                                <div className='scanned-data'>
+                                                    <label>Endorsed&nbsp;To</label>
+                                                    <input value={order && order.Endorsed_To ? order.Endorsed_To : ''} onChange={''} disabled={true} />
                                                 </div>
 
                                             </div>
-                                        </>
-                                    )
-                                    : null
+
+                                        </div>
+                                    </>
+                                )
+                                : null
                             }
+                            <div className='scanned-condition'>
+                                <h1>Requirements</h1>
+                                <Condition data={data ?? null} title={data ? "Serial Number is found in daily check file." : "Not found in daily check file."} />
+                                <Condition data={model ?? null} title={model ? "Model Order is Already Registered." : "Model Order Need to be registered."} />
+                                <Condition data={isCorrectRoute} title={isCorrectRoute ? `Currently at ${location.location}` : "[Wrong Process Line!] STOP! CALL! WAIT! GO!"} />
+                            </div>
                         </div>
+
                         {(!order && location.permission.toUpperCase() != 'ENCONDING') || (order && order.Status.toUpperCase() == 'LOADED' && location.permission.toUpperCase() == 'UNLOADING') ?
                             (
                                 <>
-                                    <ScannerTab routing={routing} model={model} data={data} order={order} location={location} workOrder={data && data.ID ? data.ID : ''} error={error} />
+                                    <ScannerTab isCorrectRoute={isCorrectRoute} routing={routing} model={model} data={data} order={order} location={location} workOrder={data && data.ID ? data.ID : ''} error={error} />
                                 </>
                             ) : (
                                 <>
@@ -221,7 +238,7 @@ export default function Process({ data, model, location, routing, order, error, 
                                         <div>
                                             <p>
                                                 {
-                                                    order.Status.toUpperCase() == 'LOADED' ? 'Please proceed to Unloading' :order.Status.toUpperCase() == 'ENCODING' ? 'Please proceed to Loading':'I.D Already endorsed.'
+                                                    order.Status.toUpperCase() == 'LOADED' ? 'Please proceed to Unloading' : order.Status.toUpperCase() == 'ENCODING' ? 'Please proceed to Loading' : 'I.D Already endorsed.'
                                                 }
                                             </p>
                                         </div>

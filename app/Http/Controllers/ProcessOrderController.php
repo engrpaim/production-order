@@ -21,6 +21,7 @@ class ProcessOrderController extends Controller
             $bank = [
                 'model' =>  OrderModelList::class,
                 'parameter' =>  Parameters::class,
+                'machine' => MachineAllocation::class
             ];
 
             return $bank[$database];
@@ -39,6 +40,25 @@ class ProcessOrderController extends Controller
         $id = $data['id'];
         if(!$id || !$database) return false;
         $db = $this->dataBaseBank($database);
+        switch($database){
+            case 'machine':
+
+                $ip_address = $data['ip1'] . "." . $data['ip2'] . "." . $data['ip3'] . ".". $data['ip4'];
+
+                for($i = 1  ;$i <= 4 ;$i++){
+                    unset($data['ip'.$i]);
+                };
+                $data['ip_address'] = $ip_address;
+               $checkIfExist = $db::where(function ($query) use ($data) {
+                                                                                $query->where('user', $data['user'])
+                                                                                    ->orWhere('id_number', $data['id_number']);
+                                                                            })->where('id', '!=', $data['id'])->first();
+                if($checkIfExist)return false;
+                break;
+
+            default:
+                break;
+        }
         $data['updated_at'] = Carbon::now();
         $update = $db::where('id' , $id)->update($data);
         if($update) return true;
@@ -57,7 +77,20 @@ class ProcessOrderController extends Controller
                 break;
             case 'parameter':
                 $finder = 'parameter';
+            case 'machine':
+
+                $finder = 'ip_address';
+                $ip_address = $data['ip1'] . "." . $data['ip2'] . "." . $data['ip3'] . ".". $data['ip4'];
+
+                for($i = 1  ;$i <= 4 ;$i++){
+                    unset($data['ip'.$i]);
+                };
+                $data['ip_address'] = $ip_address;
+                $checkIfExist = $db::where('user' , $data['user'])->orWhere('id_number' , $data['id_number'])->first();
+                if($checkIfExist)return false;
+                
                 break;
+
             default:
                 break;
         }
@@ -285,7 +318,7 @@ class ProcessOrderController extends Controller
     protected function refresh(string $message, string $theme ,string $action){
         $model = OrderModelList::orderBy('updated_at', 'desc')->orderBy('updated_at', 'desc')->paginate(10, ['*'], 'model');
         $parameter = Parameters::orderBy('updated_at', 'desc')->paginate(10,['*'],'paramters');
-        
+        $machine = MachineAllocation::orderBy('updated_at', 'desc')->paginate(10,['*'],'machine');
         $selector_options = ['Media Size', 'Pre-treatment' , 'Post-treatment'  , 'Condition Number' ,'Nickel 1','Nickel 2','Poly Bag','Basket Number','Container','Endorsement'];
         $finalResult = [];
         foreach($selector_options as $items){
@@ -302,7 +335,8 @@ class ProcessOrderController extends Controller
                     'appName' => config('app.name'),
                     'model_manage' =>  $model ?? null, 
                     'parameter_manage' => $parameter??null,
-                    'selector_parameters' =>  $finalResult, 
+                    'selector_parameters' =>  $finalResult,
+                    'machine_manage' => $machine ?? null,
                     'message' => [ 'message' => $message , 'theme' =>$theme ]
                 ]; 
 
@@ -325,9 +359,11 @@ class ProcessOrderController extends Controller
         $model = OrderModelList::orderBy('updated_at', 'desc')
                                  ->paginate(10, ['*'], 'model');
         $parameter = Parameters::orderBy('updated_at', 'desc')->paginate(10,['*'],'paramters');
-        
+        $machine = MachineAllocation::orderBy('id', 'desc')->paginate(10,['*'],'machine');
+
         $selector_options = ['Media Size', 'Pre-treatment' , 'Post-treatment'  , 'Condition Number' ,'Nickel 1','Nickel 2','Poly Bag','Basket Number','Container','Endorsement'];
         $finalResult = [];
+        
         foreach($selector_options as $items){
             if($items){
                 $result = Parameters::select('parameter')->where('type' , $items)->orderBy('parameter', 'asc')->get();
@@ -342,6 +378,7 @@ class ProcessOrderController extends Controller
                 'model_manage' =>  $model ?? null,
                 'parameter_manage' => $parameter??null,
                 'selector_parameters' =>  $finalResult,
+                'machine_manage' => $machine
                 
             ]);
         }
@@ -356,6 +393,7 @@ class ProcessOrderController extends Controller
                     'model_manage' =>  $model ?? null,
                     'parameter_manage' => $parameter??null,
                     'selector_parameters' =>  $finalResult,
+                    'machine_manage' => $machine
                 ]);
             case 'parameter_manage':
                 $parameter = Parameters::where('parameter','LIKE',"%{$parameter_value}%")->where('type','LIKE',"%{$parameter_type }%")->orderBy('updated_at', 'desc')
@@ -366,6 +404,7 @@ class ProcessOrderController extends Controller
                     'model_manage' =>  $model ?? null,
                     'parameter_manage' => $parameter??null,
                     'selector_parameters' =>  $finalResult,
+                    'machine_manage' => $machine
                 ]);
             default:
                 return Inertia::render('Main', [
@@ -373,6 +412,7 @@ class ProcessOrderController extends Controller
                     'model_manage' =>  $model ?? null,
                     'parameter_manage' => $parameter??null,
                     'selector_parameters' =>  $finalResult,
+                    'machine_manage' => $machine
                 ]);
                 
         }
@@ -381,7 +421,7 @@ class ProcessOrderController extends Controller
     
    
     public function postAdminHandler(Request $request){
-
+           
             $data = $request->all();
             $action = $data['action'];
             $requestData = $data['data'];
@@ -403,7 +443,6 @@ class ProcessOrderController extends Controller
                     }
 
                 case 'update':
-
                     $result = $this->updateData($requestData ,$database);
                     if($result){
                        $refresh =$this->refresh('Updated Successfully' , 'success-notification' , 'model' );
@@ -413,6 +452,7 @@ class ProcessOrderController extends Controller
                        return Inertia::render('Main',  $refresh );
                     }
                 case 'create':
+                   
                     $result = $this->createNewData($requestData ,$database);
                     if($result){
                        $refresh =$this->refresh('Created Successfully' , 'success-notification' , 'model' );

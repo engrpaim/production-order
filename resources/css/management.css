@@ -21,6 +21,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+    min-height: fit-content;
     background: #f8fbfc;
     padding: 2rem;
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;  
@@ -38,6 +39,7 @@
 .management-view{
     margin:0rem;
     padding:1rem;
+    min-height: 100%;
     border: 1px solid rgb(241, 235, 235);
 }
 
@@ -129,7 +131,7 @@
     border-radius: 2rem;
     height: 100vh;
     background: none;
-    min-height: 70vh;
+    min-height: 75vh;
     max-height: fit-content;
     gap:0.5rem;
     box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
@@ -147,6 +149,7 @@
     gap:0.5rem;
     overflow: auto;
     border-radius: 1rem;
+    animation: floatInFromBottom 1.5s ease-out forwards;
 }
 .qr-data span{
     display: flex;

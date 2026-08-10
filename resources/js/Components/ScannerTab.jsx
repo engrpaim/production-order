@@ -5,14 +5,11 @@ import ScannedItems from '../Components/scannedItems';
 import ErrorComponent from '../Components/ErrorComponent';
 import '../../css/process.css';
 import Notification from './Notification';
-export default function ScannerTab({ routing, order, location, model, data, workOrder, error }) {
+export default function ScannerTab({ routing, order, location, model, data, workOrder, error ,isCorrectRoute}) {
     const [ErrorCheck, setErrorCheck] = useState(false);
     const [Message, setMessage] = useState(error);
     console.log('Scanner tabss: ', routing, order, location, model, data, workOrder);
-    let isCorrectRoute = false;
-    if (location && routing) {
-        isCorrectRoute = routing.find(obj => obj.Description.toLowerCase() === location.location.toLowerCase()) ? location.location : false;
-    }
+   
     const [scanInputValue, setScanInputValue] = useState('');
     const [scannedItems, setScannedItems] = useState({});
 
@@ -57,8 +54,6 @@ export default function ScannerTab({ routing, order, location, model, data, work
             }
             console.log('POSTING: ', hasValidKey, location.permission.toUpperCase());
             if (hasValidKey && location.permission.toUpperCase() == 'LOADING') {
-
-
 
                 console.error('Updated Items:', scannedItems);
 
@@ -141,17 +136,24 @@ export default function ScannerTab({ routing, order, location, model, data, work
     console.log('Routing Code:', routing);
     console.log('location Process:', location);
     console.log('Model:', model);
-
+    
 
 
     /*Requirements Check*/
+    const checkIfPermissionAlign = location &&  location.permission && (location.permission === 'unloading') &&  order && order.Status === 'loaded' || location &&  location.permission && (location.permission === 'loading') &&  !order ? true:false
+    console.log('Status permission check:',checkIfPermissionAlign);
+
     const checkIfRouteIsCorrect = isCorrectRoute != '' ? true : false;
     const checkIfModelExist = model && Object.keys(model).length > 0 ? true : false;
     const checkIfDataExist = data && Object.keys(data).length > 0 ? true : false;
     const checkIfOrderExist = order && Object.keys(order).length > 0 ? true : false;
-    const IsAllowedScan = [checkIfRouteIsCorrect, checkIfModelExist, checkIfDataExist];
-    const isAllowed = IsAllowedScan.some(value => value === false ? true : false);
-    console.log('Scanned :', data, order, routing);
+
+
+    const IsAllowedScan = [checkIfRouteIsCorrect, checkIfModelExist, checkIfDataExist ];
+    let isAllowed = IsAllowedScan.some(value => value === false ? true : false);
+    isAllowed = checkIfPermissionAlign
+
+    console.log('Scanned :', data, order, routing ,location);
 
 
     return (
@@ -161,7 +163,7 @@ export default function ScannerTab({ routing, order, location, model, data, work
                     <h1>Scan&nbsp;Details</h1>
                 </div>
                 <div className='scanner-processor-input'>
-                    <input value={scanInputValue} onChange={(e) => setScanInputValue(e.target.value)} onKeyDown={handleScanDetails} disabled={isAllowed} />
+                    <input value={scanInputValue} onChange={(e) => setScanInputValue(e.target.value)} onKeyDown={handleScanDetails} disabled={!(isCorrectRoute && isAllowed) } />
                     <QrLogo />
                 </div>
                 <div className='scanned-items'>

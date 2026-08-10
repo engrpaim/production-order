@@ -1,0 +1,25 @@
+
+.print-btn {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    background: #274758;
+    color: #faf6f6;
+    border: none;
+    border-radius: 1rem;
+    gap: 10px;
+}
+
+.print-btn p,
+.print-btn path {
+    color: #faf6f6;
+}
+
+.print-btn:hover {
+    transform: translateY(-1px);
+    background: #27729b;
+}

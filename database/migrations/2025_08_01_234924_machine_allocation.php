@@ -16,7 +16,7 @@ return new class extends Migration
                 $table->string('user')->nullable()->unique();
                 $table->string('id_number')->nullable()->unique();
                 $table->string('ip_address')->nullable()->unique();
-                $table->enum('permission',['loading','unloading','view'])->default('view');
+                $table->enum('permission',['loading','unloading','view','admin'])->default('view');
                 $table->string('location')->nullable();
                 $table->string('line')->nullable();
                 $table->timestamp('created_at')->useCurrent();

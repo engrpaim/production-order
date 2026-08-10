@@ -17,7 +17,7 @@ export default function Main() {
 
         const capitalizedFirstLetter = currentUrl.charAt(0).toUpperCase()+currentUrl.slice(1);
 
-        const { appName, serial ,data ,model , routing ,location, order,error,loading,message , orderList , filter_serial , model_manage,parameter_manage,selector_parameters} = usePage().props;
+        const { appName, serial ,data ,model , routing ,location, order,error,loading,message , orderList , filter_serial , model_manage,parameter_manage,selector_parameters , machine_manage} = usePage().props;
       
         const [ handleData , setData ] = useState(data);
         const [ handleModel,setModelOrder] = useState(model);
@@ -48,7 +48,7 @@ export default function Main() {
         }, [data,model,order,error,loader,message]);
         
           console.log('Production Order: ' , data, model ,order , ' State: ' , handleData , handleModel,handleOrder,handleError );
-          console.log('View List: ' , orderList,capitalizedFirstLetter);
+          console.log('View ListX: ' , orderList,capitalizedFirstLetter,location);
     return (
         <>
            <Head title={capitalizedFirstLetter} />
@@ -69,7 +69,7 @@ export default function Main() {
                             :capitalizedFirstLetter.toLowerCase() == 'home' ? 
                                 <Home/>
                             :capitalizedFirstLetter.toLowerCase() == 'admin' ?
-                                <Admin model_manage={model_manage} parameter_manage={parameter_manage} selector_parameters={selector_parameters}/>
+                                <Admin model_manage={model_manage} parameter_manage={parameter_manage} selector_parameters={selector_parameters} machine_manage={machine_manage}/>
                             :null
                         }
                     </div>

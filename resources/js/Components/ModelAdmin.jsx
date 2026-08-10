@@ -15,8 +15,8 @@ import AILoader from "./AILoader";
 import Notification from "./Notification";
 import { handleEnterNext, checkIfRequired } from '../Utilities/UtilityFunctions'
 import DeleteModal from "./DeleteModal";
-import QRCode from "react-qr-code";
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import DocumentGenerator from "./DocumentGenerator";
+
 export default function ModelAdmin({ model_manage, parameter_manage, selector_parameters }) {
 
     const [optionSelected, setOptionSelected] = useState('list');
@@ -38,20 +38,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
     const [submitted, setSubmitted] = useState(false);
     console.log('Model Management: ', model_manage, 'XXX', manageActions);
     console.log('Paramete Mnagement:', parameter_manage, parameter_manage.links, selector_parameters);
-    const styles = StyleSheet.create({
-  page: {
-    padding: 30,
-    backgroundColor: '#ffffff',
-  },
-  section: {
-    margin: 10,
-    padding: 10,
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 10,
-  },
-});
+    
     /**
      * 
      * return details of model management
@@ -228,7 +215,6 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                     : updateModel && !updateModel.Allowed_Lines ? setUpdateModel({ ...updateModel, Allowed_Lines: [item] })
                         : !updateModel ? setUpdateModel({ Allowed_Lines: [item] })
                             : null
-
                 console.log('Create: ', updateModel);
                 setCurrentLine(false);
                 break;
@@ -240,7 +226,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
     }
 
     const handleQrGeneration = (parameters, type, action) => {
-        console.log('Clicked!', parameters, type);
+        console.log('Clicked!', parameters, type ,qrGeneration);
         if (!parameters && !type && !action) return
         switch (action) {
             case 'all':
@@ -256,14 +242,22 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                 break;
             case 'single':
                 setQrGeneration((prev) => ({
-                        ...prev,
-                        qr: [
-                            ...(prev.qr || []), { parameters: parameters, type: type }
-                        ]
-                    }));
-                    break;
+                    ...prev,
+                    qr: [
+                        ...(prev.qr || []), { parameters: parameters, type: type }
+                    ]
+                }));
+                break;
+            case 'remove':
+                console.log( qrGeneration.qr?.[type]);
+                if(qrGeneration && qrGeneration.qr){
+                    const removedValues = qrGeneration.qr?.splice(type,1)
+                       console.log('type',type ,qrGeneration)
+                       setQrGeneration({...qrGeneration})
+                }
+                break;
             default:
-                break
+                break;
         }
 
     }
@@ -282,12 +276,14 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                         onClick={() => {
                             setOptionSelected('list')
                             setUpdateModel(false)
+                            setManageActions(false)
                             setQrGeneration(false)
                         }}>Model List</button>
                     <button className={`management-option ${optionSelected === 'parameters' ? 'active' : ''}`}
                         onClick={() => {
                             setOptionSelected('parameters')
                             setUpdateModel(false)
+                            setManageActions(false)
                             setQrGeneration(false)
                         }}>Parameters</button>
                     <button className={`add-btn ${optionSelected === 'add' ? 'active' : ''}`}
@@ -415,8 +411,8 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                                                 className={updateModel && updateModel.Allowed_Lines && updateModel.Allowed_Lines.length < 1 && submitted ? 'red-required' : submitted ? 'green-required' : ''}
                                                                             >
                                                                                 <option value="" disabled selected={!currentLine ? true : false}>select line</option>
-                                                                                <option value="Plant line 1" >Plant line 1</option>
-                                                                                <option value="Plant line 2" >Plant line 2</option>
+                                                                                <option value="Plating line 1" >Plating line 1</option>
+                                                                                <option value="Plating line 2" >Plating line 2</option>
                                                                             </select>
                                                                             <button onClick={() => handleRemoveLine(currentLine, 'add')} className="add-btn">+</button>
                                                                         </div>
@@ -558,7 +554,6 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                         {
                                             laoder && <AILoader message={'Checking in data sources'} />
                                         }
-
                                         <h4 style={{ marginBottom: '1rem' }}>Add Model</h4>
                                         <div className="loader-column">
                                             <div className="loader-row">
@@ -633,8 +628,8 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                             className={submitted && !updateModel.Allowed_Lines || submitted && updateModel.Allowed_Lines && updateModel.Allowed_Lines.length <= 0 ? 'red-required' : submitted && updateModel ? 'green-required' : ''}
                                                         >
                                                             <option value="" disabled selected={!currentLine ? true : false}>select line</option>
-                                                            <option value="Plant line 1" >Plant line 1</option>
-                                                            <option value="Plant line 2" >Plant line 2</option>
+                                                            <option value="Plating line 1" >Plating line 1</option>
+                                                            <option value="Plating line 2" >Plating line 2</option>
                                                         </select>
                                                         <button onClick={() => handleRemoveLine(currentLine, 'create')} className="add-btn">+</button>
                                                     </div>
@@ -818,7 +813,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                             : null
                                             }
                                             <h4 style={{ marginBottom: '1rem' }}>Parameter Setting</h4>
-                                            <div className="loader-row" style={{ alignItems:'start' }}>
+                                            <div className="loader-row" style={{ alignItems: 'start' }}>
                                                 <div className="half-column">
                                                     <div className="loader-row">
                                                         <div className="loader-data" style={{ width: 'fit-content', gap: '0.2rem' }}>
@@ -903,7 +898,10 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                         <div className="loader-data">
                                                             <label>Select type:</label>
                                                             <select
-                                                                onChange={(e) => setQrGeneration({ ...qrGeneration, type: e.target.value })}>
+                                                                onChange={(e) =>{ 
+                                                                                    setQrGeneration({ ...qrGeneration, type: e.target.value })
+                                                                                    
+                                                                                }}>
                                                                 <option></option>
                                                                 <option value="Basket Number">Basket Number</option>
                                                                 <option value="Container">Container</option>
@@ -918,7 +916,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                     <div className="loader-row">
                                                         <div className="loader-data">
                                                             <label>Select Parameter:</label>
-                                                            <select onChange={(e) => setQrGeneration({ ...qrGeneration, single: e.target.value })}>
+                                                            <select value={qrGeneration.single} onChange={(e) => setQrGeneration({ ...qrGeneration, single: e.target.value })}>
                                                                 <option></option>
                                                                 {
                                                                     selector_parameters && qrGeneration && qrGeneration.type && selector_parameters?.[qrGeneration.type].map((items) => (<option>{items}</option>))
@@ -928,37 +926,15 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                         <button onClick={() => handleQrGeneration(qrGeneration.single ?? null, qrGeneration.type, 'single')} disabled={!(qrGeneration && qrGeneration.single)} className="add-btn">+</button>
                                                     </div>
                                                     <div className="loader-column">
-                                                     <p>Parameter List</p>
-                                                    <div className="qr-data">
-                                                        {
-                                                            qrGeneration && qrGeneration.qr ? qrGeneration.qr.map((codes)=>(
-                                                                <span>{codes.type}:&nbsp;{codes.parameters}<button className="close-btn">x</button></span>
-                                                            )): <span>Please select parameter</span>
-                                                        }
-                                                    </div>
-                                                    <div className="qr-data">
-                                                        {
-                                                            qrGeneration && qrGeneration.qr && qrGeneration.qr.map((codes)=>{
-                                                                return (
-                                                                    // <span>{codes.type}:&nbsp;{codes.parameters}<button className="close-btn">x</button></span>
-                                                                    <QRCode
-                                                                        value={codes.type + '?' + codes.parameters}
-                                                                        size={256}
-                                                                        bgColor="#ffffff"
-                                                                        fgColor="#000000"
-                                                                        level="H" />
-                                                                );
-                                                            })
-                                                        }
-                                                    </div>
-                                                     <Document>
-                                                        <Page size="A4" style={styles.page}>
-                                                        <View style={styles.section}>
-                                                            <Text style={styles.title}>Hello World</Text>
-                                                            <Text>This is a real vectorized PDF built with React.</Text>
-                                                        </View>
-                                                        </Page>
-                                                    </Document>
+                                                        <p>Parameter List</p>
+                                                        <DocumentGenerator qrGeneration={qrGeneration ?? null} />
+                                                        <div className="qr-data">
+                                                            {
+                                                                qrGeneration && qrGeneration.qr && qrGeneration.qr.length > 0   ? qrGeneration.qr.map((codes,index) => (
+                                                                    <span>{codes.type}:&nbsp;{codes.parameters}<button onClick={()=>handleQrGeneration(codes.parameters, index, 'remove')} className="close-btn">x</button></span>
+                                                                )) : <span>Please select parameter</span>
+                                                            }
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

@@ -63,7 +63,7 @@
 
 
 .view-table-2{
-    min-height: 60%;
+    min-height: 60vh;
     overflow: auto;
     width: 100%;
     animation: floatInFromBottom 1s ease-out forwards;
