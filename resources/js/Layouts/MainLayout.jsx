@@ -10,7 +10,8 @@ import {Head, usePage} from '@inertiajs/react';
  *
  * @returns {JSX.Element} The layout with navigation and dynamic page title.
  */
-export default function MainLayout({children}){
+export default function MainLayout({children,location}){
+    console.log('Navigation bar: ',location);
     return(
         <div className='main-container'>
             <nav className='nav-container'>
@@ -23,7 +24,7 @@ export default function MainLayout({children}){
                         <a href="/production-order/home">Home</a>
                         <a href="/production-order/encode">Encode</a>
                         <a href="/production-order/view">View</a>
-                        <a href="/production-order/admin">Admin</a>
+                        {location && location.permission && location.permission === 'admin' && <a href="/production-order/admin">Admin</a>}
                     </div>
                 </div>
             </nav>

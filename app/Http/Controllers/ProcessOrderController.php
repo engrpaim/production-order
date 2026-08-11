@@ -27,6 +27,53 @@ class ProcessOrderController extends Controller
             return $bank[$database];
     }
 
+    public function locationPermission()
+     {
+            $ip = request()->ip();
+
+            try{
+                    $location = MachineAllocation::where('ip_address' , $ip)->first()->toArray();
+            } catch(\Exception $e){
+                    $location = null;
+            }
+            return  $location;
+    }
+
+    protected function refresh(string $message, string $theme ,string $action){
+        $model = OrderModelList::orderBy('updated_at', 'desc')->orderBy('updated_at', 'desc')->paginate(10, ['*'], 'model');
+        $allModel = OrderModelList::select('Model')->orderBy('Model', 'asc')->get();
+        $parameter = Parameters::orderBy('updated_at', 'desc')->paginate(10,['*'],'paramters');
+        $machine = MachineAllocation::orderBy('updated_at', 'desc')->paginate(10,['*'],'machine');
+        $selector_options = ['Media Size', 'Pre-treatment' , 'Post-treatment'  , 'Condition Number' ,'Nickel 1','Nickel 2','Poly Bag','Basket Number','Container','Endorsement'];
+        $finalResult = [];
+        $permissionLocation = $this->locationPermission();
+        foreach($selector_options as $items){
+            if($items){
+                $result = Parameters::select('parameter')->where('type' , $items)->orderBy('parameter', 'asc')->get();
+                $finalResult[$items]= $result ? array_column($result->toArray(),'parameter' ):null; 
+            }
+        }
+
+        switch($action){
+            case 'model':
+                return [
+                    'appName' => config('app.name'),
+                    'model_manage' =>  $model ?? null, 
+                    'parameter_manage' => $parameter??null,
+                    'selector_parameters' =>  $finalResult,
+                    'machine_manage' => $machine ?? null,
+                    'message' => [ 'message' => $message , 'theme' =>$theme ],
+                    'location' =>  $permissionLocation,
+                    'all_model' => $allModel
+                ]; 
+
+            default:
+                break;
+        }
+                     
+        
+    }
+
     public function delete(array $data ,string $database){
         
          $db = $this->dataBaseBank( $database);
@@ -289,7 +336,8 @@ class ProcessOrderController extends Controller
                 $query->where($key, 'LIKE', "%{$value}%");
             }
         }
-
+        
+         $permissionLocation = $this->locationPermission();
         if (!empty($date_start) && !empty($date_end)) {
             $query->whereBetween('Loading_time', [
                                                     Carbon::parse($date_start)->startOfDay(),
@@ -303,67 +351,44 @@ class ProcessOrderController extends Controller
                             ->paginate(15,['*'], 'order')
                             ->withQueryString();
             return Inertia::render('Main', [
-                'orderList' => $result
+                'orderList' => $result,
+                'location' =>  $permissionLocation 
             ]);
         }else{
             $result = ProductionOrderModel::limit(1000)->orderBy('updated_at', 'desc')->paginate(15, ['*'], 'order');
             return Inertia::render('Main', [
-                'orderList' => $result
+                'orderList' => $result,
+                'location' =>  $permissionLocation 
             ]);
         }
             
     }
     //Admin controller
     
-    protected function refresh(string $message, string $theme ,string $action){
-        $model = OrderModelList::orderBy('updated_at', 'desc')->orderBy('updated_at', 'desc')->paginate(10, ['*'], 'model');
-        $parameter = Parameters::orderBy('updated_at', 'desc')->paginate(10,['*'],'paramters');
-        $machine = MachineAllocation::orderBy('updated_at', 'desc')->paginate(10,['*'],'machine');
-        $selector_options = ['Media Size', 'Pre-treatment' , 'Post-treatment'  , 'Condition Number' ,'Nickel 1','Nickel 2','Poly Bag','Basket Number','Container','Endorsement'];
-        $finalResult = [];
-        foreach($selector_options as $items){
-            if($items){
-                $result = Parameters::select('parameter')->where('type' , $items)->orderBy('parameter', 'asc')->get();
-                $finalResult[$items]= $result ? array_column($result->toArray(),'parameter' ):null; 
-            }
-        }
-
-        switch($action){
-            case 'model':
-                
-                return [
-                    'appName' => config('app.name'),
-                    'model_manage' =>  $model ?? null, 
-                    'parameter_manage' => $parameter??null,
-                    'selector_parameters' =>  $finalResult,
-                    'machine_manage' => $machine ?? null,
-                    'message' => [ 'message' => $message , 'theme' =>$theme ]
-                ]; 
-
-            default:
-                break;
-        }
-                     
-        
-    }
+    
 
     public function getAdminManagement(Request $request){
-
+       
         $data = $request->all();
-        $filter = $data['filter_manage'] ?? false;// get unique identificcation
+        $filter = $data['filter_manage'] ?? false;
         $model_manage = $data['model_manage'] ?? false;
         $parameter_type = $data['parameter_type'] ?? false;
         $parameter_value = $data['parameter_value'] ?? false;
-        
-    
+        $location = $data['location'] ?? null;
+        $ip_address = $data['ip_address'] ?? null;
+                
         $model = OrderModelList::orderBy('updated_at', 'desc')
                                  ->paginate(10, ['*'], 'model');
         $parameter = Parameters::orderBy('updated_at', 'desc')->paginate(10,['*'],'paramters');
-        $machine = MachineAllocation::orderBy('id', 'desc')->paginate(10,['*'],'machine');
-
+        $machine = MachineAllocation::orderBy('id', 'desc')->paginate(10,['*'],'machine_filter');
+        
+        $allModel = OrderModelList::select('*')->orderBy('Model', 'asc')->get();
+        
         $selector_options = ['Media Size', 'Pre-treatment' , 'Post-treatment'  , 'Condition Number' ,'Nickel 1','Nickel 2','Poly Bag','Basket Number','Container','Endorsement'];
         $finalResult = [];
         
+
+        $permissionLocation = $this->locationPermission();
         foreach($selector_options as $items){
             if($items){
                 $result = Parameters::select('parameter')->where('type' , $items)->orderBy('parameter', 'asc')->get();
@@ -378,7 +403,9 @@ class ProcessOrderController extends Controller
                 'model_manage' =>  $model ?? null,
                 'parameter_manage' => $parameter??null,
                 'selector_parameters' =>  $finalResult,
-                'machine_manage' => $machine
+                'machine_manage' => $machine,
+                'location' => $permissionLocation,
+                'all_model' => $allModel 
                 
             ]);
         }
@@ -393,10 +420,12 @@ class ProcessOrderController extends Controller
                     'model_manage' =>  $model ?? null,
                     'parameter_manage' => $parameter??null,
                     'selector_parameters' =>  $finalResult,
-                    'machine_manage' => $machine
+                    'machine_manage' => $machine,
+                    'location' => $permissionLocation,
+                    'all_model' => $allModel
                 ]);
             case 'parameter_manage':
-                $parameter = Parameters::where('parameter','LIKE',"%{$parameter_value}%")->where('type','LIKE',"%{$parameter_type }%")->orderBy('updated_at', 'desc')
+                $parameter = Parameters::where('parameter','LIKE',"%{$parameter_value}%")->where('type','LIKE',"%{$parameter_type}%")->orderBy('updated_at', 'desc')
                             ->paginate(10,['*'], 'param_filter')
                             ->withQueryString();
                 return Inertia::render('Main', [
@@ -404,7 +433,22 @@ class ProcessOrderController extends Controller
                     'model_manage' =>  $model ?? null,
                     'parameter_manage' => $parameter??null,
                     'selector_parameters' =>  $finalResult,
-                    'machine_manage' => $machine
+                    'machine_manage' => $machine,
+                    'location' => $permissionLocation,
+                    'all_model' => $allModel
+                ]);
+            case 'machine_manage':
+                $machine = MachineAllocation::where('location','LIKE',"%{$location}%")->where('ip_address','LIKE',"%{$ip_address}%")->orderBy('updated_at', 'desc')
+                            ->paginate(10,['*'], 'machine_filter')
+                            ->withQueryString();
+                return Inertia::render('Main', [
+                    'appName' => config('app.name'),
+                    'model_manage' =>  $model ?? null,
+                    'parameter_manage' => $parameter??null,
+                    'selector_parameters' =>  $finalResult,
+                    'machine_manage' => $machine,
+                    'location' => $permissionLocation,
+                    'all_model' => $allModel
                 ]);
             default:
                 return Inertia::render('Main', [
@@ -412,7 +456,9 @@ class ProcessOrderController extends Controller
                     'model_manage' =>  $model ?? null,
                     'parameter_manage' => $parameter??null,
                     'selector_parameters' =>  $finalResult,
-                    'machine_manage' => $machine
+                    'machine_manage' => $machine,
+                    'location' => $permissionLocation,
+                    'all_model' => $allModel
                 ]);
                 
         }

@@ -15,8 +15,18 @@ Route::get('/production-order', function () {
 });
 
 Route::get('/production-order/home', function () {
+    $ip = request()->ip();
+
+    try{
+        $location = MachineAllocation::where('ip_address' , $ip)->first()->toArray();
+    } 
+    catch(Exeption $e){
+        $location = null;
+    }
+    
     return Inertia::render('Main', [
         'appName' => config('app.name'),
+        'location' => $location
     ]);
 });
 

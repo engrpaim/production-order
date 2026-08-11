@@ -2,10 +2,11 @@ import { useState } from "react"
 import ModelAdmin from "./ModelAdmin";
 import MachineAdmin from "./MachineAdmin";
 import '../../css/management.css';
-export default function Admin({model_manage , parameter_manage,selector_parameters,machine_manage}) {
+import ProductionOrder from "./ProductionOrder";
+export default function Admin({model_manage , parameter_manage,selector_parameters,machine_manage,all_model}) {
     const [optionManagement, setOptionManagement] = useState('model');
 
-    console.log('',model_manage);
+    console.log('L');
     return (
         <div className="view-main">
             <div className="manage-content">
@@ -23,6 +24,7 @@ export default function Admin({model_manage , parameter_manage,selector_paramete
                         {
                              optionManagement === 'model' ? <ModelAdmin model_manage={model_manage} parameter_manage={parameter_manage} selector_parameters={selector_parameters}/>
                             :optionManagement === 'machine' ? <MachineAdmin machine_manage={machine_manage}/>
+                            :optionManagement === 'order' ? <ProductionOrder all_model={all_model}/>
                             :null}
                     </div>
                 </div>

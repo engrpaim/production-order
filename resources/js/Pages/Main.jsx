@@ -17,7 +17,7 @@ export default function Main() {
 
         const capitalizedFirstLetter = currentUrl.charAt(0).toUpperCase()+currentUrl.slice(1);
 
-        const { appName, serial ,data ,model , routing ,location, order,error,loading,message , orderList , filter_serial , model_manage,parameter_manage,selector_parameters , machine_manage} = usePage().props;
+        const { appName, serial ,data ,model , routing ,location, order,error,loading,message , orderList , filter_serial , model_manage,parameter_manage,selector_parameters , machine_manage, all_model} = usePage().props;
       
         const [ handleData , setData ] = useState(data);
         const [ handleModel,setModelOrder] = useState(model);
@@ -57,8 +57,7 @@ export default function Main() {
            <main  className="main-layout" style={{ background: capitalizedFirstLetter.toLowerCase() == 'home'  ?  `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0,0.6)), url(${HomePicture}) no-repeat center center fixed` :null 
                                                     }}>
                 { messageData && <Notification theme={messageData.theme ?? ''} message={messageData.message ?? ''} /> }
-                <MainLayout>
-                    
+                <MainLayout location={location}>
                     <div className='children-container'>
 
                         {
@@ -69,7 +68,7 @@ export default function Main() {
                             :capitalizedFirstLetter.toLowerCase() == 'home' ? 
                                 <Home/>
                             :capitalizedFirstLetter.toLowerCase() == 'admin' ?
-                                <Admin model_manage={model_manage} parameter_manage={parameter_manage} selector_parameters={selector_parameters} machine_manage={machine_manage}/>
+                                <Admin all_model={all_model} model_manage={model_manage} parameter_manage={parameter_manage} selector_parameters={selector_parameters} machine_manage={machine_manage}/>
                             :null
                         }
                     </div>
