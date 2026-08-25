@@ -18,7 +18,8 @@ Route::get('/production-order/home', function () {
     $ip = request()->ip();
 
     try{
-        $location = MachineAllocation::where('ip_address' , $ip)->first()->toArray();
+        $location = MachineAllocation::where('ip_address' , $ip)->first();
+        if($location) $location = $location->toArray();
     } 
     catch(Exeption $e){
         $location = null;

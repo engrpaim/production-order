@@ -21,7 +21,7 @@ class ProcessOrderController extends Controller
             $bank = [
                 'model' =>  OrderModelList::class,
                 'parameter' =>  Parameters::class,
-                'machine' => MachineAllocation::class
+                'machine' => MachineAllocation::class,
             ];
 
             return $bank[$database];
@@ -32,7 +32,8 @@ class ProcessOrderController extends Controller
             $ip = request()->ip();
 
             try{
-                    $location = MachineAllocation::where('ip_address' , $ip)->first()->toArray();
+                    $location = MachineAllocation::where('ip_address' , $ip)->first();
+                     if($location) $location = $location->toArray();
             } catch(\Exception $e){
                     $location = null;
             }
@@ -466,16 +467,17 @@ class ProcessOrderController extends Controller
     }
     
    
+  
     public function postAdminHandler(Request $request){
            
             $data = $request->all();
-            $action = $data['action'];
-            $requestData = $data['data'];
-            $database = $data['database'];
-
+            $action = $data['action'] ?? null;
+            $requestData = $data['data']?? null;
+            $database = $data['database']?? null;
+           
             if(!$action && !$requestData  && !$database ) return redirect()->back();
                 
-            
+           
             switch($action){
 
                 case 'delete':
@@ -507,7 +509,20 @@ class ProcessOrderController extends Controller
                         $refresh =$this->refresh('Data Already exsist!' , 'error-notification' , 'model' );
                        return Inertia::render('Main',  $refresh );
                     }
-                    
+                    break;
+                 case 'generate':
+                    $clientIP = $request->ip();
+                    $generateController = new GenerateController;
+                    $result = $generateController->GenerateBatch($requestData , $action ,  $clientIP );
+                        
+                    if($result){
+                       $refresh =$this->refresh('Generated QR successfully!' , 'success-notification' , 'model' );
+                       $refresh['generated_woid'] =  $result;
+                       return Inertia::render('Main',  $refresh );
+                    }else{
+                        $refresh =$this->refresh('Generating Error!' , 'error-notification' , 'model' );
+                       return Inertia::render('Main',  $refresh );
+                    }
                     break;
                 default:
                     return redirect()->back();
@@ -515,6 +530,7 @@ class ProcessOrderController extends Controller
             }
            
     }
+
 }
 
 

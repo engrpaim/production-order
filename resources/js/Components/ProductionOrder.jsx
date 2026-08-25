@@ -1,9 +1,11 @@
 import { useState } from "react";
 import Batching from "./Batching";
-export default function ProductionOrder({all_model}) {
-    const [optionSelected, setOptionSelected] = useState(false);
-
+import AILoader from "./AILoader";
+export default function ProductionOrder({all_model, generated_woid}) {
+    const [optionSelected, setOptionSelected] = useState('batching');
+    const [loader ,setLoader] = useState(true)
     console.log('Batching Proto: ' , all_model);
+    
     return (
         <div className="management-content">
             <div className="loader-row">
@@ -12,14 +14,15 @@ export default function ProductionOrder({all_model}) {
             <div className="manage-content-header">
                 {/* @nav Navigation inside Model management panel  */}
                 <div className="management-button-container">
-                    <button onClick={() => setOptionSelected('batching')} className={`management-option ${optionSelected === 'batching' ? 'active' : ''}`}>Batching</button>
                     <button className={`management-option ${optionSelected === 'order' ? 'active' : ''}`}onClick={() => setOptionSelected('order')}>Order</button>
+                    <button onClick={() => setOptionSelected('batching')} className={`management-option ${optionSelected === 'batching' ? 'active' : ''}`}>Batching</button>
                 </div>
             </div>
             <div className="view-table-2">
                 {
                 optionSelected === 'batching' ?
-                <Batching all_model={all_model}/>
+                
+                <Batching all_model={all_model} generated_woid={generated_woid}/>
                 :null
             }
             </div>

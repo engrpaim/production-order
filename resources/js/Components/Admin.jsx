@@ -3,10 +3,10 @@ import ModelAdmin from "./ModelAdmin";
 import MachineAdmin from "./MachineAdmin";
 import '../../css/management.css';
 import ProductionOrder from "./ProductionOrder";
-export default function Admin({model_manage , parameter_manage,selector_parameters,machine_manage,all_model}) {
-    const [optionManagement, setOptionManagement] = useState('model');
+export default function Admin({model_manage , parameter_manage,selector_parameters,machine_manage,all_model,generated_woid}) {
+    const [optionManagement, setOptionManagement] = useState('order');
 
-    console.log('L');
+    console.log('generated woid: ' , generated_woid);
     return (
         <div className="view-main">
             <div className="manage-content">
@@ -16,15 +16,15 @@ export default function Admin({model_manage , parameter_manage,selector_paramete
                 </div>
                 <div>
                     <div>
+                        <button onClick={() => setOptionManagement('order')} className={`option-selector ${optionManagement === 'order' ? 'active' : ''}`}>Production Order</button>
                         <button onClick={() => setOptionManagement('model')} className={`option-selector ${optionManagement === 'model' ? 'active' : ''}`}>Model</button>
                         <button onClick={() => setOptionManagement('machine')} className={`option-selector ${optionManagement === 'machine' ? 'active' : ''}`}>Machine</button>
-                        <button onClick={() => setOptionManagement('order')} className={`option-selector ${optionManagement === 'order' ? 'active' : ''}`}>Production Order</button>
                     </div>
                     <div className="management-view">
                         {
                              optionManagement === 'model' ? <ModelAdmin model_manage={model_manage} parameter_manage={parameter_manage} selector_parameters={selector_parameters}/>
                             :optionManagement === 'machine' ? <MachineAdmin machine_manage={machine_manage}/>
-                            :optionManagement === 'order' ? <ProductionOrder all_model={all_model}/>
+                            :optionManagement === 'order' ? <ProductionOrder all_model={all_model} generated_woid={generated_woid}/>
                             :null}
                     </div>
                 </div>
