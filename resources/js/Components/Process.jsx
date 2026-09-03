@@ -16,7 +16,7 @@ export default function Process({ data, model, location, routing, order, error, 
     let setInModel = false;
 
     function mixingChecking() {
-       
+
 
         if (location && routing) {
 
@@ -82,6 +82,7 @@ export default function Process({ data, model, location, routing, order, error, 
 
                                         className='process-scanner'
                                         onKeyDown={handleKeyDown}
+                                        autoFocus
                                     />
                                     <QrLogo />
                                 </div>
@@ -104,7 +105,16 @@ export default function Process({ data, model, location, routing, order, error, 
                                 <div className='scanned-header'>
                                     <div className='scanned-serial'>
                                         <h1>Serial&nbsp;Number:</h1>
-                                        <h1 style={{ color: '#219ebc' }}>{data.ID.toUpperCase()}</h1>
+                                        <h1 style={{ color: '#219ebc' }}>
+                                            <a
+
+                                                href={`http://172.17.2.236/inventory/single_scan.php?barcode=${data.ID.toUpperCase()}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                style={{ textDecoration: 'underline', color: 'blue' }}>
+                                                {data.ID.toUpperCase()}
+                                            </a>
+                                        </h1>
                                     </div>
                                     <div className='scanned-serial'>
                                         <h1>Status:</h1>
@@ -129,8 +139,6 @@ export default function Process({ data, model, location, routing, order, error, 
                                             <label>Lot/Batch&nbsp;No.:</label>
                                             <input style={{ color: '#780000' }} value={data && data.Lot_No ? data.Lot_No : ''} disabled={true} />
                                         </div>
-                                    </div>
-                                    <div className='scanned-row'>
                                         <div className='scanned-data'>
                                             <label>Media&nbsp;Size:</label>
                                             <input value={model && model.Media_Size ? model.Media_Size : ''} disabled={true} />
@@ -147,8 +155,14 @@ export default function Process({ data, model, location, routing, order, error, 
                                             <label>Post&nbsp;Treatment:</label>
                                             <input value={model && model.Post_Treatment ? model.Post_Treatment : ''} disabled={true} />
                                         </div>
-                                    </div>
-                                    <div className='scanned-row'>
+                                        <div className='scanned-data'>
+                                            <label>Container</label>
+                                            <input value={order && order.Container ? order.Container : ''} onChange={''} disabled={true} />
+                                        </div>
+                                        <div className='scanned-data'>
+                                            <label>Poly&nbsp;Bag</label>
+                                            <input value={order && order.PolyBag ? order.PolyBag : ''} onChange={''} disabled={true} />
+                                        </div>
                                         <div className='scanned-data'>
                                             <label>Nickel&nbsp;1:&nbsp;</label>
                                             <input value={order && order.Nickel_1 ? order.Nickel_1 : ''} disabled={true} />
@@ -162,50 +176,26 @@ export default function Process({ data, model, location, routing, order, error, 
                                             <input value={order && order.Basket_Number ? order.Basket_Number : ''} disabled={true} />
                                         </div>
                                         <div className='scanned-data'>
-                                            <label>Operator:&nbsp;</label>
+                                            <label>Loader:&nbsp;</label>
                                             <input value={order && order.Loader ? order.Loader : ''} disabled={true} />
                                         </div>
+                                         <div className='scanned-data'>
+                                            <label>Unloader</label>
+                                            <input value={order && order.Unloader ? order.Unloader : ''} onChange={''} disabled={true} />
+                                        </div>
+                                        <div className='scanned-data'>
+                                            <label>Endorsed&nbsp;To</label>
+                                            <input value={order && order.Endorsed_To ? order.Endorsed_To : ''} onChange={''} disabled={true} />
+                                        </div>
                                     </div>
+
+
 
                                     {order && order.CurrentLocation && <div className='scanned-data'><p><i><strong>Scanned in {order.CurrentLocation}.</strong></i></p></div>}
 
                                 </div>
                             </div>
 
-                            {checkIfOrderExist && (order.Status.toUpperCase() == 'LOADED' || order.Status.toUpperCase() == 'UNLOADED') ?
-                                (
-                                    <>
-                                        <div className='scanned-condition'>
-                                            <div className='scanned-header'>
-                                                <div className='scanned-serial'>
-                                                    <h1>UNLOADING</h1>
-                                                </div>
-                                            </div>
-                                            <div style={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'row', gap: '1rem', justifyContent: 'center', alignItems: 'center' }}>
-                                                <div className='scanned-data'>
-                                                    <label>Unloader</label>
-                                                    <input value={order && order.Unloader ? order.Unloader : ''} onChange={''} disabled={true} />
-                                                </div>
-                                                <div className='scanned-data'>
-                                                    <label>Container</label>
-                                                    <input value={order && order.Container ? order.Container : ''} onChange={''} disabled={true} />
-                                                </div>
-                                                <div className='scanned-data'>
-                                                    <label>Poly&nbsp;Bag</label>
-                                                    <input value={order && order.PolyBag ? order.PolyBag : ''} onChange={''} disabled={true} />
-                                                </div>
-                                                <div className='scanned-data'>
-                                                    <label>Endorsed&nbsp;To</label>
-                                                    <input value={order && order.Endorsed_To ? order.Endorsed_To : ''} onChange={''} disabled={true} />
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-                                    </>
-                                )
-                                : null
-                            }
                             <div className='scanned-condition'>
                                 <h1>Requirements</h1>
                                 <Condition data={data ?? null} title={data ? "Serial Number is found in daily check file." : "Not found in daily check file."} />
@@ -233,6 +223,7 @@ export default function Process({ data, model, location, routing, order, error, 
                                                 placeholder='scan new I.D!'
                                                 className='process-scanner'
                                                 onKeyDown={handleKeyDown}
+                                                autoFocus
                                             />
                                         </div>
                                         <div>

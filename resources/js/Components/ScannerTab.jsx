@@ -42,7 +42,7 @@ export default function ScannerTab({ routing, order, location, model, data, work
         } else if (e.includes('00;') || e.includes('01;')) {
 
             console.log('asdasdas', scannedItems);
-            const FindLoading = location.permission.toUpperCase() == 'LOADING' ? ["Nickel 1", "Nickel 2", "Basket Number"] : ["Container", "Poly Bag", "Endorsed To"];
+            const FindLoading = location.permission.toUpperCase() == 'LOADING' ? ["Nickel 1", "Nickel 2", "Basket Number"] : ["Endorsement"];
             const hasValidKey = FindLoading.every(key => key in scannedItems);
             const IdName = e.split(';')[2].trim();
             let IdCode = e.split(';')[0].trim();
@@ -68,6 +68,7 @@ export default function ScannerTab({ routing, order, location, model, data, work
                         'location': location,
                         'model_order': model,
                         'workOrder': data && data.ID ? data.ID : '',
+                        'quantity': data && data.Quantity ? data.Quantity : '',
                         'IdName': IdName,
                         'IdCode': IdCode,
                         'daily_check_file': data,
@@ -97,6 +98,7 @@ export default function ScannerTab({ routing, order, location, model, data, work
                         'model_order': model,
                         'workOrder': data && data.ID ? data.ID : '',
                         'IdName': IdName,
+                        'quantity': data && data.Quantity ? data.Quantity : '',
                         'IdCode': IdCode,
                         'daily_check_file': data,
                         'current': location && location.permission ? location.permission : false
@@ -163,7 +165,7 @@ export default function ScannerTab({ routing, order, location, model, data, work
                     <h1>Scan&nbsp;Details</h1>
                 </div>
                 <div className='scanner-processor-input'>
-                    <input value={scanInputValue} onChange={(e) => setScanInputValue(e.target.value)} onKeyDown={handleScanDetails} disabled={!(isCorrectRoute && isAllowed) } />
+                    <input value={scanInputValue} onChange={(e) => setScanInputValue(e.target.value)} onKeyDown={handleScanDetails} disabled={!(isCorrectRoute && isAllowed) } autoFocus />
                     <QrLogo />
                 </div>
                 <div className='scanned-items'>

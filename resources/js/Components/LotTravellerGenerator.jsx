@@ -20,9 +20,9 @@ const styles = StyleSheet.create({
         display: 'flex',
         alignItems: 'center',
         flexDirection: 'column',
-        width: '3in',
-        height: '2in',
-        margin: 6,
+        width: '2.5in',
+        height: '3in',
+        margin: 4,
         border: '1px solid black',
         backgroundColor: '#ffffff',
     },
@@ -41,9 +41,24 @@ const styles = StyleSheet.create({
         height: '30%',
         fontWeight: 'bold',
         textAlign: 'center',
-        fontSize: 16,
+        fontSize: 10,
         width: '100%',
         color: 'black',
+        margin: 1,
+    },
+    title1: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
+        height: '30%',
+        fontStyle: 'italic',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        fontSize: 10,
+        width: '100%',
+        color: 'black',
+        margin: 1,
     },
     title2: {
         display: 'flex',
@@ -53,15 +68,39 @@ const styles = StyleSheet.create({
         height: '32%',
         fontWeight: 'bold',
         textAlign: 'center',
-        fontSize: 25,
+        fontSize: 11,
         width: '100%',
         backgroundColor: 'black',
         color: 'white',
     },
-    p: {
+    title4: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
+        height: '32%',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        fontSize: 11,
+        width: '100%',
+        color: 'black',
+    },
+    title3: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
+        height: '30%',
+        textAlign: 'center',
         fontSize: 8,
+        width: '100%',
+        color: 'black',
+        margin: 1,
+    },
+    p: {
+        fontSize: 5,
         color: 'gray',
-        fontStyle:'italic'
+        fontStyle: 'italic'
     },
     qrImage: {
         width: 60,
@@ -86,30 +125,47 @@ const chunkArray = (array, chunkSize) => {
 
 const QRItem = ({ item }) => (
     <View style={styles.qrContainer} wrap={false}>
+        <View style={styles.title1}>
+            <Text>{item.condition}</Text>
+        </View>
         <View style={styles.title}>
-            <Text>{item.type}</Text>
+            <Text>{item.model}</Text>
+        </View>
+        <View style={styles.title3}>
+            <Text>Work Order I.D:</Text>
         </View>
         <View style={styles.title2}>
-            <Text>{item.parameters}</Text>
+            <Text>{item.work_order_id}</Text>
         </View>
-
         <View style={styles.qrContent}>
             {item.qrSrc ? <Image style={styles.qrImage} src={item.qrSrc} /> : null}
             <View style={styles.footer}>
                 <Text style={styles.p}>Automation Engineering</Text>
             </View>
         </View>
+        <View style={styles.title3}>
+            <Text>Batch Number:</Text>
+        </View>
+        <View style={styles.title4}>
+            <Text>{item.generated_batch_number}</Text>
+        </View>
+        <View style={styles.title4}>
+            <Text >{item.quantity}&nbsp;PCS</Text>
+        </View>
+        <View style={styles.title3}>
+            <Text>{item.remarks}</Text>
+        </View>
     </View>
 );
 
 function PdfDocument({ items }) {
-    const ITEMS_PER_PAGE = 10;
+    const ITEMS_PER_PAGE = 9;
     const qrPages = chunkArray(items, ITEMS_PER_PAGE);
 
     return (
         <Document>
             {qrPages.map((pageItems, pageIndex) => (
-                <Page key={pageIndex} size="A4" title="hello" style={styles.page}>
+                <Page key={pageIndex} size="A4" style={styles.page}>
                     <View style={styles.gridContainer}>
                         {pageItems.map((codes, index) => (
                             <QRItem key={index} item={codes} />
@@ -121,18 +177,18 @@ function PdfDocument({ items }) {
     );
 }
 
-export default function DocumentGenerator({ qrGeneration }) {
+export default function LotTravellerGenerator({ qrGeneration }) {
     const [loading, setLoading] = useState(false);
 
     const handleOpenPdf = async () => {
         console.log(qrGeneration);
-        if (!qrGeneration?.qr?.length) return;
+        if (!qrGeneration.length) return;
 
         setLoading(true);
         try {
             const itemsWithQr = await Promise.all(
-                qrGeneration.qr.map(async (item) => {
-                    const value = `${item.type}?${item.parameters}`;
+                qrGeneration.map(async (item) => {
+                    const value = `${item.work_order_id}`;
                     const qrSrc = await QRCode.toDataURL(value, { errorCorrectionLevel: 'H' });
                     return { ...item, qrSrc };
                 })
@@ -140,24 +196,26 @@ export default function DocumentGenerator({ qrGeneration }) {
 
             const blob = await pdf(<PdfDocument items={itemsWithQr} />).toBlob();
             const pdfUrl = URL.createObjectURL(blob);
-            
+
             // Open a blank window and set its title explicitly
             const newWindow = window.open('', '_blank');
             if (newWindow) {
-                newWindow.document.write(`
-                <html>
-                    <head>
-                        <title>QR Code Labels - Production Order</title>
-                        <style>
-                            body { margin: 0; }
-                            iframe { border: none; width: 100vw; height: 100vh; }
-                        </style>
-                    </head>
-                    <body>
-                        <iframe src="${pdfUrl}"></iframe>
-                    </body>
-                </html>
-            `);
+                newWindow.document.write(
+                `
+                    <html>
+                        <head>
+                            <title>Automated Traveller - Production Order</title>
+                            <style>
+                                body { margin: 0; }
+                                iframe { border: none; width: 100vw; height: 100vh; }
+                            </style>
+                        </head>
+                        <body>
+                            <iframe src="${pdfUrl}"></iframe>
+                        </body>
+                    </html>
+                `
+                );
                 newWindow.document.close();
             }
         } catch (error) {
@@ -168,12 +226,11 @@ export default function DocumentGenerator({ qrGeneration }) {
     };
 
     return (
-        <div style={{ display:'flex' , flexDirection:'row',gap:'1rem'}}>
+        <div style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}>
             <button
                 onClick={handleOpenPdf}
                 disabled={loading}
-                className='print-btn'
-            >
+                className='print-btn'>
                     <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M17.1213 21.1213C18 20.2426 18 18.8284 18 16L18 12.6595C16.5233 12.1579 14.5419 11.7498 12 11.7498C9.45812 11.7498 7.47667 12.1579 6 12.6595V16C6 18.8284 6 20.2426 6.87868 21.1213C7.75736 22 9.17157 22 12 22C14.8284 22 16.2426 22 17.1213 21.1213Z" fill="currentColor" />
                         <path d="M16 6H8C5.17157 6 3.75736 6 2.87868 6.87868C2 7.75736 2 9.17157 2 12C2 14.8284 2 16.2426 2.87868 17.1213C3.37105 17.6137 4.03157 17.8302 5.01484 17.9253C4.99996 17.3662 4.99998 16.7481 5 16.0706L5 13.0424C4.93434 13.0706 4.87007 13.0988 4.8072 13.1271C4.42933 13.2967 3.98546 13.1279 3.8158 12.7501C3.64614 12.3722 3.81493 11.9283 4.1928 11.7587C5.91455 10.9856 8.4805 10.2498 12 10.2498C15.5195 10.2498 18.0854 10.9856 19.8072 11.7587C20.1851 11.9283 20.3539 12.3722 20.1842 12.7501C20.0145 13.1279 19.5707 13.2967 19.1928 13.1271C19.1299 13.0988 19.0657 13.0706 19 13.0424L19 16.0706C19 16.748 19 17.3662 18.9852 17.9253C19.9684 17.8302 20.629 17.6137 21.1213 17.1213C22 16.2426 22 14.8284 22 12C22 9.17157 22 7.75736 21.1213 6.87868C20.2426 6 18.8284 6 16 6Z" fill="currentColor" />

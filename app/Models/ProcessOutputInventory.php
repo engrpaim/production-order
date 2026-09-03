@@ -8,7 +8,7 @@ class ProcessOutputInventory extends Model
 {
     protected $connection = 'inventory_connection';
     protected $table = 'process_output';
-
+    public $timestamps = false;
     protected $fillable = [
         'Date',
         'Shift_Date',
@@ -25,6 +25,7 @@ class ProcessOutputInventory extends Model
         'Encoder',
         'IP_Address',
         'Split_Type',
+        'Split_Remarks',
         'Location',
         'Remarks',
     ];

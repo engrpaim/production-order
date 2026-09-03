@@ -1,18 +1,26 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Models\BatchNumber;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\DailyCheckFile;
+use App\Models\DatalistModel;
+use App\Models\ExcessModel;
 use App\Models\OrderModelList;
 use App\Models\Parameters;
 use App\Models\RoutingCheck;
 use App\Models\MachineAllocation;
+use App\Models\ProcessOutputInventory;
 use App\Models\ProductionOrderModel;
+use App\Models\WeightInventory;
 use Illuminate\Routing\Events\Routing;
 use Carbon\Carbon;
+use Illuminate\Bus\Batch;
 use Nette\Schema\Message;
+use Ramsey\Uuid\Type\Integer;
 
 class ProcessOrderController extends Controller
 {
@@ -22,6 +30,7 @@ class ProcessOrderController extends Controller
                 'model' =>  OrderModelList::class,
                 'parameter' =>  Parameters::class,
                 'machine' => MachineAllocation::class,
+                'excess' => ExcessModel::class
             ];
 
             return $bank[$database];
@@ -42,9 +51,11 @@ class ProcessOrderController extends Controller
 
     protected function refresh(string $message, string $theme ,string $action){
         $model = OrderModelList::orderBy('updated_at', 'desc')->orderBy('updated_at', 'desc')->paginate(10, ['*'], 'model');
-        $allModel = OrderModelList::select('Model')->orderBy('Model', 'asc')->get();
+        $allModel = OrderModelList::select('*')->orderBy('Model', 'asc')->get();
         $parameter = Parameters::orderBy('updated_at', 'desc')->paginate(10,['*'],'paramters');
         $machine = MachineAllocation::orderBy('updated_at', 'desc')->paginate(10,['*'],'machine');
+        $excessDataBase = ExcessModel::where('status','hold')->paginate(10,['*'], 'excess');
+
         $selector_options = ['Media Size', 'Pre-treatment' , 'Post-treatment'  , 'Condition Number' ,'Nickel 1','Nickel 2','Poly Bag','Basket Number','Container','Endorsement'];
         $finalResult = [];
         $permissionLocation = $this->locationPermission();
@@ -65,9 +76,9 @@ class ProcessOrderController extends Controller
                     'machine_manage' => $machine ?? null,
                     'message' => [ 'message' => $message , 'theme' =>$theme ],
                     'location' =>  $permissionLocation,
-                    'all_model' => $allModel
+                    'excess_all_data' => $excessDataBase,
+                    'all_model' => $allModel,
                 ]; 
-
             default:
                 break;
         }
@@ -115,7 +126,7 @@ class ProcessOrderController extends Controller
 
     public function createNewData(array $data , string $database){
         $db = $this->dataBaseBank( $database);
-        
+      
         $finder = '';
         
         //column finder
@@ -125,6 +136,7 @@ class ProcessOrderController extends Controller
                 break;
             case 'parameter':
                 $finder = 'parameter';
+                break;
             case 'machine':
 
                 $finder = 'ip_address';
@@ -154,6 +166,7 @@ class ProcessOrderController extends Controller
 
     public function getDailyCheck(Request $request)
     {
+       
         //Get Request Serial
         $serial  = $request->query('serial');
       
@@ -208,7 +221,86 @@ class ProcessOrderController extends Controller
 
     }
 
-     public function saveLoading(Request $request)
+    public function updateDatalist(string $woid ,string $location ,string $process1 ,string $process2 , string $currentProcess){
+            if(!$woid) return false;
+            try{
+                $result = DatalistModel::where('ID' , '=' , $woid)->first();
+                if(!$result) return false;
+                $modelDetails = $result->toArray();
+
+                $update = DatalistModel::where('ID' , '=', $woid)->update([
+                    'Process_History' =>  $process1.';'.$modelDetails["Process_History"],
+                    'Process_History2' =>  $process2.';'.$modelDetails["Process_History2"],
+                    'Location_History' =>  $location.';'.$modelDetails["Location_History"],
+                    'Process' => $currentProcess
+                ]);
+
+                if($update ) return true;
+                return false;
+            }catch(\Exception $e ){
+                dd($e);
+            }
+    }
+
+     protected function ShiftIdentifier(){
+        //get shift and work hour
+        $datenowShift = Carbon::now()->subHours(6)->format('H');
+        $currentShift = intval($datenowShift) < 12 ? 'E':'F';
+        $hourNow = sprintf('%04d',(intval($datenowShift) * 100)) . "H";
+
+        return [
+            'Shift' =>  $currentShift,
+            'Hour' => $hourNow,
+        ];
+    }
+    public function updateProcessOutput(string $woid ,int $quantity, string $clientIP ,string   $dateYear ,string $model_order, string $process ,string $loader){
+
+                        $shift = $this->ShiftIdentifier();
+                        $computedWeight = 0;
+                        
+                        if(!$woid || !$model_order) return false;
+                       
+
+                        try{
+                            $checkBatchDetails = BatchNumber::where('work_order_id' , '=' , $woid )->first();
+                            if(!$checkBatchDetails) return false;
+
+                            $checkWeight  = WeightInventory::where('Model_Name' , $model_order)->first();
+                            if(!$checkWeight) return false;
+                            $computedWeight  = $quantity * $checkWeight["Weight"];
+
+                            $resultDetails = $checkBatchDetails->toArray();
+                            
+                            $result = ProcessOutputInventory:: create([
+                                                                'Date' => Carbon::now()->format("Y-m-d H:i:s"),
+                                                                'Shift_Date'=>  $dateYear,
+                                                                'Shift' =>  $shift['Shift'] ?? null,
+                                                                'Hour'  =>  $shift['Hour'] ?? null,
+                                                                'Area' =>  'P2 Plating',
+                                                                'Process' =>  $process,
+                                                                'Work_Order' =>  $woid,
+                                                                'Model_Name' =>  $model_order,
+                                                                'Lot_No' =>  $resultDetails["data_lot_number"],
+                                                                'Quantity' => $quantity,
+                                                                'Unit_Weight' => $checkWeight["Weight"] ?? null,
+                                                                'Total_Weight' => $computedWeight,
+                                                                'Encoder' =>  $loader,
+                                                                'IP_Address' =>  $clientIP,
+                                                                'Split_Type' =>  '',
+                                                                'Location' =>  'P2 Plating',
+                                                                'Remarks' =>  'P2OWEBDA',
+                                                                'Split_Remarks' => '',
+                                                            ]);
+                            
+                            if($result) return true;
+                            return false;
+                        }catch(\Exception $e){
+                            dd($e);
+                        }
+                        
+    }
+
+    public function saveLoading(Request $request)
     {
        
         /**
@@ -224,7 +316,8 @@ class ProcessOrderController extends Controller
          *
          * @return mixed
          */
-        function filterInput($array){
+        function filterInput(array $array){
+          
              foreach($array as $key => $value){
                     if($key == 'id' || $key == 'created_at' || $key == 'updated_at'){
                         unset($array[$key]);
@@ -244,8 +337,17 @@ class ProcessOrderController extends Controller
             $request->input('daily_check_file') ? $daily_check = $request->input('daily_check_file') : $daily_check = null;
             $request->input('IdName') ? $loader = $request->input('IdName') : $loader = null;
             $request->input('model_order') ? $model_order = $request->input('model_order'):$model_order = null;
+            $request->input('quantity') ? $quantity_order = $request->input('quantity'):$quantity_order = null;
             $current = $request->input('current') ? $request->input('current'):null;
+            
+            
+            if(!$workOrder) return redirect()->back();
+            $date1 = Carbon::now()->format('Y-m-d H:i:s');
+            $dateYear = Carbon::now()->format('Y-m-d');
 
+          
+            
+                
             
             if($current == 'loading'){
                 /*Check if work order exist*/
@@ -277,7 +379,6 @@ class ProcessOrderController extends Controller
                 
                 
                 // dd($request->all());
-
                 ProductionOrderModel::create(
                     array_merge(
                         [
@@ -288,6 +389,8 @@ class ProcessOrderController extends Controller
                             'Nickel_2' => trim($scanned_data["Nickel 2"]),
                             'Basket_Number' => trim($scanned_data["Basket Number"]),
                             'Loader' => trim($loader),
+                            'PolyBag' => trim($model_order["poly_bag"]),
+                            'Container' => trim($model_order["container"]),
                             'Loading_time'=> trim($now),
                             'Machine_Details' =>  $machineDetailsLoading,
                             'Model_Details' =>  $modelDetailsLoading,
@@ -297,21 +400,41 @@ class ProcessOrderController extends Controller
 
                         ]
                     ));
+
+                $locationHistory = $date1 .'%P2 Plating%'.$loader;
+                $processhistory1 = $date1 .'%' . 'LOADING' . '%' . 'P2 Plating' . '%' . $loader;
+                $processhistory2 = $date1 .'|'. $dateYear .'|P2 Plating|LOADING|' . $quantity_order.'|'.$loader;
+
+                $this->updateDatalist( $workOrder , $locationHistory ,$processhistory1 ,$processhistory2 , 'LOADING');
+                $this->updateProcessOutput($workOrder ,$quantity_order,  $clientIP ,$dateYear ,$model_order["Model"],'LOADING',$loader);
+                    
             }else if($current == 'unloading' && $workOrder){
                 
-                $PolyBag = $scanned_data["Poly Bag"] ? $scanned_data["Poly Bag"]:null;
                 $Unloader = $request->input('IdName') ? $request->input('IdName') :  null;
-                $Endorsed_To = $scanned_data["Endorsed To"] ? $scanned_data["Endorsed To"]:null;
-                $Container = $scanned_data["Container"] ? $scanned_data["Container"]:null;
+                $Endorsed_To = $scanned_data["Endorsement"] ? strtoupper($scanned_data["Endorsement"]):null;
+
                 ProductionOrderModel::where('Work_Order' ,$workOrder)->update([
-                    'PolyBag' => $PolyBag,
                     'Unloader' => $Unloader,
                     'Endorsed_To' => $Endorsed_To,
-                    'Container' => $Container,
                     'Unloading_time' => Carbon::now(),
                     'Status' => 'unloaded',
                 ]);
+
+
+                $locationHistory = $date1 .'%P2 Plating%'.$loader;
+                $processhistory1 = $date1 .'%' . 'UNLOADING' . '%' . 'P2 Plating' . '%' . $loader;
+                $processhistory2 = $date1 .'|'. $dateYear .'|P2 Plating|UNLOADING|' . $quantity_order.'|'.$loader;
+
+                $unloadingSave = $this->updateDatalist( $workOrder , $locationHistory ,$processhistory1 ,$processhistory2 , 'UNLOADING');
+                $endorsingSave = $this->updateProcessOutput($workOrder ,$quantity_order,  $clientIP ,$dateYear ,$model_order["Model"],'UNLOADING',$loader);
                 
+                sleep(1);
+                $locationHistory = $date1 .'%P2 Plating%'.$loader;
+                $processhistory1 = $date1 .'%' . $Endorsed_To . '%' . 'P2 Plating' . '%' . $loader;
+                $processhistory2 = $date1 .'|'. $dateYear .'|P2 Plating|'.$Endorsed_To.'|' . $quantity_order.'|'.$loader;
+                
+                if($unloadingSave) $this->updateDatalist( $workOrder , $locationHistory ,$processhistory1 ,$processhistory2 , $Endorsed_To );
+                if($endorsingSave) $this->updateProcessOutput($workOrder ,$quantity_order,  $clientIP ,$dateYear ,$model_order["Model"],$Endorsed_To ,$loader);
             }
 
         }
@@ -369,7 +492,7 @@ class ProcessOrderController extends Controller
     
 
     public function getAdminManagement(Request $request){
-       
+     
         $data = $request->all();
         $filter = $data['filter_manage'] ?? false;
         $model_manage = $data['model_manage'] ?? false;
@@ -377,14 +500,24 @@ class ProcessOrderController extends Controller
         $parameter_value = $data['parameter_value'] ?? false;
         $location = $data['location'] ?? null;
         $ip_address = $data['ip_address'] ?? null;
-                
-        $model = OrderModelList::orderBy('updated_at', 'desc')
+        $modelSearch = $data['model'] ?? null;
+        $status = $data['status'] ?? null;
+        $lot_number = $data['lot_number'] ?? null;
+        $work_order_id = $data['work_order_id'] ?? null;       
+        $currentIp = $request->ip();
+
+        $checkIFadmin = MachineAllocation::where('ip_address','=',$currentIp)->first();
+
+        if($checkIFadmin && $checkIFadmin->permission !== 'admin' || !$checkIFadmin) return redirect('/production-order/');
+  
+        $model = OrderModelList::limit(1000)->orderBy('updated_at', 'desc')
                                  ->paginate(10, ['*'], 'model');
-        $parameter = Parameters::orderBy('updated_at', 'desc')->paginate(10,['*'],'paramters');
-        $machine = MachineAllocation::orderBy('id', 'desc')->paginate(10,['*'],'machine_filter');
-        
+        $parameter = Parameters::limit(1000)->orderBy('updated_at', 'desc')->paginate(10,['*'],'paramters');
+        $machine = MachineAllocation::limit(1000)->orderBy('id', 'desc')->paginate(10,['*'],'machine_filter');
+        $excessDataBase = ExcessModel::where('status','hold')->orderBy('created_at' , 'desc')->paginate(10,['*'], 'excess');
         $allModel = OrderModelList::select('*')->orderBy('Model', 'asc')->get();
-        
+        $protoList =  BatchNumber::limit(1000)->orderBy('data_id', 'desc')->paginate(10,['*'],'order_list');
+
         $selector_options = ['Media Size', 'Pre-treatment' , 'Post-treatment'  , 'Condition Number' ,'Nickel 1','Nickel 2','Poly Bag','Basket Number','Container','Endorsement'];
         $finalResult = [];
         
@@ -398,7 +531,7 @@ class ProcessOrderController extends Controller
         }
 
         if(!$filter && !$model_manage ){
-            
+           
             return Inertia::render('Main', [
                 'appName' => config('app.name'),
                 'model_manage' =>  $model ?? null,
@@ -406,14 +539,16 @@ class ProcessOrderController extends Controller
                 'selector_parameters' =>  $finalResult,
                 'machine_manage' => $machine,
                 'location' => $permissionLocation,
-                'all_model' => $allModel 
+                'excess_all_data' => $excessDataBase,
+                'all_model' => $allModel,
+                'proto_all_data' => $protoList
                 
             ]);
         }
- 
+
         switch( $filter ){
             case 'model_manage':
-                $model = OrderModelList::where('model','LIKE',"%{$model_manage }%")->orderBy('updated_at', 'desc')
+                $model = OrderModelList::where('model','LIKE',"%{$model_manage}%")->orderBy('updated_at', 'desc')
                             ->paginate(10,['*'], 'order')
                             ->withQueryString();
                 return Inertia::render('Main', [
@@ -423,8 +558,11 @@ class ProcessOrderController extends Controller
                     'selector_parameters' =>  $finalResult,
                     'machine_manage' => $machine,
                     'location' => $permissionLocation,
-                    'all_model' => $allModel
+                    'all_model' => $allModel,
+                    'proto_all_data' => $protoList
+                    
                 ]);
+
             case 'parameter_manage':
                 $parameter = Parameters::where('parameter','LIKE',"%{$parameter_value}%")->where('type','LIKE',"%{$parameter_type}%")->orderBy('updated_at', 'desc')
                             ->paginate(10,['*'], 'param_filter')
@@ -436,8 +574,10 @@ class ProcessOrderController extends Controller
                     'selector_parameters' =>  $finalResult,
                     'machine_manage' => $machine,
                     'location' => $permissionLocation,
-                    'all_model' => $allModel
+                    'all_model' => $allModel,
+                    'proto_all_data' => $protoList
                 ]);
+
             case 'machine_manage':
                 $machine = MachineAllocation::where('location','LIKE',"%{$location}%")->where('ip_address','LIKE',"%{$ip_address}%")->orderBy('updated_at', 'desc')
                             ->paginate(10,['*'], 'machine_filter')
@@ -449,8 +589,51 @@ class ProcessOrderController extends Controller
                     'selector_parameters' =>  $finalResult,
                     'machine_manage' => $machine,
                     'location' => $permissionLocation,
-                    'all_model' => $allModel
+                    'all_model' => $allModel,
+                    'proto_all_data' => $protoList
                 ]);
+
+            case 'excess':
+              
+                $excess = ExcessModel::where('model','LIKE',"%{$modelSearch}%")
+                            ->where('lot_number','LIKE',"%{$lot_number}%")
+                            ->where('status','LIKE',"%{$status}%")
+                            ->orderBy('updated_at', 'desc')
+                            ->paginate(10,['*'], 'machine_filter')
+                            ->withQueryString();
+
+                return Inertia::render('Main', [
+                    'appName' => config('app.name'),
+                    'model_manage' =>  $model ?? null,
+                    'parameter_manage' => $parameter??null,
+                    'selector_parameters' =>  $finalResult,
+                    'machine_manage' => $machine,
+                    'location' => $permissionLocation,
+                    'excess_all_data' => $excess,
+                    'all_model' => $allModel,
+                    'proto_all_data' => $protoList
+                ]);
+            case 'proto_order':
+              
+                $protoList = BatchNumber::where('model','LIKE',"%{$modelSearch}%")
+                            ->where('data_lot_number','LIKE',"%{$lot_number}%")
+                            ->where('work_order_id','LIKE',"%{$work_order_id}%")
+                            ->orderBy('updated_at', 'desc')
+                            ->paginate(10,['*'], 'machine_filter')
+                            ->withQueryString();
+
+                return Inertia::render('Main', [
+                    'appName' => config('app.name'),
+                    'model_manage' =>  $model ?? null,
+                    'parameter_manage' => $parameter??null,
+                    'selector_parameters' =>  $finalResult,
+                    'machine_manage' => $machine,
+                    'location' => $permissionLocation,
+                    'excess_all_data' => $excessDataBase,
+                    'all_model' => $allModel,
+                    'proto_all_data' => $protoList
+                ]);
+
             default:
                 return Inertia::render('Main', [
                     'appName' => config('app.name'),
@@ -459,7 +642,8 @@ class ProcessOrderController extends Controller
                     'selector_parameters' =>  $finalResult,
                     'machine_manage' => $machine,
                     'location' => $permissionLocation,
-                    'all_model' => $allModel
+                    'all_model' => $allModel,
+                    'proto_all_data' => $protoList
                 ]);
                 
         }
@@ -469,12 +653,12 @@ class ProcessOrderController extends Controller
    
   
     public function postAdminHandler(Request $request){
-           
+                
             $data = $request->all();
             $action = $data['action'] ?? null;
             $requestData = $data['data']?? null;
             $database = $data['database']?? null;
-           
+         
             if(!$action && !$requestData  && !$database ) return redirect()->back();
                 
            
@@ -511,19 +695,37 @@ class ProcessOrderController extends Controller
                     }
                     break;
                  case 'generate':
+
                     $clientIP = $request->ip();
                     $generateController = new GenerateController;
                     $result = $generateController->GenerateBatch($requestData , $action ,  $clientIP );
                         
                     if($result){
                        $refresh =$this->refresh('Generated QR successfully!' , 'success-notification' , 'model' );
+                       $refresh['message']['generation_status'] = true;
                        $refresh['generated_woid'] =  $result;
                        return Inertia::render('Main',  $refresh );
                     }else{
-                        $refresh =$this->refresh('Generating Error!' , 'error-notification' , 'model' );
+                       $refresh =$this->refresh('Generating Error!' , 'error-notification' , 'model' );
+                       //true failed false okay
+                       $refresh['message']['generation_status'] = false;
                        return Inertia::render('Main',  $refresh );
                     }
                     break;
+                case 'excess':
+                    $modelName = $requestData["model"] ?? null;
+                
+                    if(!$modelName) return redirect()->back();
+                    
+                    $result = ExcessModel::where('model',$modelName)->where('status', 'hold')->first();
+                    
+
+                    if(!$result) return redirect()->back();
+                    
+                    $refresh =$this->refresh('Checked Excess' , 'success-notification' , 'model' );
+                    $refresh['excess'] = $result->toArray();
+                    return Inertia::render('Main',  $refresh );
+                 
                 default:
                     return redirect()->back();
                     

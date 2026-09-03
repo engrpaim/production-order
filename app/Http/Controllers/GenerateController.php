@@ -9,6 +9,8 @@ use App\Models\DailyCheckFile;
 use App\Models\DatalistModel;
 use App\Models\ProcessOutputInventory;
 use App\Models\WeightInventory;
+use App\Models\ExcessModel;
+use App\Models\MachineAllocation;
 use Carbon\Carbon;
 use Exception;
 use Nette\Schema\Message;
@@ -31,7 +33,8 @@ class GenerateController extends ProcessOrderController
         $ip_address = $clientIP ?? 'Not Found!';
         $current = $status ?? null;
         $excess = $lotNumber->excess  ?? 0;
-
+        $condition = $lotNumber->condition ?? null;
+        $remarks = $lotNumber->remarks ?? null;
         if(!$uniqueNumber) return false;
     
         $checkIfExist = LotNumber::where('lot_number','=',$uniqueNumber )->first();
@@ -48,6 +51,8 @@ class GenerateController extends ProcessOrderController
                 'quantity_per_batch' => $quantity,
                 'excess' => $excess,
                 'status' => $current,
+                'condition' => $condition,
+                'remarks' => $remarks,
                 'ip_address' => $ip_address,
             ]);
 
@@ -78,7 +83,8 @@ class GenerateController extends ProcessOrderController
                     $bank = [
                             'batch_number' => BatchNumber::class,
                             'daily_check' => DailyCheckFile::class,
-                            'process_output' => ProcessOutputInventory::class 
+                            'process_output' => ProcessOutputInventory::class,
+                            'excess' => ExcessModel::class
                         ];
                     $db = $database;
                     foreach (array_chunk($data, 256) as $chunk) {
@@ -93,7 +99,7 @@ class GenerateController extends ProcessOrderController
                 if($result) return true;
                 return false;
             }catch(Exception $e){
-                return false;
+               dd( $e);
             }
 
     }
@@ -110,36 +116,52 @@ class GenerateController extends ProcessOrderController
         ];
     }
 
-
     protected function ComputeWeight(array $data,int $quantity){
         if(!$data && (!$data['Weight'] || !$quantity)) return false;
         $weight = $data['Weight'];
         return $weight * $quantity;
     }
-    protected function saveToInventory(array $batchNumber , array $lotNumberSave , string $route , array $getWeight ,string $clientIP) {
+
+    protected function saveToInventory(array $batchNumber , array $lotNumberSave , string $route , array $getWeight ,string $clientIP ,int $requiredQuantity ,object $detailsExcess,string $shelf ) {
             $dataToInsert = [];
             $dataInsertDailyCheck = [];
             $dataInsertDataList = [];
             $dataInserProcess = [];
+            $dataExcess = [];
             $date1 = Carbon::now()->format('Y-m-d H:i:s');
             $dateYear = Carbon::now()->format('Y-m-d');
+
+            $holdExcess = $detailsExcess->hold_excess ?? null;
             
             
             //Excess
             //Create data for lot_number db
-            foreach($batchNumber as $value){
-
+            foreach($batchNumber as $value){    
+                $date1 = Carbon::now()->format('Y-m-d H:i:s');
                 $batch = $value->batch;
                 $dateWoid = Carbon::now()->format('ymdHis');
                 $woid = 'O' . $dateWoid . $batch;
                 $quantity = $value->quantity;
                 $condition = $value->condition;
+                $remarks = $value->remarks;
                 $generated_batch_number = $value->batch_number;
                 $model = $value->model;
                 $data_id = $lotNumberSave["id"];
                 $status = 'batching';
                 $data_lot_number = $lotNumberSave["lot_number"];
 
+                if($requiredQuantity !== $value->quantity){ 
+                    $dataExcess[] = [
+                        'model' => $model,
+                        'lot_number' => $data_lot_number,
+                        'generated_lot_number'=> $generated_batch_number,
+                        'excess'=> $value->quantity,
+                        'shelf'=> $shelf,
+                        'ip_address'=> $clientIP,
+                        'created_at' => Carbon::now()->format('y-m-d H:i:s'),
+                        'updated_at' => Carbon::now()->format('y-m-d H:i:s'),
+                    ];
+                }
                 $dataToInsert[] = [
                     'data_id' => $data_id,
                     'data_lot_number' => $data_lot_number,
@@ -147,70 +169,75 @@ class GenerateController extends ProcessOrderController
                     'generated_batch_number' => $generated_batch_number,
                     'quantity' => $quantity,
                     'work_order_id' =>$woid, 
-                    'condition' => $condition ?? null,
                     'status' => $status,
-                    'route_code' =>$route
+                    'route_code' =>$route,
+                    'updated_at' => $date1,
+                    'created_at' => $date1,
+                    'condition' => $condition,
+                    'remarks' => $remarks 
                 ];
             }
 
+
             //Process Output list
             foreach($batchNumber as $value){
-                $batch = $value->batch;
-                $dateWoid = Carbon::now()->format('ymdHis');
-                $woid = 'O' . $dateWoid . $batch;
-                $quantity = $value->quantity;
-                $condition = $value->condition;
-                $generated_batch_number = $value->batch_number;
-                $model = $value->model;
-                $data_id = $lotNumberSave["id"];
-                $status = 'batching';
-                $data_lot_number = $lotNumberSave["lot_number"];
-                $shit = $this->ShiftIdentifier();
-                $computedWeight = $this->ComputeWeight($getWeight,$quantity);
-                $dataInserProcess[] = [
-                    'Date'=>  $date1,
-                    'Shift_Date'=>  $dateYear,
-                    'Shift' =>  $shit['Shift'] ?? null,
-                    'Hour'  =>  $shit['Hour'] ?? null,
-                    'Area' =>  'P2 Plating',
-                    'Process' =>  'RECEIVING',
-                    'Work_Order' =>  $woid,
-                    'Model_Name' =>  $model,
-                    'Lot_No' =>  $data_lot_number,
-                    'Quantity' => $quantity,
-                    'Unit_Weight' => $getWeight["Weight"] ?? null,
-                    'Total_Weight' => $computedWeight,
-                    'Encoder' =>  'For Update',
-                    'IP_Address' =>  $clientIP,
-                    'Split_Type' =>  '',
-                    'Location' =>  'P2 Plating',
-                    'Remarks' =>  'P2OWEBDA',
-                    'Split_Remarks' => ''
-                ];
+                if($requiredQuantity === $value->quantity){
+                    $batch = $value->batch;
+                    $dateWoid = Carbon::now()->format('ymdHis');
+                    $woid = 'O' . $dateWoid . $batch;
+                    $quantity = $value->quantity;
+                    $condition = $value->condition;
+                    $generated_batch_number = $value->batch_number;
+                    $model = $value->model;
+                    $data_id = $lotNumberSave["id"];
+                    $status = 'batching';
+                    $data_lot_number = $lotNumberSave["lot_number"];
+                    $shit = $this->ShiftIdentifier();
+                    $computedWeight = $this->ComputeWeight($getWeight,$quantity);
+                    $dataInserProcess[] = [
+                        'Date'=>  $date1,
+                        'Shift_Date'=>  $dateYear,
+                        'Shift' =>  $shit['Shift'] ?? null,
+                        'Hour'  =>  $shit['Hour'] ?? null,
+                        'Area' =>  'P2 Plating',
+                        'Process' =>  'RECEIVING',
+                        'Work_Order' =>  $woid,
+                        'Model_Name' =>  $model,
+                        'Lot_No' =>  $data_lot_number,
+                        'Quantity' => $quantity,
+                        'Unit_Weight' => $getWeight["Weight"] ?? null,
+                        'Total_Weight' => $computedWeight,
+                        'Encoder' =>  $clientIP,
+                        'IP_Address' =>  $clientIP,
+                        'Split_Type' =>  '',
+                        'Location' =>  'P2 Plating',
+                        'Remarks' =>  'P2OWEBDA',
+                        'Split_Remarks' => '',
+                    ];
+                }
             }
 
             
             
             //Create data for datalist check db
             foreach($batchNumber as $value){
-                
-                $dateWoid = Carbon::now()->format('ymdHis');
-                $batch = $value->batch;
-                $woid = 'O' . $dateWoid . $batch;
-                $quantity = $value->quantity;
-                $condition = $value->condition;
-                $generated_batch_number = $value->batch_number;
-                $model = $value->model;
-                $data_id = $lotNumberSave["id"];
-                $status = 'batching';
-                $data_lot_number = $lotNumberSave["lot_number"];
+                if($requiredQuantity === $value->quantity){
+                    
+                    $dateWoid = Carbon::now()->format('ymdHis');
+                    $batch = $value->batch;
+                    $woid = 'O' . $dateWoid . $batch;
+                    $quantity = $value->quantity;
+                    $generated_batch_number = $value->batch_number;
+                    $model = $value->model;
+                    $data_id = $lotNumberSave["id"];
+                    $status = 'batching';
+                    $data_lot_number = $lotNumberSave["lot_number"];
 
 
-                $location = $date1 .'%P2 Plating%'.'USER';
-                $processhistory1 = $date1 .'%' . 'RECEIVING' . '%' . 'P2 Plating' . '%' . 'user';
-                $processhistory2 = $date1 .'|'. $dateYear .'|P2 Plating|RECEIVING|' . $quantity.'|'.'user';
+                    $location = $date1 .'%P2 Plating%'.$clientIP;
+                    $processhistory1 = $date1 .'%' . 'RECEIVING' . '%' . 'P2 Plating' . '%' . 'Generated by:'.$clientIP;
+                    $processhistory2 = $date1 .'|'. $dateYear .'|P2 Plating|RECEIVING|' . $quantity.'|'.'Generated by:'.$clientIP;
 
-                if($condition === 'exact'){
                     $dataInsertDataList[] = [
                         'ID' =>  $woid,
                         'FIFO_No' =>  'For Update',
@@ -226,7 +253,7 @@ class GenerateController extends ProcessOrderController
                         'Category' => '',
                         'Date_Received' =>  Carbon::now()->format('y-m-d H:i:s'),
                         'Shift_Date' =>   Carbon::now()->format('y-m-d'),
-                        'Received_By' =>  'For Update',
+                        'Received_By' =>  $clientIP,
                         'Process' =>  'RECEIVING',
                         'Process_History' =>  $processhistory1,
                         'Process_History2' => $processhistory2,
@@ -249,23 +276,23 @@ class GenerateController extends ProcessOrderController
                         'RoutingCode' => $route
                     ];
                 }
-                
             }
 
 
 
             $updateLot = LotNumber::where('id',$data_id)->update(['status' => 'production']);
+            if(!$updateLot ) return false;
 
-            if(!$updateLot) return false;
-           
+            
             
             try{
                 //Save to datalist
                 $result  = DB::transaction(function () use ($dataInsertDataList) 
                                     {
-                                        $getMaxFIFO = DatalistModel::select('FIFO_No')->latest('FIFO_No')->first();
-                                        $Latest = $getMaxFIFO->FIFO_No ?? null;
-                                        $addFiFo = intval(explode('-',$Latest)[1] + 1);
+                                        $dateFIFO = Carbon::now()->format('ym');
+                                        $getMaxFIFO = DatalistModel::select('FIFO_No')->where('FIFO_No','LIKE','%'.$dateFIFO.'-%')->latest('FIFO_No')->first();
+                                        $Latest = $getMaxFIFO  ? $getMaxFIFO->FIFO_No :1;
+                                        $addFiFo = $getMaxFIFO  ? intval(explode('-',$Latest)[1] + 1):$Latest;
                             
                                         foreach (array_chunk($dataInsertDataList, 256) as $chunk) {
 
@@ -285,7 +312,7 @@ class GenerateController extends ProcessOrderController
                                             try{
                                                 DatalistModel::insert($forInsert);
                                             }catch(Exception $e){
-                                                return false;
+                                                dd( $e);
                                             }
 
                                             
@@ -293,11 +320,18 @@ class GenerateController extends ProcessOrderController
                                         }
                                         return true;
                                     });
-                
                 if($result){
                     $this->saveDetails($dataToInsert,'batch_number');
                     $this->saveDetails($dataInsertDailyCheck,'daily_check');
                     $this->saveDetails($dataInserProcess,'process_output');
+                    $this->saveDetails($dataExcess,'excess');
+                    if($holdExcess) ExcessModel::where('id',$holdExcess->id)->update([
+                                                                                        'merge_date' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                                                        'merge_to' =>  $lotNumberSave["lot_number"], 
+                                                                                        'status' => 'merge',
+                                                                                     ]);
+                    LotNumber::where('id',$data_id)->update(['status' => 'done']);
+                    BatchNumber::where('data_id',$data_id)->update(['status' => 'done']);
                     return true;
                 }
             }catch(Exception $e){
@@ -314,20 +348,25 @@ class GenerateController extends ProcessOrderController
             if(!$weightExist) return false;
             return $weightExist->toArray();
         }catch(Exception $e){
-            return false;
+           dd($e);
         }
     }
    
+
     
     public function GenerateBatch(string $data ,string $action , string  $clientIP ){
+      
         $this->ShiftIdentifier();
-        $convertData = json_decode($data);
-
+        $convertData = json_decode($data) ?? [];
         $lotNumber = $convertData->lot_number ?? null;
         $batchNumber = $convertData->batch_generated ?? null;
         $status = $convertData->status ?? null;
         $model = $lotNumber->model ?? null;
-        if(!$model) return false;
+        $detailsExcess = $convertData->details ?? null;
+        $requiredQuantity =$lotNumber->quantity ?? null;
+        $shelf = $convertData->shelf ?? null;
+
+        if(!$model || !$requiredQuantity ) return false;
 
         $checkRouting = $this->getRouting($model);
         if(!$checkRouting && !$checkRouting["RoutingCode"]) return false;
@@ -336,19 +375,25 @@ class GenerateController extends ProcessOrderController
         $getWeight = $this->checkWeight($model);
         if(!$getWeight && !$getWeight["Weight"]) return false;
         
+
         switch( $action){
             case 'generate':
-
                 // saving in lot_number
                 $lotNumberSave = $this->LotNumberSave($lotNumber , $clientIP ,$status , $checkRouting["RoutingCode"]);
 
                 if(!$lotNumberSave ) return false;
-
+               
                 // saving in datalist
-                $batchSaved = $this->saveToInventory( $batchNumber , $lotNumberSave , $checkRouting["RoutingCode"], $getWeight, $clientIP );
+                $batchSaved = $this->saveToInventory( $batchNumber , $lotNumberSave , $checkRouting["RoutingCode"], $getWeight, $clientIP,$requiredQuantity , $detailsExcess,$shelf );
                 if(!$batchSaved) return false;
+                
+                $updateBatch = BatchNumber::where('data_id',$lotNumberSave["id"])->update(['status' => 'production']);
+                if(!$updateBatch) return false;
 
-                return true;
+                $generatedWOID = BatchNumber::select('*')->where('data_lot_number','=', $lotNumber->lot_number)->get();
+                
+                if($generatedWOID)return  $generatedWOID->toArray();
+                return false;
 
             default:
                 return false;

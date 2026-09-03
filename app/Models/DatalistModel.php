@@ -8,9 +8,9 @@ class DatalistModel extends Model
 {
     protected $connection = 'inventory_connection';
     protected $table = 'datalist';
-
+    public $timestamps = false;
     protected $fillable = [
-        'ID' ,
+                    'ID' ,
                     'FIFO_No' ,
                     'Model_Name' ,
                     'Lot_No' ,
