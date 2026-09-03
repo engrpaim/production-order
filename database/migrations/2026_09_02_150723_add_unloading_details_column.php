@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('Order_models', function (Blueprint $table) {
+        Schema::table('Order_Models', function (Blueprint $table) {
             $table->string('container')->nullable();
             $table->string('poly_bag')->nullable();
             $table->string('basket_number')->nullable();
@@ -24,7 +24,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('order_models', function (Blueprint $table) {
+        Schema::table('Order_Models', function (Blueprint $table) {
             $table->dropColumn(['container', 'poly_bag', 'basket_number','endorsement']);
         });
     }
