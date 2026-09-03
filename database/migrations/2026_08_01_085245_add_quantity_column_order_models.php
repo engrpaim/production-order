@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::table('order_models', function(Blueprint $table){
+       Schema::table('Order_Models', function(Blueprint $table){
                 $table->double('Quantity')->nullable();
                 $table->string('Model_Code')->nullable();
            });
