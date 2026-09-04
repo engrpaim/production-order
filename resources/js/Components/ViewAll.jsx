@@ -1,18 +1,20 @@
 import '../../css/view.css';
-import { useState } from 'react';
+import { useState , useEffect } from 'react';
 import { Link ,router,useForm ,usePage} from '@inertiajs/react';
-export default function ViewAll({ list, setLoader}) {
-    console.log('View all: ', list.data, list);
+export default function ViewAll({ list, setLoader , location}) {
+    console.log('View all: ', list.data, list , location);
     const searchParams = new URLSearchParams(window.location.search);
     const serial = searchParams.get('serial');
     const modelGet = searchParams.get('model');
     const startGet = searchParams.get('date_start');
     const endGet = searchParams.get('date_end');
+    const locationGet = searchParams.get('location');
     const  { data ,setData ,get, processing,errors} = useForm({
         model:modelGet ?? '',
         date_start:startGet ?? '',
         date_end: endGet ?? '',
-        serial: serial ?? ''
+        serial: serial ?? '',
+        location: locationGet ?locationGet:location && location.location ?location.location: ''
     });
     
     
@@ -26,6 +28,8 @@ export default function ViewAll({ list, setLoader}) {
             
         });
     }
+
+ 
     console.log('Current Data: ',data,list.data === null);
     return (
         <div className="view-main">
@@ -43,6 +47,14 @@ export default function ViewAll({ list, setLoader}) {
                         <div className='filter-data'>
                             <p>Model</p>
                             <input onKeyDown={(e) => e.key === 'Enter' && handleFilter(e,data , 'search')} value={data.model} onChange={(e)=>setData('model',e.target.value)}/>
+                        </div>
+                         <div className='filter-data'>
+                            <select value={data.location} onChange={(e)=>setData('location',e.target.value)}>
+                                <option></option>
+                                <option value="Plating line 1">Plating line 1</option>
+                                <option value="Plating line 2">Plating line 2</option>
+                                <option value="Plating line 3">Plating line 3</option>
+                            </select>
                         </div>
                         <div className='filter-data'>
                             <p>Serial</p>

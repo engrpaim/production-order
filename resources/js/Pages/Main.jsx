@@ -64,10 +64,10 @@ export default function Main() {
                             capitalizedFirstLetter.toLowerCase() == 'encode' ?
                                 <Process  data={handleData} model={handleModel} location={location} routing={routing} order={handleOrder} error={handleError} loader={loader} setLoader={setLoader}/>
                             :capitalizedFirstLetter.toLowerCase() == 'view' ?
-                                <ViewAll list={orderList} setLoader={setLoader} filter_serial={filter_serial}/>
+                                <ViewAll list={orderList} setLoader={setLoader} filter_serial={filter_serial} location={location}/>
                             :capitalizedFirstLetter.toLowerCase() == 'home' ? 
                                 <Home/>
-                            :capitalizedFirstLetter.toLowerCase() == 'admin' ?
+                            :capitalizedFirstLetter.toLowerCase() == 'admin' && location && location ?
                                 <Admin all_model={all_model} 
                                        model_manage={model_manage} 
                                        parameter_manage={parameter_manage} 

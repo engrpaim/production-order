@@ -447,10 +447,11 @@ class ProcessOrderController extends Controller
         $date_start = $request->get('date_start') ?? null;
         $date_end = $request->get('date_end') ?? null;
         $serial = $request->get('serial') ?? null;
-        
+        $location = $request->get('location') ?? null;
         $items = [
             'Model_Name' => $model,
             'Work_Order' => $serial,
+            'CurrentLocation' => $location
         ];
 
         $query = ProductionOrderModel::query();
