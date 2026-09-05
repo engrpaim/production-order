@@ -741,7 +741,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                     </select>
                                                 </div>
                                                 <div className="loader-data">
-                                                    <p>Basket Number:</p>
+                                                    <p>Basket #:</p>
                                                     <select
                                                         value={updateModel && updateModel.basket_number ? updateModel.basket_number : ''}
                                                         onChange={(e) => setUpdateModel({ ...updateModel, basket_number: e.target.value })}
@@ -798,6 +798,8 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                         }
                                                     </select>
                                                 </div>
+                                                
+                                                
                                             </div>
 
                                             <div className="loader-row">

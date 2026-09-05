@@ -28,6 +28,9 @@ class ProductionOrderModel extends Model
         'CurrentLocation',
         'Remarks',
         'Status',
+        'Quantity',
+        'Copper_1',
+        'Copper_2',
     ];
 
     protected $casts = [

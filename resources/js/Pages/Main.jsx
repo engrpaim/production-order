@@ -17,7 +17,7 @@ export default function Main() {
 
         const capitalizedFirstLetter = currentUrl.charAt(0).toUpperCase()+currentUrl.slice(1);
 
-        const { appName, serial ,data ,model , routing ,location, order,error,loading,message , orderList , filter_serial , model_manage,parameter_manage,selector_parameters , machine_manage, all_model,generated_woid,excess ,excess_all_data, proto_all_data} = usePage().props;
+        const { appName, serial ,data ,model , routing ,location, order,error,loading,message , orderList , filter_serial , model_manage,parameter_manage,selector_parameters , machine_manage, all_model,generated_woid,excess ,excess_all_data, proto_all_data , exceList} = usePage().props;
       
         const [ handleData , setData ] = useState(data);
         const [ handleModel,setModelOrder] = useState(model);
@@ -64,7 +64,7 @@ export default function Main() {
                             capitalizedFirstLetter.toLowerCase() == 'encode' ?
                                 <Process  data={handleData} model={handleModel} location={location} routing={routing} order={handleOrder} error={handleError} loader={loader} setLoader={setLoader}/>
                             :capitalizedFirstLetter.toLowerCase() == 'view' ?
-                                <ViewAll list={orderList} setLoader={setLoader} filter_serial={filter_serial} location={location}/>
+                                <ViewAll list={orderList} setLoader={setLoader} filter_serial={filter_serial} location={location} exceList={exceList}/>
                             :capitalizedFirstLetter.toLowerCase() == 'home' ? 
                                 <Home/>
                             :capitalizedFirstLetter.toLowerCase() == 'admin' && location && location ?

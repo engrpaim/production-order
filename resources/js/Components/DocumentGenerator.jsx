@@ -7,6 +7,7 @@ const styles = StyleSheet.create({
         padding: 15,
         backgroundColor: '#ffffff',
     },
+
     gridContainer: {
         display: 'flex',
         flexDirection: 'row',
@@ -16,6 +17,7 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
+
     qrContainer: {
         display: 'flex',
         alignItems: 'center',
@@ -26,6 +28,7 @@ const styles = StyleSheet.create({
         border: '1px solid black',
         backgroundColor: '#ffffff',
     },
+    
     qrContent: {
         display: 'flex',
         flexDirection: 'column',

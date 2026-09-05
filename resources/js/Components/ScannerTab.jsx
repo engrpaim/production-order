@@ -42,7 +42,7 @@ export default function ScannerTab({ routing, order, location, model, data, work
         } else if (e.includes('00;') || e.includes('01;')) {
 
             console.log('asdasdas', scannedItems);
-            const FindLoading = location.permission.toUpperCase() == 'LOADING' ? ["Nickel 1", "Nickel 2", "Basket Number"] : ["Endorsement"];
+            const FindLoading = location.permission.toUpperCase() == 'LOADING' ? ["Nickel 1", "Nickel 2", "Basket Number"]:["Endorsement"];
             const hasValidKey = FindLoading.every(key => key in scannedItems);
             const IdName = e.split(';')[2].trim();
             let IdCode = e.split(';')[0].trim();

@@ -376,8 +376,7 @@ class ProcessOrderController extends Controller
 
                
                     
-                
-                
+              
                 // dd($request->all());
                 ProductionOrderModel::create(
                     array_merge(
@@ -396,6 +395,7 @@ class ProcessOrderController extends Controller
                             'Model_Details' =>  $modelDetailsLoading,
                             'Daily_Check' =>   $dailyCheckLoading,
                             'CurrentLocation' => trim($location["location"]),
+                            'Quantity' => $dailyCheckLoading["Quantity"],
                             'Status' => 'loaded',
 
                         ]
@@ -455,34 +455,52 @@ class ProcessOrderController extends Controller
         ];
 
         $query = ProductionOrderModel::query();
-
+        $query2 = ProductionOrderModel::query();
         foreach($items as $key => $value){
             if($value){
                 $query->where($key, 'LIKE', "%{$value}%");
+                $query2->where($key, 'LIKE', "%{$value}%");
             }
         }
         
-         $permissionLocation = $this->locationPermission();
+        $permissionLocation = $this->locationPermission();
+        
         if (!empty($date_start) && !empty($date_end)) {
             $query->whereBetween('Loading_time', [
                                                     Carbon::parse($date_start)->startOfDay(),
                                                     Carbon::parse($date_end)->endOfDay(),
                                                 ]);
+            $query2->whereBetween('Loading_time', [
+                                                    Carbon::parse($date_start)->startOfDay(),
+                                                    Carbon::parse($date_end)->endOfDay(),
+                                                ]);
+            
         }
 
         if( $get && count($get) > 1 ){
-            $result = $query->limit(1000)
-                            ->orderBy('updated_at', 'desc')
+           
+            $result = $query->orderBy('updated_at', 'desc')
                             ->paginate(15,['*'], 'order')
                             ->withQueryString();
+
+            $excelData = $query2->orderBy('updated_at', 'desc')->get();
+                
+            $dataExcel =  $excelData  ? json_encode($excelData->toArray()):null;
+                
             return Inertia::render('Main', [
                 'orderList' => $result,
+                'exceList' => $dataExcel,
                 'location' =>  $permissionLocation 
             ]);
+            
         }else{
             $result = ProductionOrderModel::limit(1000)->orderBy('updated_at', 'desc')->paginate(15, ['*'], 'order');
+            $excelData = ProductionOrderModel::limit(1000)->orderBy('updated_at', 'desc')->get(); 
+            $dataExcel =  $excelData  ? json_encode($excelData->toArray()):null;
+
             return Inertia::render('Main', [
                 'orderList' => $result,
+                'exceList' => $dataExcel,
                 'location' =>  $permissionLocation 
             ]);
         }
