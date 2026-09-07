@@ -369,11 +369,11 @@ class GenerateController extends ProcessOrderController
         if(!$model || !$requiredQuantity ) return false;
 
         $checkRouting = $this->getRouting($model);
-        if(!$checkRouting && !$checkRouting["RoutingCode"]) return false;
+        if(!$checkRouting) return false;
 
         //Check Weight
         $getWeight = $this->checkWeight($model);
-        if(!$getWeight && !$getWeight["Weight"]) return false;
+        if(!$getWeight) return false;
         
 
         switch( $action){
