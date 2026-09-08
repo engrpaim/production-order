@@ -480,7 +480,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                                     </div>
                                                                 </div>
                                                                 <div className="loader-row">
-                                                                    <div className="loader-data">
+                                                                    <div className="loader-data" style={{ width:'50rem' }}>
                                                                         <p>Endorsement:</p>
                                                                         <select
                                                                             value={updateModel && updateModel.endorsement ? updateModel.endorsement : ''}
