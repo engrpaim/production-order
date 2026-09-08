@@ -269,7 +269,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                 <h3>Manage Model</h3>
                 <p></p>
             </div>
-            <div className="manage-content-header">
+            <div className="manage-content-header" style={{ width:'fit-content' }}>
                 {/* @nav Navigation inside Model management panel  */}
                 <div className="management-button-container">
                     <button className={`management-option ${optionSelected === 'list' ? 'active' : ''}`}
@@ -290,7 +290,8 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                         onClick={() => {
                             setOptionSelected('add')
                             setUpdateModel(false)
-                        }}>Add Model +</button>
+                        }} style={{ width:'10rem' }}>Model Add +</button>
+                    <input type="file" accept=".xlsx, .xls"></input>
                 </div>
                 {
                     optionSelected === 'list' ?
@@ -479,8 +480,8 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                                             placeholder="quantity" />
                                                                     </div>
                                                                 </div>
-                                                                <div className="loader-row" style={{ width:'25rem' }}>
-                                                                    <div className="loader-data" >
+                                                                <div className="loader-row">
+                                                                    <div className="loader-data" style={{ width:'25rem' }} >
                                                                         <p>Endorsement:</p>
                                                                         <select
                                                                             value={updateModel && updateModel.endorsement ? updateModel.endorsement : ''}
@@ -756,7 +757,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                         }
                                                     </select>
                                                 </div>
-                                                <div className="loader-data"  style={{ width:'25rem' }}>
+                                                <div className="loader-data" style={{ width:'30rem' }}>
                                                     <p>Endorsement:</p>
                                                     <select
                                                         value={updateModel && updateModel.endorsement ? updateModel.endorsement : ''}
