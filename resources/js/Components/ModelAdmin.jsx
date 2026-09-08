@@ -479,8 +479,8 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                                             placeholder="quantity" />
                                                                     </div>
                                                                 </div>
-                                                                <div className="loader-row">
-                                                                    <div className="loader-data" style={{ width:'50rem' }}>
+                                                                <div className="loader-row" style={{ width:'25rem' }}>
+                                                                    <div className="loader-data" >
                                                                         <p>Endorsement:</p>
                                                                         <select
                                                                             value={updateModel && updateModel.endorsement ? updateModel.endorsement : ''}
@@ -756,7 +756,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                         }
                                                     </select>
                                                 </div>
-                                                <div className="loader-data">
+                                                <div className="loader-data"  style={{ width:'25rem' }}>
                                                     <p>Endorsement:</p>
                                                     <select
                                                         value={updateModel && updateModel.endorsement ? updateModel.endorsement : ''}
