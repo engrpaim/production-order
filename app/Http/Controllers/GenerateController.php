@@ -385,17 +385,18 @@ class GenerateController extends ProcessOrderController
                 $lotNumberSave = $this->LotNumberSave($lotNumber , $clientIP ,$status , $checkRouting["RoutingCode"]);
 
                 if(!$lotNumberSave ) return false;
-               
+                dump('1');
                 // saving in datalist
                 $batchSaved = $this->saveToInventory( $batchNumber , $lotNumberSave , $checkRouting["RoutingCode"], $getWeight, $clientIP,$requiredQuantity , $detailsExcess,$shelf );
                 if(!$batchSaved) return false;
-                
+                dump('2');
                 $updateBatch = BatchNumber::where('data_id',$lotNumberSave["id"])->update(['status' => 'production']);
                 if(!$updateBatch) return false;
-
+                dump('3');
                 $generatedWOID = BatchNumber::select('*')->where('data_lot_number','=', $lotNumber->lot_number)->get();
                 
                 if($generatedWOID)return  $generatedWOID->toArray();
+                dump('4');
                 return false;
 
             default:

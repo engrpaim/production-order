@@ -288,6 +288,13 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                             setManageActions(false)
                             setQrGeneration(false)
                         }}>Parameters</button>
+                    <button className={`management-option ${optionSelected === 'upload' ? 'active' : ''}`}
+                        onClick={() => {
+                            setOptionSelected('upload')
+                            setUpdateModel(false)
+                            setManageActions(false)
+                            setQrGeneration(false)
+                        }}>Upload</button>
                     <button className={`add-btn ${optionSelected === 'add' ? 'active' : ''}`}
                         onClick={() => {
                             setOptionSelected('add')
