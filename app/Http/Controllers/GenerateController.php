@@ -174,7 +174,10 @@ class GenerateController extends ProcessOrderController
                     'updated_at' => $date1,
                     'created_at' => $date1,
                     'condition' => $condition,
-                    'remarks' => $remarks 
+                    'remarks' => $remarks ,
+                    'quantity_status' => $requiredQuantity === $value->quantity ? 'exact' :'excess',
+                    'inventory_encoding' => $requiredQuantity === $value->quantity ? true :false,
+
                 ];
             }
 
@@ -312,7 +315,7 @@ class GenerateController extends ProcessOrderController
                                             try{
                                                 DatalistModel::insert($forInsert);
                                             }catch(Exception $e){
-                                                dd( $e);
+                                                dd($e);
                                             }
 
                                             

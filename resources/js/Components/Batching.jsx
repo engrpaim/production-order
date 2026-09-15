@@ -147,8 +147,8 @@ export default function Batching({ all_model , generated_woid , message ,excess}
             <p>Create batching , enter the lot number and quantity.</p>
             {
                 (!Details) && <div className="loader-column">
-                    <div className="loader-row" style={{ display:'flex' ,justifyContent:'center', alignItems:'center',background: '#E6F6FF', padding: '0.7rem', borderRadius: '1rem', boxShadow: 'rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px', }}>
-                        <div className="loader-row">
+                    <div className="loader-row" style={{ display:'flex' ,justifyContent:'start', alignItems:'start',background: '#E6F6FF', padding: '0.7rem', borderRadius: '1rem', boxShadow: 'rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px', width:'fit-content'}}>
+                        <div className="loader-row" style={{ width:'fit-content' }}>
                             <label>Lot&nbsp;Number:</label>
                             <input
                                 className={redIndex && redIndex.index && redIndex.index.includes('lot_number') ? 'red-required' : redIndex && ProtoState && ProtoState.lot_number ? 'green-required' : ''}
@@ -158,7 +158,7 @@ export default function Batching({ all_model , generated_woid , message ,excess}
                                                     setProtoState({ ...ProtoState, lot_number: e.target.value })
                                                     }} type="text" placeholder="lot number" />
                         </div>
-                        <div className="loader-row">
+                        <div className="loader-row" style={{ width:'fit-content' }}>
                             <label>Model:</label>
                             <select
                                 idName='find'
@@ -175,7 +175,7 @@ export default function Batching({ all_model , generated_woid , message ,excess}
                                 }
                             </select>
                         </div>
-                        <div className="loader-row">
+                        <div className="loader-row" style={{ width:'fit-content' }}>
                             <label>Quantity:</label>
                             <input
                                 className={redIndex && redIndex.index && redIndex.index.includes('quantity') ? 'red-required' : redIndex && ProtoState && ProtoState.lot_number ? 'green-required' : ''}
@@ -184,7 +184,7 @@ export default function Batching({ all_model , generated_woid , message ,excess}
                                 onChange={(e) => setProtoState({ ...ProtoState, quantity: e.target.value })} type="number" placeholder="quantity" />
                             
                         </div>
-                        <div className="loader-row">
+                        <div className="loader-row" style={{ width:'fit-content' }}>
                             <label>Condition</label>
                             <input
                                 className={redIndex && redIndex.index && redIndex.index.includes('condition') ? 'red-required' : redIndex && ProtoState && ProtoState.condition ? 'green-required' : ''}
@@ -192,7 +192,7 @@ export default function Batching({ all_model , generated_woid , message ,excess}
                                 value={ProtoState.condition}
                                 onChange={(e) => setProtoState({ ...ProtoState, condition: e.target.value })} type="text" placeholder="condition" />
                         </div>
-                        <div className="loader-row">
+                        <div className="loader-row" style={{ width:'fit-content' }}>
                             <label>Remarks</label>
                             <input
                                 className={redIndex && redIndex.index && redIndex.index.includes('remarks') ? 'red-required' : redIndex && ProtoState && ProtoState.remarks ? 'green-required' : ''}

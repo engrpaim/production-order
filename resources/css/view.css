@@ -97,14 +97,13 @@
     width: 100%;
     flex-direction: column;
     gap:1rem;
-    overflow: auto;
+    overflow: scroll;
 }
 .view-filter-options{
     display: flex;
     flex-direction: row;
     justify-content: end;
     align-items: center;
-    overflow: auto;
     width: 100%;
     gap:1rem;
     padding: 1rem;
@@ -218,3 +217,18 @@
     align-self: end;
 }
 
+.upload-file {
+  display: none;
+}
+
+
+.custom-upload-btn {
+  display: inline-block;
+  color:#1348b9cc;
+  background: #a4d8f781;
+  margin: 0rem 1rem;
+  padding:0.5rem;
+  border:1px dashed #16a1f1;
+  border-radius: 4px;
+  cursor: pointer;
+}

@@ -17,6 +17,8 @@ class BatchNumber extends Model
             'condition',
             'remarks',
             'status',
-            'route'
+            'route',
+            'quantity_status',
+            'inventory_encoding'
    ];
 }

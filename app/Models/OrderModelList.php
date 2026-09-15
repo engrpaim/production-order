@@ -21,7 +21,13 @@ class OrderModelList extends Model
         'Ip_Address',
         'Quantity',
         'Author', 
-        'Model_Code'
+        'Model_Code',
+        "Magnet_Type",
+        "Basket_Type",
+        "Nickel_1_2_A",
+        "Drying_Method",
+        "Qa_Chiptype",
+        "Plating_Specs"
     ];
 
     protected $casts = [ 

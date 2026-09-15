@@ -56,7 +56,7 @@ class ProcessOrderController extends Controller
         $machine = MachineAllocation::orderBy('updated_at', 'desc')->paginate(10,['*'],'machine');
         $excessDataBase = ExcessModel::where('status','hold')->paginate(10,['*'], 'excess');
 
-        $selector_options = ['Media Size', 'Pre-treatment' , 'Post-treatment'  , 'Condition Number' ,'Nickel 1','Nickel 2','Poly Bag','Basket Number','Container','Endorsement'];
+        $selector_options = ['Media Size', 'Pre-treatment' , 'Post-treatment'  , 'Condition Number' ,'Nickel 1','Nickel 2','Poly Bag','Basket Number','Container','Endorsement' ,'Basket Type','Magnet Type','Drying Method','Plating Specs','Nickel_1_2_A'];
         $finalResult = [];
         $permissionLocation = $this->locationPermission();
         foreach($selector_options as $items){
@@ -537,7 +537,7 @@ class ProcessOrderController extends Controller
         $allModel = OrderModelList::select('*')->orderBy('Model', 'asc')->get();
         $protoList =  BatchNumber::limit(1000)->orderBy('data_id', 'desc')->paginate(10,['*'],'order_list');
 
-        $selector_options = ['Media Size', 'Pre-treatment' , 'Post-treatment'  , 'Condition Number' ,'Nickel 1','Nickel 2','Poly Bag','Basket Number','Container','Endorsement'];
+        $selector_options = ['Media Size', 'Pre-treatment' , 'Post-treatment'  , 'Condition Number' ,'Nickel 1','Nickel 2','Poly Bag','Basket Number','Container','Endorsement','Basket Type','Magnet Type','Drying Method','Plating Specs','Nickel_1_2_A'];
         $finalResult = [];
         
 
@@ -672,7 +672,7 @@ class ProcessOrderController extends Controller
    
   
     public function postAdminHandler(Request $request){
-                
+        
             $data = $request->all();
             $action = $data['action'] ?? null;
             $requestData = $data['data']?? null;

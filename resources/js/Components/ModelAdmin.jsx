@@ -16,6 +16,7 @@ import Notification from "./Notification";
 import { handleEnterNext, checkIfRequired } from '../Utilities/UtilityFunctions'
 import DeleteModal from "./DeleteModal";
 import DocumentGenerator from "./DocumentGenerator";
+import ExcelJS from 'exceljs';
 
 export default function ModelAdmin({ model_manage, parameter_manage, selector_parameters }) {
 
@@ -262,6 +263,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
 
     }
     console.log('currentss:', qrGeneration);
+
     return (
 
         <div className="management-content">
@@ -269,7 +271,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                 <h3>Manage Model</h3>
                 <p></p>
             </div>
-            <div className="manage-content-header" style={{ width:'fit-content' }}>
+            <div className="manage-content-header" style={{ width: 'fit-content' }}>
                 {/* @nav Navigation inside Model management panel  */}
                 <div className="management-button-container">
                     <button className={`management-option ${optionSelected === 'list' ? 'active' : ''}`}
@@ -290,8 +292,8 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                         onClick={() => {
                             setOptionSelected('add')
                             setUpdateModel(false)
-                        }} style={{ width:'10rem' }}>Model Add +</button>
-                    <input type="file" accept=".xlsx, .xls"></input>
+                        }} style={{ width: '10rem', margin: '0rem 1rem' }}>Model Add +</button>
+
                 </div>
                 {
                     optionSelected === 'list' ?
@@ -481,31 +483,15 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                                     </div>
                                                                 </div>
                                                                 <div className="loader-row">
-                                                                    <div className="loader-data" style={{ width:'25rem' }} >
-                                                                        <p>Endorsement:</p>
-                                                                        <select
-                                                                            value={updateModel && updateModel.endorsement ? updateModel.endorsement : ''}
-                                                                            onChange={(e) => setUpdateModel({ ...updateModel, endorsement: e.target.value })}
-                                                                            onKeyDown={(e) => handleEnterNext(e)}
-                                                                            idName="endorsement"
-                                                                            className={submitted && redIndex.includes('endorsement') ? 'red-required' : submitted ? 'green-required' : ''}
-                                                                            placeholder="endorsement" >
-                                                                            <option value='' disabled></option>
-                                                                            {
-                                                                                selector_parameters && selector_parameters?.['Endorsement'] &&
-                                                                                selector_parameters?.['Endorsement'].map((items) => (<option value={items}>{items}</option>))
-                                                                            }
-                                                                        </select>
-                                                                    </div>
                                                                     <div className="loader-data">
-                                                                        <p>Code:</p>
+                                                                        <p>Model Number:</p>
                                                                         <input
                                                                             value={updateModel.Model_Code}
                                                                             onChange={(e) => setUpdateModel({ ...updateModel, Model_Code: e.target.value })}
                                                                             onKeyDown={(e) => handleEnterNext(e)}
                                                                             idName="Model_Code"
                                                                             className={submitted && redIndex.includes('Model_Code') ? 'red-required' : submitted ? 'green-required' : ''}
-                                                                            placeholder="model code" />
+                                                                            placeholder="model number" />
                                                                     </div>
                                                                     <div className="loader-data">
                                                                         <p>Condition #:</p>
@@ -523,7 +509,89 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                                             }
                                                                         </select>
                                                                     </div>
+                                                                    <div className="loader-data">
+                                                                        <p>Magnet Type:</p>
+                                                                        <select
+                                                                            value={updateModel && updateModel.Magnet_Type ? updateModel.Magnet_Type : ''}
+                                                                            onChange={(e) => setUpdateModel({ ...updateModel, Magnet_Type: e.target.value })}
+                                                                            onKeyDown={(e) => handleEnterNext(e)}
+                                                                            idName="Magnet_Type"
+                                                                            className={submitted && redIndex.includes('Magnet_Type') ? 'red-required' : submitted ? 'green-required' : ''}
+                                                                            placeholder="magnet type"  >
+                                                                            <option value='' disabled></option>
+                                                                            {
+                                                                                selector_parameters && selector_parameters?.['Magnet Type'] &&
+                                                                                selector_parameters?.['Magnet Type'].map((items) => (<option value={items}>{items}</option>))
+                                                                            }
+                                                                        </select>
+                                                                    </div>
+                                                                    <div className="loader-data">
+                                                                        <p>Basket Type:</p>
+                                                                        <select
+                                                                            value={updateModel && updateModel.Basket_Type ? updateModel.Basket_Type : ''}
+                                                                            onChange={(e) => setUpdateModel({ ...updateModel, Basket_Type: e.target.value })}
+                                                                            onKeyDown={(e) => handleEnterNext(e)}
+                                                                            idName="Basket_Type"
+                                                                            className={submitted && redIndex.includes('Basket_Type') ? 'red-required' : submitted ? 'green-required' : ''}
+                                                                            placeholder="magnet type"  >
+                                                                            <option value='' disabled></option>
+                                                                            {
+                                                                                selector_parameters && selector_parameters?.['Basket Type'] &&
+                                                                                selector_parameters?.['Basket Type'].map((items) => (<option value={items}>{items}</option>))
+                                                                            }
+                                                                        </select>
+                                                                    </div>
+                                                                    <div className="loader-data">
+                                                                        <p>Drying Method:</p>
+                                                                        <select
+                                                                            value={updateModel && updateModel.Drying_Method ? updateModel.Drying_Method : ''}
+                                                                            onChange={(e) => setUpdateModel({ ...updateModel, Drying_Method: e.target.value })}
+                                                                            onKeyDown={(e) => handleEnterNext(e)}
+                                                                            idName="Drying_Method"
+                                                                            className={submitted && redIndex.includes('Drying_Method') ? 'red-required' : submitted ? 'green-required' : ''}
+                                                                            placeholder="drying method"  >
+                                                                            <option value='' disabled></option>
+                                                                            {
+                                                                                selector_parameters && selector_parameters?.['Drying Method'] &&
+                                                                                selector_parameters?.['Drying Method'].map((items) => (<option value={items}>{items}</option>))
+                                                                            }
+                                                                        </select>
+                                                                    </div>
+                                                                    <div className="loader-data">
+                                                                        <p>Nickel 1 & 2 Amp:</p>
+                                                                        <select
+                                                                            value={updateModel && updateModel.Nickel_1_2_A ? updateModel.Nickel_1_2_A : ''}
+                                                                            onChange={(e) => setUpdateModel({ ...updateModel, Nickel_1_2_A: e.target.value })}
+                                                                            onKeyDown={(e) => handleEnterNext(e)}
+                                                                            idName="Nickel_1_2_A"
+                                                                            className={submitted && redIndex.includes('Nickel_1_2_A') ? 'red-required' : submitted ? 'green-required' : ''}
+                                                                            placeholder="drying method"  >
+                                                                            <option value='' disabled></option>
+                                                                            {
+                                                                                selector_parameters && selector_parameters?.['Nickel_1_2_A'] &&
+                                                                                selector_parameters?.['Nickel_1_2_A'].map((items) => (<option value={items}>{items}</option>))
+                                                                            }
+                                                                        </select>
+                                                                    </div>
+                                                                    <div className="loader-data">
+                                                                        <p>Plating specs μm</p>
+                                                                        <select
+                                                                            value={updateModel && updateModel.Plating_Specs ? updateModel.Plating_Specs : ''}
+                                                                            onChange={(e) => setUpdateModel({ ...updateModel, Plating_Specs: e.target.value })}
+                                                                            onKeyDown={(e) => handleEnterNext(e)}
+                                                                            idName="Plating_Specs"
+                                                                            className={submitted && redIndex.includes('Plating_Specs') ? 'red-required' : submitted ? 'green-required' : ''}
+                                                                            placeholder="Plating Specs"  >
+                                                                            <option value='' disabled></option>
+                                                                            {
+                                                                                selector_parameters && selector_parameters?.['Plating Specs'] &&
+                                                                                selector_parameters?.['Plating Specs'].map((items) => (<option value={items}>{items}</option>))
+                                                                            }
+                                                                        </select>
+                                                                    </div>
+
                                                                 </div>
+
 
                                                                 <div className="loader-row">
                                                                     <div className="loader-data" style={{ width: '100%', height: '12vh', background: '#FFEDD4' }}>
@@ -757,31 +825,15 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                         }
                                                     </select>
                                                 </div>
-                                                <div className="loader-data" style={{ width:'30rem' }}>
-                                                    <p>Endorsement:</p>
-                                                    <select
-                                                        value={updateModel && updateModel.endorsement ? updateModel.endorsement : ''}
-                                                        onChange={(e) => setUpdateModel({ ...updateModel, endorsement: e.target.value })}
-                                                        onKeyDown={(e) => handleEnterNext(e)}
-                                                        idName="endorsement"
-                                                        className={submitted && redIndex.includes('endorsement') ? 'red-required' : submitted ? 'green-required' : ''}
-                                                        placeholder="endorsement" >
-                                                        <option value='' disabled></option>
-                                                        {
-                                                            selector_parameters && selector_parameters?.['Endorsement'] &&
-                                                            selector_parameters?.['Endorsement'].map((items) => (<option value={items}>{items}</option>))
-                                                        }
-                                                    </select>
-                                                </div>
                                                 <div className="loader-data">
-                                                    <p>Code:</p>
+                                                    <p>Model Number:</p>
                                                     <input
                                                         value={updateModel && updateModel.Model_Code ? updateModel.Model_Code : ''}
                                                         onChange={(e) => setUpdateModel({ ...updateModel, Model_Code: e.target.value })}
                                                         onKeyDown={(e) => handleEnterNext(e)}
                                                         idName="Model_Code"
                                                         className={submitted && redIndex.includes('Model_Code') ? 'red-required' : submitted ? 'green-required' : ''}
-                                                        placeholder="model code" />
+                                                        placeholder="model number" />
                                                 </div>
                                                 <div className="loader-data">
                                                     <p>Condition #:</p>
@@ -799,8 +851,105 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                         }
                                                     </select>
                                                 </div>
-                                                
-                                                
+                                                <div className="loader-data">
+                                                    <p>Magnet Type:</p>
+                                                    <select
+                                                        value={updateModel && updateModel.Magnet_Type ? updateModel.Magnet_Type : ''}
+                                                        onChange={(e) => setUpdateModel({ ...updateModel, Magnet_Type: e.target.value })}
+                                                        onKeyDown={(e) => handleEnterNext(e)}
+                                                        idName="Magnet_Type"
+                                                        className={submitted && redIndex.includes('Magnet_Type') ? 'red-required' : submitted ? 'green-required' : ''}
+                                                        placeholder="magnet type"  >
+                                                        <option value='' disabled></option>
+                                                        {
+                                                            selector_parameters && selector_parameters?.['Magnet Type'] &&
+                                                            selector_parameters?.['Magnet Type'].map((items) => (<option value={items}>{items}</option>))
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div className="loader-data">
+                                                    <p>Basket Type:</p>
+                                                    <select
+                                                        value={updateModel && updateModel.Basket_Type ? updateModel.Basket_Type : ''}
+                                                        onChange={(e) => setUpdateModel({ ...updateModel, Basket_Type: e.target.value })}
+                                                        onKeyDown={(e) => handleEnterNext(e)}
+                                                        idName="Basket_Type"
+                                                        className={submitted && redIndex.includes('Basket_Type') ? 'red-required' : submitted ? 'green-required' : ''}
+                                                        placeholder="magnet type"  >
+                                                        <option value='' disabled></option>
+                                                        {
+                                                            selector_parameters && selector_parameters?.['Basket Type'] &&
+                                                            selector_parameters?.['Basket Type'].map((items) => (<option value={items}>{items}</option>))
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div className="loader-data">
+                                                    <p>Drying Method:</p>
+                                                    <select
+                                                        value={updateModel && updateModel.Drying_Method ? updateModel.Drying_Method : ''}
+                                                        onChange={(e) => setUpdateModel({ ...updateModel, Drying_Method: e.target.value })}
+                                                        onKeyDown={(e) => handleEnterNext(e)}
+                                                        idName="Drying_Method"
+                                                        className={submitted && redIndex.includes('Drying_Method') ? 'red-required' : submitted ? 'green-required' : ''}
+                                                        placeholder="drying method"  >
+                                                        <option value='' disabled></option>
+                                                        {
+                                                            selector_parameters && selector_parameters?.['Drying Method'] &&
+                                                            selector_parameters?.['Drying Method'].map((items) => (<option value={items}>{items}</option>))
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div className="loader-data">
+                                                    <p>Nickel 1 & 2 Amp:</p>
+                                                    <select
+                                                        value={updateModel && updateModel.Nickel_1_2_A ? updateModel.Nickel_1_2_A : ''}
+                                                        onChange={(e) => setUpdateModel({ ...updateModel, Nickel_1_2_A: e.target.value })}
+                                                        onKeyDown={(e) => handleEnterNext(e)}
+                                                        idName="Nickel_1_2_A"
+                                                        className={submitted && redIndex.includes('Nickel_1_2_A') ? 'red-required' : submitted ? 'green-required' : ''}
+                                                        placeholder="drying method"  >
+                                                        <option value='' disabled></option>
+                                                        {
+                                                            selector_parameters && selector_parameters?.['Nickel_1_2_A'] &&
+                                                            selector_parameters?.['Nickel_1_2_A'].map((items) => (<option value={items}>{items}</option>))
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div className="loader-data">
+                                                    <p>Plating specs μm</p>
+                                                    <select
+                                                        value={updateModel && updateModel.Plating_Specs ? updateModel.Plating_Specs : ''}
+                                                        onChange={(e) => setUpdateModel({ ...updateModel, Plating_Specs: e.target.value })}
+                                                        onKeyDown={(e) => handleEnterNext(e)}
+                                                        idName="Plating_Specs"
+                                                        className={submitted && redIndex.includes('Plating_Specs') ? 'red-required' : submitted ? 'green-required' : ''}
+                                                        placeholder="Plating Specs"  >
+                                                        <option value='' disabled></option>
+                                                        {
+                                                            selector_parameters && selector_parameters?.['Plating Specs'] &&
+                                                            selector_parameters?.['Plating Specs'].map((items) => (<option value={items}>{items}</option>))
+                                                        }
+                                                    </select>
+                                                </div>
+
+                                                <div className="loader-data" style={{ width: '25rem' }}>
+                                                    <p>Endorsement:</p>
+                                                    <select
+                                                        value={updateModel && updateModel.endorsement ? updateModel.endorsement : ''}
+                                                        onChange={(e) => setUpdateModel({ ...updateModel, endorsement: e.target.value })}
+                                                        onKeyDown={(e) => handleEnterNext(e)}
+                                                        idName="endorsement"
+                                                        className={submitted && redIndex.includes('endorsement') ? 'red-required' : submitted ? 'green-required' : ''}
+                                                        placeholder="endorsement" >
+                                                        <option value='' disabled></option>
+                                                        {
+                                                            selector_parameters && selector_parameters?.['Endorsement'] &&
+                                                            selector_parameters?.['Endorsement'].map((items) => (<option value={items}>{items}</option>))
+                                                        }
+                                                    </select>
+                                                </div>
+
+
                                             </div>
 
                                             <div className="loader-row">
@@ -923,6 +1072,11 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                                                     <option value="Basket Number">Basket Number</option>
                                                                                     <option value="Poly Bag">Poly Bag</option>
                                                                                     <option value="Container">Container</option>
+                                                                                    <option value="Drying Method">Drying Method</option>
+                                                                                    <option value="Nickel_1_2_A">Nickel 1 & 2 Amp</option>
+                                                                                    <option value="Plating Specs">Plating Specs μm</option>
+                                                                                    <option value="Basket Type">Basket Type</option>
+                                                                                    <option value="Magnet Type">Magnet Type</option>
                                                                                     <option value="Endorsement">Endorsement</option>
                                                                                 </select>
                                                                             </div>
@@ -961,6 +1115,11 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                                 <option value="Basket Number">Basket Number</option>
                                                                 <option value="Poly Bag">Poly Bag</option>
                                                                 <option value="Container">Container</option>
+                                                                <option value="Drying Method">Drying Method</option>
+                                                                <option value="Nickel_1_2_A">Nickel 1 & 2 Amp</option>
+                                                                <option value="Plating Specs">Plating Specs μm</option>
+                                                                <option value="Basket Type">Basket Type</option>
+                                                                <option value="Magnet Type">Magnet Type</option>
                                                                 <option value="Endorsement">Endorsement</option>
                                                             </select>
                                                         </div>
@@ -1033,10 +1192,16 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                                 <option></option>
                                                                 <option value="Basket Number">Basket Number</option>
                                                                 <option value="Container">Container</option>
+                                                                <option value="Drying Method">Drying Method</option>
+                                                                <option value="Nickel_1_2_A">Nickel 1 & 2 Amp</option>
+                                                                <option value="Plating Specs">Plating Specs μm</option>
+                                                                <option value="Basket Type">Basket Type</option>
+                                                                <option value="Magnet Type">Magnet Type</option>
                                                                 <option value="Endorsement">Endorsement</option>
                                                                 <option value="Nickel 1">Nickel 1</option>
                                                                 <option value="Nickel 2">Nickel 2</option>
                                                                 <option value="Poly Bag">Poly Bag</option>
+
                                                             </select>
                                                         </div>
                                                         <button onClick={() => handleQrGeneration(selector_parameters?.[qrGeneration.type] ?? null, qrGeneration.type, 'all')} className="add-btn" disabled={!(qrGeneration && qrGeneration.type)}>All</button>
