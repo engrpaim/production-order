@@ -55,9 +55,9 @@ class GenerateController extends ProcessOrderController
                 'remarks' => $remarks,
                 'ip_address' => $ip_address,
             ]);
-             dump( $result);
+
             if($result)  return $result->toArray();
-          dd('gen');
+            return false;
             
         }catch(\Exception $e){
 
@@ -117,9 +117,10 @@ class GenerateController extends ProcessOrderController
     }
 
     protected function ComputeWeight(array $data,int $quantity){
-        if(!$data && (!$data['Weight'] || !$quantity)) return false;
-        $weight = $data['Weight'];
-        return $weight * $quantity;
+        $weight = $data['Weight'] ?? 0;
+        $setQuantity = $quantity ?? 0;
+       
+        return $weight * $setQuantity;
     }
 
     protected function saveToInventory(array $batchNumber , array $lotNumberSave , string $route , array $getWeight ,string $clientIP ,int $requiredQuantity ,object $detailsExcess,string $shelf ) {
@@ -208,7 +209,7 @@ class GenerateController extends ProcessOrderController
                         'Model_Name' =>  $model,
                         'Lot_No' =>  $data_lot_number,
                         'Quantity' => $quantity,
-                        'Unit_Weight' => $getWeight["Weight"] ?? null,
+                        'Unit_Weight' => $getWeight["Weight"] ?? 0,
                         'Total_Weight' => $computedWeight,
                         'Encoder' =>  $clientIP,
                         'IP_Address' =>  $clientIP,
@@ -368,35 +369,36 @@ class GenerateController extends ProcessOrderController
         $detailsExcess = $convertData->details ?? null;
         $requiredQuantity =$lotNumber->quantity ?? null;
         $shelf = $convertData->shelf ?? null;
-
+     
         if(!$model || !$requiredQuantity ) return false;
-
+ 
         $checkRouting = $this->getRouting($model);
         if(!$checkRouting) return false;
-
-        //Check Weight
-        $getWeight = $this->checkWeight($model);
-        if(!$getWeight) return false;
         
+        //Check Weight
+        $getWeight = $this->checkWeight($model)  ? $this->checkWeight($model) : [];
+        
+     
+
 
         switch( $action){
             case 'generate':
                 // saving in lot_number
                 $lotNumberSave = $this->LotNumberSave($lotNumber , $clientIP ,$status , $checkRouting["RoutingCode"]);
-                  dump('1');
+                
                 if(!$lotNumberSave ) return false;
-                dump('1');
+                
                 // saving in datalist
                 $batchSaved = $this->saveToInventory( $batchNumber , $lotNumberSave , $checkRouting["RoutingCode"], $getWeight, $clientIP,$requiredQuantity , $detailsExcess,$shelf );
                 if(!$batchSaved) return false;
-                dump('2');
+             
                 $updateBatch = BatchNumber::where('data_id',$lotNumberSave["id"])->update(['status' => 'production']);
                 if(!$updateBatch) return false;
-                dump('3');
+              
                 $generatedWOID = BatchNumber::select('*')->where('data_lot_number','=', $lotNumber->lot_number)->get();
                 
                 if($generatedWOID)return  $generatedWOID->toArray();
-                dump('4');
+          
                 return false;
 
             default:

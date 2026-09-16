@@ -107,8 +107,8 @@ export default function Process({ data, model, location, routing, order, error, 
                                         <h1>Serial&nbsp;Number:</h1>
                                         <h1 style={{ color: '#219ebc' }}>
                                             <a
-
-                                                href={`http://172.17.2.236/inventory/single_scan.php?barcode=${data.ID.toUpperCase()}`}
+                                                href={`https://172.17.2.235/inventory/single_scan.php?barcode=${data.ID.toUpperCase()}`}
+                                                // href={`http://172.17.2.236/inventory/single_scan.php?barcode=${data.ID.toUpperCase()}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 style={{ textDecoration: 'underline', color: 'blue' }}>

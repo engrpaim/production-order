@@ -714,7 +714,7 @@ class ProcessOrderController extends Controller
                     }
                     break;
                  case 'generate':
-
+                  
                     $clientIP = $request->ip();
                     $generateController = new GenerateController;
                     $result = $generateController->GenerateBatch($requestData , $action ,  $clientIP );
@@ -733,7 +733,7 @@ class ProcessOrderController extends Controller
                     break;
                 case 'excess':
                     $modelName = $requestData["model"] ?? null;
-                
+                    
                     if(!$modelName) return redirect()->back();
                     
                     $result = ExcessModel::where('model',$modelName)->where('status', 'hold')->first();
