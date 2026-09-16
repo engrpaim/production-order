@@ -76,9 +76,8 @@ export default function OrderProtoView({ proto_all_data }) {
                                         <td>
                                             <a
                                                 style={{ textDecoration: 'underline', color: 'blue' }}
-                                                   href={`https://172.17.2.235/inventory/single_scan.php?barcode=${data.ID.toUpperCase()}`}
-
-                                                //href={`http://172.17.2.236/inventory/single_scan.php?barcode=${data.ID.toUpperCase()}`}
+                                                href={`http://172.17.2.236/inventory/single_scan.php?barcode=${values.work_order_id}`}
+                                                //href={`http://172.17.2.236/inventory/single_scan.php?barcode=${values.work_order_id}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer">{values.work_order_id}</a>
                                         </td>
