@@ -76,17 +76,19 @@ export default function OrderProtoView({ proto_all_data }) {
                                         <td>
                                             <a
                                                 style={{ textDecoration: 'underline', color: 'blue' }}
-                                                href={`http://172.17.2.236/inventory/single_scan.php?barcode=${values.work_order_id}`}
+                                                   href={`https://172.17.2.235/inventory/single_scan.php?barcode=${data.ID.toUpperCase()}`}
+
+                                                //href={`http://172.17.2.236/inventory/single_scan.php?barcode=${data.ID.toUpperCase()}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer">{values.work_order_id}</a>
                                         </td>
                                         <td style={{ width: '15rem' }}>{values.data_lot_number}</td>
                                         <td style={{ width: '25rem' }}>{values.generated_batch_number}</td>
-                                        <td style={{ width: '7rem' }}>{values.quantity}</td>
+                                        <td style={{ width: '7rem'  }}>{values.quantity}</td>
                                         <td style={{ width: '10rem' }}>{values.condition}</td>
                                         <td style={{ width: '10rem' }}>{values.remarks}</td>
                                         <td style={{ width: '10rem' }}>{values.created_at.split("T")[0].toUpperCase()}</td>
-                                        <td style={{ width: '7rem' }}>{values.status.toUpperCase()}</td>
+                                        <td style={{ width: '7rem'  }}>{values.status.toUpperCase()}</td>
                                     </tr>
                                 )
                             }) : <tr><td colSpan={9}>Data not found!</td></tr>
