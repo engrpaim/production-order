@@ -21,11 +21,11 @@ export default function Process({ data, model, location, routing, order, error, 
         if (location && routing) {
 
             // Daily check file 
-            isCorrectRoute = routing.find(obj => obj.Description.toLowerCase() === location.location.toLowerCase()) ? location.location : false;
+            isCorrectRoute = routing.find(obj => location.location &&  obj.Description && obj.Description.toLowerCase() === location.location.toLowerCase()) ? location.location : false;
 
 
             //Production order allowed
-            location && location.location.toUpperCase() && model && model.Allowed_Lines.map((items) => {
+            location && location.location && location.location.toUpperCase() && model && model.Allowed_Lines.map((items) => {
                 !setInModel && items.toUpperCase() === location.location.toUpperCase() ? setInModel = true : null
             })
             isCorrectRoute = setInModel
@@ -108,7 +108,8 @@ export default function Process({ data, model, location, routing, order, error, 
                                         <h1 style={{ color: '#219ebc' }}>
                                             <a
                                                 href={`https://172.17.2.235/inventory/single_scan.php?barcode=${data.ID.toUpperCase()}`}
-                                                // href={`http://172.17.2.236/inventory/single_scan.php?barcode=${data.ID.toUpperCase()}`}
+
+                                                //href={`http://172.17.2.236/inventory/single_scan.php?barcode=${data.ID.toUpperCase()}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 style={{ textDecoration: 'underline', color: 'blue' }}>
