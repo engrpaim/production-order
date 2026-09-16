@@ -55,9 +55,9 @@ class GenerateController extends ProcessOrderController
                 'remarks' => $remarks,
                 'ip_address' => $ip_address,
             ]);
-
+             dump( $result);
             if($result)  return $result->toArray();
-            return false;
+          dd('gen');
             
         }catch(\Exception $e){
 
@@ -383,7 +383,7 @@ class GenerateController extends ProcessOrderController
             case 'generate':
                 // saving in lot_number
                 $lotNumberSave = $this->LotNumberSave($lotNumber , $clientIP ,$status , $checkRouting["RoutingCode"]);
-
+                  dump('1');
                 if(!$lotNumberSave ) return false;
                 dump('1');
                 // saving in datalist
