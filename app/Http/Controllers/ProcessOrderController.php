@@ -266,7 +266,7 @@ class ProcessOrderController extends Controller
                             if(!$checkBatchDetails) return false;
 
                             $checkWeight  = WeightInventory::where('Model_Name' , $model_order)->first();
-                            $quantityWeightRecord = array_key_exists('Weight',$checkWeight)? $checkWeight["Weight"] : 0;
+                            $quantityWeightRecord = $checkWeight->Weight ? $checkWeight["Weight"] : 0;
                             $computedWeight  = $quantity * $quantityWeightRecord;
 
                             $resultDetails = $checkBatchDetails->toArray();
