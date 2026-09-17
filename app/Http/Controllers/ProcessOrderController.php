@@ -282,7 +282,7 @@ class ProcessOrderController extends Controller
                                                                 'Model_Name' =>  $model_order,
                                                                 'Lot_No' =>  $resultDetails["data_lot_number"],
                                                                 'Quantity' => $quantity,
-                                                                'Unit_Weight' => $checkWeight["Weight"] ?? null,
+                                                                'Unit_Weight' => $checkWeight && $checkWeight->Weight ?$checkWeight->Weight: 0,
                                                                 'Total_Weight' => $computedWeight,
                                                                 'Encoder' =>  $loader,
                                                                 'IP_Address' =>  $clientIP,
