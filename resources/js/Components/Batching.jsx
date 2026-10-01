@@ -71,7 +71,7 @@ export default function Batching({ all_model , generated_woid , message ,excess}
         const excessData = data.excess;
         const currentModel = all_model[find]
         console.log('FINND: ', currentModel , data);
-        if (!currentModel.Quantity || !data.quantity || !data.lot_number) return turnOffLoader(2000, setLoader)
+       
         setLoader(true)
         console.log('CURRENT MODE: ', currentModel.quantity);
         const GeneratedBatch = [];
@@ -96,13 +96,13 @@ export default function Batching({ all_model , generated_woid , message ,excess}
         let verify = 0
         Array.from({ length: TotalBatchWithExcess + 1 }, (_, index) => {
             const current = index + 1
-            console.log(current);
+            console.log('PER ITEM',current , data[index]);
             const batchPlaceValue = current;
 
             const setSuffix = suffix(batchPlaceValue)
-            console.log(setSuffix);
+            console.log('BATCHING: ',setSuffix ,TotalBatchWithExcess,current);
             
-            if (TotalBatchWithExcess !== current) {
+            if (TotalBatchWithExcess + 1 !== current) {
                 verify += batchQuantity
                 GeneratedBatch.push({ batch: index + 1, quantity: batchQuantity, condition: conditionLot, batch_number: `${lotNumber}-${setSuffix}`, code: ModelCode, model: Model , remarks: remarksLot})
             } else {

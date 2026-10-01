@@ -26,6 +26,19 @@ export default function OrderProtoView({ proto_all_data }) {
             });
     }
     console.log('Proto Order:', proto_all_data);
+    const handleSoloSave =async(data)=>{
+        console.log(data);
+
+        const allData = { data:data , action:'solo' , database:'inventory'}
+
+        await router.post('/production-order/admin', allData,
+            {
+                preserveScroll: true,
+                preserveState: true
+            }
+        );
+
+    }
     return (
         <div>
             <div className="management-filter-container">
@@ -65,6 +78,7 @@ export default function OrderProtoView({ proto_all_data }) {
                             <th>Remarks</th>
                             <th>Created Date</th>
                             <th>Status</th>
+                            <th>Quantity Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -77,7 +91,7 @@ export default function OrderProtoView({ proto_all_data }) {
                                             <a
                                                 style={{ textDecoration: 'underline', color: 'blue' }}
                                                 href={`http://172.17.2.235/inventory/single_scan.php?barcode=${values.work_order_id}`}
-                                                //href={`http://172.17.2.236/inventory/single_scan.php?barcode=${values.work_order_id}`}
+                                                // href={`http://172.17.2.236/inventory/single_scan.php?barcode=${values.work_order_id}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer">{values.work_order_id}</a>
                                         </td>
@@ -88,6 +102,13 @@ export default function OrderProtoView({ proto_all_data }) {
                                         <td style={{ width: '10rem' }}>{values.remarks}</td>
                                         <td style={{ width: '10rem' }}>{values.created_at.split("T")[0].toUpperCase()}</td>
                                         <td style={{ width: '7rem'  }}>{values.status.toUpperCase()}</td>
+                                        <td style={{ width: '7rem'  }}>
+                                            {
+                                                values.inventory_encoding === 0? 
+                                                    <button className="proceed-btn" onClick={(e)=>handleSoloSave(values)}>PROCEED</button>
+                                                    :'PROCESSED'
+                                            }
+                                        </td>
                                     </tr>
                                 )
                             }) : <tr><td colSpan={9}>Data not found!</td></tr>

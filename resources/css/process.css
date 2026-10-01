@@ -292,3 +292,12 @@
     gap:1rem;
     cursor: pointer;
 }
+
+.proceed-btn {
+    background-color: #007bff;
+    padding:0.3rem;
+    color:white;
+    border-radius: 0.5rem;
+    border: none;
+    cursor:pointer;
+}

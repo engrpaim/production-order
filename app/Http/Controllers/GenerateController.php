@@ -39,31 +39,46 @@ class GenerateController extends ProcessOrderController
     
         $checkIfExist = LotNumber::where('lot_number','=',$uniqueNumber )->first();
        
-        if($checkIfExist) return false;
-        
-        
-        try{
-            $result = LotNumber::create([
-                'model' => $model,
-                'lot_number' => $uniqueNumber,
-                'lot_quantity' => $lot_quantity,
-                'total_batches' => $total,
-                'quantity_per_batch' => $quantity,
-                'excess' => $excess,
-                'status' => $current,
-                'condition' => $condition,
-                'remarks' => $remarks,
-                'ip_address' => $ip_address,
-            ]);
+        if(!$checkIfExist){
+            try{
+                $result = LotNumber::create([
+                    'model' => $model,
+                    'lot_number' => $uniqueNumber,
+                    'lot_quantity' => $lot_quantity,
+                    'total_batches' => $total,
+                    'quantity_per_batch' => $quantity,
+                    'excess' => $excess,
+                    'status' => $current,
+                    'condition' => $condition,
+                    'remarks' => $remarks,
+                    'ip_address' => $ip_address,
+                ]);
 
-            if($result)  return $result->toArray();
-            return false;
+                if($result)  return $result->toArray();
+                return false;
+                
+            }catch(\Exception $e){
+
+                dd($e);
+
+            }
+        }else{
             
-        }catch(\Exception $e){
-
-            dd($e);
-
+            $newTotal = $checkIfExist->total_batches + $total;
+            try{
+                $result = LotNumber::where('lot_number' , $checkIfExist->lot_number)->update(['total_batches' => $newTotal]);
+                if(!$result)  return false;
+                $getDetails = LotNumber::where('lot_number' , $checkIfExist->lot_number)->first();
+                if($getDetails) return $getDetails->toArray();
+                return false;
+            }catch(Exception $e){
+                dd($e);
+            }
+           
         }
+        
+        
+       
          return false;
       
     }
@@ -84,9 +99,12 @@ class GenerateController extends ProcessOrderController
                             'batch_number' => BatchNumber::class,
                             'daily_check' => DailyCheckFile::class,
                             'process_output' => ProcessOutputInventory::class,
-                            'excess' => ExcessModel::class
+                            'excess' => ExcessModel::class,
+                            'datalist' => DatalistModel::class
                         ];
+
                     $db = $database;
+
                     foreach (array_chunk($data, 256) as $chunk) {
                         try{
                             $bank[$db]::insert($chunk);
@@ -119,11 +137,11 @@ class GenerateController extends ProcessOrderController
     protected function ComputeWeight(array $data,int $quantity){
         $weight = $data['Weight'] ?? 0;
         $setQuantity = $quantity ?? 0;
-       
         return $weight * $setQuantity;
     }
 
-    protected function saveToInventory(array $batchNumber , array $lotNumberSave , string $route , array $getWeight ,string $clientIP ,int $requiredQuantity ,object $detailsExcess,string $shelf ) {
+    protected function saveToInventory(array $batchNumber , array $lotNumberSave , string $route , array $getWeight ,string $clientIP ,int $requiredQuantity ,object $detailsExcess,string $shelf ,int  $currentBatchAddition ) {
+           
             $dataToInsert = [];
             $dataInsertDailyCheck = [];
             $dataInsertDataList = [];
@@ -134,7 +152,7 @@ class GenerateController extends ProcessOrderController
 
             $holdExcess = $detailsExcess->hold_excess ?? null;
             
-            
+          
             //Excess
             //Create data for lot_number db
             foreach($batchNumber as $value){    
@@ -150,13 +168,15 @@ class GenerateController extends ProcessOrderController
                 $data_id = $lotNumberSave["id"];
                 $status = 'batching';
                 $data_lot_number = $lotNumberSave["lot_number"];
-
-                if($requiredQuantity !== $value->quantity){ 
+                $currentBatchAddition > 0 ? $batch = $batch +$currentBatchAddition:null;
+                $currentBatchAddition > 0 ? $generated_batch_number = $data_lot_number ."-".sprintf('%05d',$batch):null;
+               
+                if($requiredQuantity !== $quantity){ 
                     $dataExcess[] = [
                         'model' => $model,
                         'lot_number' => $data_lot_number,
                         'generated_lot_number'=> $generated_batch_number,
-                        'excess'=> $value->quantity,
+                        'excess'=> $quantity,
                         'shelf'=> $shelf,
                         'ip_address'=> $clientIP,
                         'created_at' => Carbon::now()->format('y-m-d H:i:s'),
@@ -186,6 +206,7 @@ class GenerateController extends ProcessOrderController
             //Process Output list
             foreach($batchNumber as $value){
                 if($requiredQuantity === $value->quantity){
+                   
                     $batch = $value->batch;
                     $dateWoid = Carbon::now()->format('ymdHis');
                     $woid = 'O' . $dateWoid . $batch;
@@ -198,6 +219,7 @@ class GenerateController extends ProcessOrderController
                     $data_lot_number = $lotNumberSave["lot_number"];
                     $shit = $this->ShiftIdentifier();
                     $computedWeight = $this->ComputeWeight($getWeight,$quantity);
+                    
                     $dataInserProcess[] = [
                         'Date'=>  $date1,
                         'Shift_Date'=>  $dateYear,
@@ -236,7 +258,8 @@ class GenerateController extends ProcessOrderController
                     $data_id = $lotNumberSave["id"];
                     $status = 'batching';
                     $data_lot_number = $lotNumberSave["lot_number"];
-
+                    $currentBatchAddition > 0 ? $batch = $batch +$currentBatchAddition:null;
+                    $currentBatchAddition > 0 ? $generated_batch_number = $data_lot_number ."-".sprintf('%05d',$batch):null;
 
                     $location = $date1 .'%P2 Plating%'.$clientIP;
                     $processhistory1 = $date1 .'%' . 'RECEIVING' . '%' . 'P2 Plating' . '%' . 'Generated by:'.$clientIP;
@@ -284,13 +307,14 @@ class GenerateController extends ProcessOrderController
 
 
 
-            $updateLot = LotNumber::where('id',$data_id)->update(['status' => 'production']);
-            if(!$updateLot ) return false;
+            
+            
 
             
             
             try{
                 //Save to datalist
+                LotNumber::where('id', $lotNumberSave["id"])->update(['status' => 'production']);
                 $result  = DB::transaction(function () use ($dataInsertDataList) 
                                     {
                                         $dateFIFO = Carbon::now()->format('ym');
@@ -325,18 +349,27 @@ class GenerateController extends ProcessOrderController
                                         return true;
                                     });
                 if($result){
+
                     $this->saveDetails($dataToInsert,'batch_number');
                     $this->saveDetails($dataInsertDailyCheck,'daily_check');
                     $this->saveDetails($dataInserProcess,'process_output');
                     $this->saveDetails($dataExcess,'excess');
-                    if($holdExcess) ExcessModel::where('id',$holdExcess->id)->update([
-                                                                                        'merge_date' => Carbon::now()->format('Y-m-d H:i:s'),
-                                                                                        'merge_to' =>  $lotNumberSave["lot_number"], 
-                                                                                        'status' => 'merge',
-                                                                                     ]);
+                    
+                    if($holdExcess){
+                      
+                        ExcessModel::where('id',$holdExcess->id)->update([
+                                                                                'merge_date' => Carbon::now()->format('Y-m-d H:i:s'),
+                                                                                'merge_to' =>  $lotNumberSave["lot_number"], 
+                                                                                'status' => 'merge',
+                                                                        ]);
+                        BatchNumber::where('generated_batch_number',$holdExcess->generated_lot_number)->update(['inventory_encoding' => 1]);
+                    }
+
                     LotNumber::where('id',$data_id)->update(['status' => 'done']);
                     BatchNumber::where('data_id',$data_id)->update(['status' => 'done']);
+
                     return true;
+
                 }
             }catch(Exception $e){
                 dd($e);
@@ -359,7 +392,7 @@ class GenerateController extends ProcessOrderController
 
     
     public function GenerateBatch(string $data ,string $action , string  $clientIP ){
-      
+    
         $this->ShiftIdentifier();
         $convertData = json_decode($data) ?? [];
         $lotNumber = $convertData->lot_number ?? null;
@@ -369,7 +402,7 @@ class GenerateController extends ProcessOrderController
         $detailsExcess = $convertData->details ?? null;
         $requiredQuantity =$lotNumber->quantity ?? null;
         $shelf = $convertData->shelf ?? null;
-     
+           
         if(!$model || !$requiredQuantity ) return false;
  
         $checkRouting = $this->getRouting($model);
@@ -383,13 +416,21 @@ class GenerateController extends ProcessOrderController
 
         switch( $action){
             case 'generate':
-                // saving in lot_number
-                $lotNumberSave = $this->LotNumberSave($lotNumber , $clientIP ,$status , $checkRouting["RoutingCode"]);
+                $currentBatchAddition = 0;
+                $checkLot = $lotNumber->lot_number ?? null;
+               
                 
+                if(!$checkLot) return false;
+            
+                
+                $checkCurrentBatch = LotNumber::where('lot_number' , $checkLot)->first();
+                if($checkCurrentBatch)  $currentBatchAddition  = $checkCurrentBatch->total_batches? $checkCurrentBatch->total_batches:0;
+                // saving in lot_number
+                $lotNumberSave = $this->LotNumberSave($lotNumber , $clientIP ,$status , $checkRouting["RoutingCode"] );
                 if(!$lotNumberSave ) return false;
                 
                 // saving in datalist
-                $batchSaved = $this->saveToInventory( $batchNumber , $lotNumberSave , $checkRouting["RoutingCode"], $getWeight, $clientIP,$requiredQuantity , $detailsExcess,$shelf );
+                $batchSaved = $this->saveToInventory( $batchNumber , $lotNumberSave , $checkRouting["RoutingCode"], $getWeight, $clientIP,$requiredQuantity , $detailsExcess,$shelf , $currentBatchAddition);
                 if(!$batchSaved) return false;
              
                 $updateBatch = BatchNumber::where('data_id',$lotNumberSave["id"])->update(['status' => 'production']);
@@ -400,7 +441,7 @@ class GenerateController extends ProcessOrderController
                 if($generatedWOID)return  $generatedWOID->toArray();
           
                 return false;
-
+ 
             default:
                 return false;
         }
