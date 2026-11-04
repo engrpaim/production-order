@@ -229,7 +229,7 @@ class GenerateController extends ProcessOrderController
                         'Process' =>  'RECEIVING',
                         'Work_Order' =>  $woid,
                         'Model_Name' =>  $model,
-                        'Lot_No' =>  $data_lot_number,
+                        'Lot_No' =>  $generated_batch_number,
                         'Quantity' => $quantity,
                         'Unit_Weight' => $getWeight["Weight"] ?? 0,
                         'Total_Weight' => $computedWeight,
@@ -269,7 +269,7 @@ class GenerateController extends ProcessOrderController
                         'ID' =>  $woid,
                         'FIFO_No' =>  'For Update',
                         'Model_Name' =>  $model,
-                        'Lot_No' =>  $data_lot_number,
+                        'Lot_No' =>  $generated_batch_number,
                         'Initial_Quantity' =>  $quantity,
                         'Received_Quantity' =>  0,
                         'Running_Quantity_BCS' =>  0,
@@ -298,7 +298,7 @@ class GenerateController extends ProcessOrderController
                     $dataInsertDailyCheck[] = [
                         'ID' =>$woid,
                         'Model_Name' =>$model,
-                        'Lot_No' => $data_lot_number,
+                        'Lot_No' => $generated_batch_number,
                         'Quantity' => $quantity,
                         'RoutingCode' => $route
                     ];
@@ -409,8 +409,8 @@ class GenerateController extends ProcessOrderController
         $checkRouting = $this->getRouting($model);
         $conditionProto = $convertData->batch_generated;
         $conditionChecking = $conditionProto[0]->condition;
-
-        if(!$checkRouting &&  strtoupper($conditionChecking) !== 'PROTO') return false;
+       
+        if(!$checkRouting &&  (!str_contains($conditionChecking,'PROTO') && !str_contains($conditionChecking,'proto'))) return false;
         
         //Check Weight
         $getWeight = $this->checkWeight($model)  ? $this->checkWeight($model) : [];

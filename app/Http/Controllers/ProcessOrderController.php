@@ -702,7 +702,7 @@ class ProcessOrderController extends Controller
                         'Process' =>  'RECEIVING',
                         'Work_Order' =>  $woid,
                         'Model_Name' =>  $model,
-                        'Lot_No' =>  $data_lot_number,
+                        'Lot_No' =>  $generateBatchNumber,
                         'Quantity' => $quantity,
                         'Unit_Weight' => $getWeight["Weight"] ?? 0,
                         'Total_Weight' => $computedWeight,
@@ -718,7 +718,7 @@ class ProcessOrderController extends Controller
                         'ID' =>  $woid,
                         'FIFO_No' =>  'For Update',
                         'Model_Name' =>  $model,
-                        'Lot_No' =>  $data_lot_number,
+                        'Lot_No' =>  $generateBatchNumber,
                         'Initial_Quantity' =>  $quantity,
                         'Received_Quantity' =>  0,
                         'Running_Quantity_BCS' =>  0,
@@ -747,7 +747,7 @@ class ProcessOrderController extends Controller
             $dataInsertDailyCheck [] = [
                         'ID' =>$woid,
                         'Model_Name' =>$model,
-                        'Lot_No' => $data_lot_number,
+                        'Lot_No' => $generateBatchNumber,
                         'Quantity' => $quantity,
                         'RoutingCode' => $checkRouting  && $checkRouting["RoutingCode"]? $checkRouting["RoutingCode"] : '',
                     ];
