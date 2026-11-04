@@ -65,7 +65,7 @@ return [
         'inventory_connection' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
-            'host' => '172.17.2.235',
+            'host' => '172.17.2.236',
             'port' => '3306',
             'database' => 'inventory',
             'username' => 'ms',

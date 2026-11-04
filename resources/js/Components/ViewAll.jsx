@@ -101,7 +101,7 @@ export default function ViewAll({ list, setLoader, location , exceList }) {
                                     <th>Work Order I.D</th>
                                     <th>Lot/Batch Number</th>
                                     <th>Quantity</th>
-                                    <th>Status</th>
+                                    <th>Endorsed To</th>
                                     <th>Location</th>
                                     <th>Loading</th>
                                     <th>Unloading</th>
@@ -120,7 +120,7 @@ export default function ViewAll({ list, setLoader, location , exceList }) {
                                                 </a></td>
                                                 <td>{value.Daily_Check.Lot_No ?? '-'}</td>
                                                 <td>{value.Daily_Check.Quantity ?? '-'}</td>
-                                                <td>{value.Status ?? '-'}</td>
+                                                <td>{value.Endorsed_To ?? '-'}</td>
                                                 <td>{value.CurrentLocation ?? '-'}</td>
                                                 <td>{value.Loading_time ?? '-'}</td>
                                                 <td>{value.Unloading_time ?? '-'}</td>

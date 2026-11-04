@@ -1,7 +1,7 @@
 @keyframes floatInFromBottom {
     from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(20px);
     }
     to {
         opacity: 1;
@@ -12,7 +12,7 @@
 @keyframes ipLogo {
     from {
         opacity: 1;
-        transform: translateY(10px);
+        transform: translateY(6px);
     }
     to {
         opacity: 1;
@@ -20,115 +20,165 @@
     }
 }
 
+/* Base Location Container Card */
 .location-container {
     display: flex;
-    color: rgb(7, 7, 7);
+    color: #1e293b;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    padding: 2rem;
-    background: #f8f8f8;
-    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
-    animation: floatInFromBottom 0.3s ease-out forwards;
-    flex-wrap: nowrap;
-    gap:1rem;
-    overflow: auto;
+    padding: 1.5rem 2rem;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    animation: floatInFromBottom 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    overflow: hidden;
 }
-.location-permission{
+
+.location-permission {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    gap: 0.75rem;
 }
 
-.location-contents h1 {
-    font-size: 1rem;
-    font-weight: normal;
-}
 .location-contents {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    gap: 1.5rem;
+    flex-wrap: wrap;
 }
 
-.location-right {
-    margin-right: 4rem;
-    width: 2rem;
-    height: 2rem;
-    animation: ipLogo 0.7s ease-out infinite alternate;
+.location-contents h1 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0f172a;
 }
 
 .location-left {
-    margin-left: 4rem;
+    margin-left: 0;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.5rem;
 }
 
 .location-middle {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.5rem;
 }
 
-/*Error*/
+.location-right {
+    margin-right: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    color: #0284c7;
+    animation: ipLogo 0.8s ease-out infinite alternate;
+}
+
+/* Error Alert Location Banner */
 .error-location-container {
     display: flex;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    color: white;
+    color: #ffffff;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    min-width: fit-content;
-    border-radius: 1rem;
-    padding: 2rem 0;
-    background: rgba(241, 3, 7,0.8) ;
-    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
-    animation: floatInFromBottom 0.3s ease-out forwards;
+    min-width: auto;
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+    box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.25);
+    border: 1px solid rgba(254, 226, 226, 0.2);
+    animation: floatInFromBottom 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     pointer-events: auto;
+    overflow: hidden;
 }
 
-.error-location-contents h1 {
-    font-size: 1.5rem;
-    font-weight: normal;
-}
 .error-location-contents {
     display: flex;
     flex-direction: row;
-    min-width: fit-content;
+    min-width: auto;
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    margin: 2rem;
-    gap:1rem;
+    margin: 0;
+    gap: 1.5rem;
     flex-wrap: wrap;
 }
 
-.error-location-right {
-    margin-right: 4rem;
-    width: 5rem;
-    height: 5rem;
-    
+.error-location-contents h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #ffffff;
+    text-shadow: none;
 }
 
 .error-location-left {
-    margin-left: 4rem;
+    margin-left: 0;
     display: flex;
-    min-width: fit-content;
+    min-width: auto;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.5rem;
 }
 
-.error-location-left h1 i ,.error-location-right svg path{
-    color:white;
+.error-location-left h1 i, .error-location-right svg path {
+    color: #ffffff;
+    fill: #ffffff;
 }
 
 .error-location-middle {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.5rem;
+}
+
+.error-location-right {
+    margin-right: 0;
+    width: 3.5rem;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Responsive Breakpoints & Overflow Protections */
+@media (max-width: 900px) {
+    .location-container,
+    .error-location-container {
+        padding: 1.25rem;
+        border-radius: 12px;
+    }
+
+    .location-contents,
+    .error-location-contents {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .location-right,
+    .error-location-right {
+        align-self: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    .location-contents h1,
+    .error-location-contents h1 {
+        font-size: 1rem;
+    }
+    
+    .error-location-right {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
 }

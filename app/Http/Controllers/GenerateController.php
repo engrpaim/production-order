@@ -404,33 +404,45 @@ class GenerateController extends ProcessOrderController
         $shelf = $convertData->shelf ?? null;
            
         if(!$model || !$requiredQuantity ) return false;
- 
+           
+       
         $checkRouting = $this->getRouting($model);
-        if(!$checkRouting) return false;
+        $conditionProto = $convertData->batch_generated;
+        $conditionChecking = $conditionProto[0]->condition;
+
+        if(!$checkRouting &&  strtoupper($conditionChecking) !== 'PROTO') return false;
         
         //Check Weight
         $getWeight = $this->checkWeight($model)  ? $this->checkWeight($model) : [];
-        
-     
-
-
+        $protoWeight = [
+                            "No" => null,
+                            "Model_Name" => null,
+                            "Weight" => null,
+                            "Qty_Per_Lot" => null,
+                            "Cutting_Pieces" => null,
+                            "Type" => null,
+                            "Model_Converted" => null,
+                            "Remarks" => null,
+                            "Blocks_Per_Lot" => null,
+                            "Machining" => null,
+                            ];
+  
         switch( $action){
+
             case 'generate':
                 $currentBatchAddition = 0;
                 $checkLot = $lotNumber->lot_number ?? null;
-               
-                
+                $routingProto =  $getWeight ?  $getWeight: $protoWeight;
                 if(!$checkLot) return false;
-            
                 
                 $checkCurrentBatch = LotNumber::where('lot_number' , $checkLot)->first();
                 if($checkCurrentBatch)  $currentBatchAddition  = $checkCurrentBatch->total_batches? $checkCurrentBatch->total_batches:0;
                 // saving in lot_number
-                $lotNumberSave = $this->LotNumberSave($lotNumber , $clientIP ,$status , $checkRouting["RoutingCode"] );
+                $lotNumberSave = $this->LotNumberSave($lotNumber , $clientIP ,$status , $checkRouting["RoutingCode"] ?? ''  );
                 if(!$lotNumberSave ) return false;
                 
                 // saving in datalist
-                $batchSaved = $this->saveToInventory( $batchNumber , $lotNumberSave , $checkRouting["RoutingCode"], $getWeight, $clientIP,$requiredQuantity , $detailsExcess,$shelf , $currentBatchAddition);
+                $batchSaved = $this->saveToInventory( $batchNumber , $lotNumberSave , $checkRouting["RoutingCode"] ?? ''  , $routingProto , $clientIP,$requiredQuantity , $detailsExcess,$shelf , $currentBatchAddition);
                 if(!$batchSaved) return false;
              
                 $updateBatch = BatchNumber::where('data_id',$lotNumberSave["id"])->update(['status' => 'production']);

@@ -35,22 +35,27 @@
 }
 .view-table{
     height: 50vh;
-    overflow: auto;
     width: 100%;
     animation: floatInFromBottom 1s ease-out forwards;
+    position: relative;
 }
 .view-table table{
     text-align: center;
     align-items: center;
-    width: 100%;
+    width: 100vw;
     padding:1rem;
     overflow: auto;
   
 }
+
 .view-table table tr{
     cursor: pointer;
 }
- thead {
+
+.view-table table thead th{
+    position: sticky;
+    top: 0;
+    z-index: 0;
     background: #eafcff;
 }
 .view-table table td { 
@@ -63,26 +68,25 @@
 
 
 .view-table-2{
+    padding: 1rem;                 
     min-height: 60vh;
     max-height: fit-content;
-    width: 100%;
+     min-width:100%;
+    max-width:fit-content;
     animation: floatInFromBottom 1s ease-out forwards;
-}
+}                      
 
 .view-table-2 table{
     text-align: center;
     align-items: center;
-    width: 100%;
+    width:fit-content;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
     padding:1rem;
-    overflow: auto;
   
 }
 .view-table-2 table tr{
     cursor: pointer;
 }
- thead {
-    background: #eafcff;
-}
+ 
 .view-table-2 table td { 
     padding:0.2rem;
 }

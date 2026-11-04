@@ -598,7 +598,22 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                                     </div>
 
                                                                 </div>
-
+                                                                <div className="loader-data" style={{ width: '25rem' }}>
+                                                                    <p>Endorsement:</p>
+                                                                    <select
+                                                                        value={updateModel && updateModel.endorsement ? updateModel.endorsement : ''}
+                                                                        onChange={(e) => setUpdateModel({ ...updateModel, endorsement: e.target.value })}
+                                                                        onKeyDown={(e) => handleEnterNext(e)}
+                                                                        idName="endorsement"
+                                                                        className={submitted && redIndex.includes('endorsement') ? 'red-required' : submitted ? 'green-required' : ''}
+                                                                        placeholder="endorsement" >
+                                                                        <option value='' disabled></option>
+                                                                        {
+                                                                            selector_parameters && selector_parameters?.['Endorsement'] &&
+                                                                            selector_parameters?.['Endorsement'].map((items) => (<option value={items}>{items}</option>))
+                                                                        }
+                                                                    </select>
+                                                                </div>                
 
                                                                 <div className="loader-row">
                                                                     <div className="loader-data" style={{ width: '100%', height: '12vh', background: '#FFEDD4' }}>
@@ -632,6 +647,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                 <th style={{ minWidth: '12rem' }}>Media size</th>
                                                 <th style={{ minWidth: '12rem' }}>Pre-Treatment</th>
                                                 <th style={{ minWidth: '10rem' }}>Post-Treatment</th>
+                                                <th style={{ minWidth: '10rem' }}>Endorsed To</th>
                                                 <th style={{ minWidth: '10rem' }}>Action</th>
                                             </tr>
                                         </thead>
@@ -647,6 +663,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                                 <td>{value.Media_Size ?? '-'}</td>
                                                                 <td>{value.Pre_Treatment ?? '-'}</td>
                                                                 <td>{value.Post_Treatment ?? '-'}</td>
+                                                                <td>{value.endorsement ?? '-'}</td>
                                                                 <td>
                                                                     <div>
                                                                         <button onClick={() => setManageActions({ action: 'delete', id: value.id ?? '-', model: value.Model ?? '-', database: 'model' })} className="manage-delete">Delete</button>
@@ -813,22 +830,6 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                         {
                                                             selector_parameters && selector_parameters?.['Poly Bag'] &&
                                                             selector_parameters?.['Poly Bag'].map((items) => (<option value={items}>{items}</option>))
-                                                        }
-                                                    </select>
-                                                </div>
-                                                <div className="loader-data">
-                                                    <p>Basket #:</p>
-                                                    <select
-                                                        value={updateModel && updateModel.basket_number ? updateModel.basket_number : ''}
-                                                        onChange={(e) => setUpdateModel({ ...updateModel, basket_number: e.target.value })}
-                                                        onKeyDown={(e) => handleEnterNext(e)}
-                                                        idName="basket_number"
-                                                        className={submitted && redIndex.includes('basket_number') ? 'red-required' : submitted ? 'green-required' : ''}
-                                                        placeholder="basket number" >
-                                                        <option value='' disabled></option>
-                                                        {
-                                                            selector_parameters && selector_parameters?.['Basket Number'] &&
-                                                            selector_parameters?.['Basket Number'].map((items) => (<option value={items}>{items}</option>))
                                                         }
                                                     </select>
                                                 </div>
@@ -1101,7 +1102,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                             : null
                                             }
                                             <h4 style={{ marginBottom: '1rem' }}>Parameter Setting</h4>
-                                            <div style={{ display: 'flex', width: '90vw' }}>
+                                            <div style={{ display: 'flex', width: '90vw' , gap:'1rem'}}>
                                                 <div className="half-column">
                                                     <div className="loader-row">
                                                         <div className="loader-data" style={{ width: 'fit-content', gap: '0.2rem' }}>

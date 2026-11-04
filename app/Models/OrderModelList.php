@@ -27,7 +27,13 @@ class OrderModelList extends Model
         "Nickel_1_2_A",
         "Drying_Method",
         "Qa_Chiptype",
-        "Plating_Specs"
+        "Plating_Specs",
+        'endorsement',
+        'container',
+        'poly_bag',
+        'basket_number',
+        'Copper_1',
+        'Copper_2',
     ];
 
     protected $casts = [ 

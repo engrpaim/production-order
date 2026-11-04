@@ -1,172 +1,271 @@
 @keyframes floatInFromBottom {
     from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(20px);
     }
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
-.option-selector{
-    border:none;
-    padding:0.5rem;
-    background: rgb(19, 157, 238);
-    border-radius: 1rem 0rem 0rem 0rem;
-    color: #fbfdff;
+
+/* Option Selector Tabs */
+.option-selector {
+    border: none;
+    padding: 0.6rem 1.2rem;
+    background: #e2e8f0;
+    border-radius: 12px 12px 0 0;
+    color: #475569;
+    font-weight: 500;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.manage-content{
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    
-    max-height:100;
-    background: #f8fbfc;
-    padding: 2rem;
-    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;  
-    gap: 1rem;
+.option-selector:hover {
+    background: #cbd5e1;
+    color: #1e293b;
 }
 
 .option-selector.active {
-  background-color: #fbfdff;
-  color: #0056b3;
-  font-weight: bold;
-  box-shadow: -5px -1px 8px 1px rgba(0, 0, 0, 0.3);
-
+    background-color: #ffffff;
+    color: #0284c7;
+    font-weight: 600;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.management-view{
-    margin:0rem;
-    padding:1rem;
+/* Main Content Wrapper */
+.manage-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    gap: 1.25rem;
     min-height: 60vh;
     max-height: 100%;
-    min-width: 100%;
-    border: 1px solid rgb(241, 235, 235);
-    overflow: scroll;
+    animation: floatInFromBottom 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Management View - Sticky Header & Auto Scroll Setup */
+.management-view {
+    margin: 1;
+    padding: 2;
+    min-height: 80vh;
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow-y: auto;   /* Enables smooth vertical auto scroll */
+    overflow-x: auto;   /* Enables horizontal scroll on smaller viewports */
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.01);
+}
 .management-content{
-    min-height: 60%;
-    max-height: 100%;
- 
+    padding:1rem;
+}
+/* Table formatting inside management-view for sticky thead */
+.management-view table {
+    width: 100%;
+    min-width: 700px; /* Prevents cell cramping on mobile */
+    border-collapse: collapse;
+    text-align: left;
 }
 
-.management-option{
-    background: rgb(195, 231, 255);
-    padding:0.2rem;
-    border: 1px solid rgb(0, 37, 117);
-    border-radius: 5px;
+.management-view table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f0f9ff;
+    color: #0369a1;
+    font-weight: 600;
+    padding: 0.9rem 1rem;
+    border-bottom: 2px solid #bae6fd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+    text-align: center;
+    white-space: nowrap;
+}
+
+.management-view table td {
+    padding: 0.75rem 1rem;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.management-view table tr {
     cursor: pointer;
-    color: #0056b3;
-    width: 7rem;
-    margin: 0.5rem 0rem;
+    transition: background-color 0.15s ease;
 }
 
-.management-option.active{
-    background: rgba(248, 243, 169, 0.993);
-    transform: translateY(-2px);
-    font-weight:bold;
+.management-view table tr:hover {
+    background: #f8fafc;
 }
 
-.management-option:hover{
-    background: rgb(251, 255, 188);
-    border: 1px solid rgb(20, 92, 248);
+/* Management Option Buttons */
+.management-option {
+    background: #f1f5f9;
+    padding: 0.5rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #0284c7;
+    font-weight: 500;
+    width: 8rem;
+    margin: 0.5rem 0;
+    transition: all 0.2s ease;
+}
+
+.management-option:hover {
+    background: #e0f2fe;
+    border-color: #0284c7;
     transform: translateY(-1px);
 }
 
-.management-button-container{
+.management-option.active {
+    background: #0284c7;
+    color: #ffffff;
+    border-color: #0284c7;
+    transform: translateY(-1px);
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+}
+
+/* Layout Containers & Header */
+.management-button-container {
     display: flex;
     height: fit-content;
     justify-content: center;
     align-items: center;
     flex-direction: row;
-    gap:0.2rem;
+    gap: 0.5qsrem;
+    flex-wrap: wrap;
 }
-.management-filter-container{
-     display: flex;
+
+.management-filter-container {
+    display: flex;
     height: fit-content;
     justify-content: center;
     align-items: center;
     flex-direction: row;
-    gap:1rem;
-    background: #e5ebf1;
-    padding:0.5rem;
+    gap: 1rem;
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    flex-wrap: wrap;
 }
-.manage-content-header{
+
+.manage-content-header {
     display: flex;
     flex-direction: row;
-   
     justify-content: space-between;
-
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
-.manage-delete{
-    margin:0.2rem;
-    background:rgb(190, 19, 19);
-    border:none;
-    padding:0.2rem 0.4rem;
-    color:white;
-    border-radius: 5px;
-}
-
-.manage-delete:hover{
-    background:rgb(255, 33, 33);
-}
-
-.manage-update{
-    margin:0.2rem;
-    background:rgb(19, 122, 190);
-    border:none;
-    padding:0.2rem 0.4rem;
-    color:white;
-    border-radius: 5px;
+/* Action Buttons (Delete & Update) */
+.manage-delete {
+    margin: 0.2rem;
+    background: #ef4444;
+    border: none;
+    padding: 0.4rem 0.75rem;
+    color: #ffffff;
+    border-radius: 6px;
+    font-weight: 500;
     cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
 }
 
-.manage-update:hover{
-    background:rgb(63, 168, 255);
+.manage-delete:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
 }
 
-.half-column{
+.manage-update {
+    margin: 0.2rem;
+    background: #0284c7;
+    border: none;
+    padding: 0.4rem 0.75rem;
+    color: #ffffff;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+}
+
+.manage-update:hover {
+    background: #02689c;
+    transform: translateY(-1px);
+}
+
+/* Responsive Half-Column Layout */
+.half-column {
     display: flex;
     flex-direction: column;
-    width: 50%;
-    padding:1.5rem;
-    margin:5px;
-    border-radius: 2rem;
-    height: 100vh;
-    background: none;
-    min-height: 75vh;
-    max-height: fit-content;
-    gap:0.5rem;
-    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    min-width: 50%;
+    max-width:fit-content;
+    padding: 1rem;
+    margin: 5px 0;
+    border-radius: 16px;
+    background: #ffffff;
+    min-height:fit-content;
+    height: fit-content;
+    gap: 1rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    overflow-x: scroll;
 }
 
-.qr-data{
+/* QR Data Badges Container */
+.qr-data {
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
     justify-content: start;
     width: 100%;
     max-height: 30vh;
-    background: #c2d1e2;
-    padding:1rem;
-    gap:0.5rem;
+    background: #f0f9ff;
+    padding: 1.25rem;
+    gap: 0.75rem;
     overflow: auto;
-    border-radius: 1rem;
-    animation: floatInFromBottom 1.5s ease-out forwards;
+    border-radius: 12px;
+    border: 1px solid #bae6fd;
+    animation: floatInFromBottom 0.6s ease-out forwards;
 }
-.qr-data span{
+
+.qr-data span {
     display: flex;
     justify-content: center;
     align-items: center;
     height: fit-content;
-     background: #023979;
-     padding:0.7rem;
-     width: fit-content;
-     border-radius: 2rem;
-     gap:0.6rem
+    background: #0284c7;
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    width: fit-content;
+    border-radius: 20px;
+    gap: 0.6rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
 }
 
+/* Mobile Responsiveness Media Query */
+@media (max-width: 900px) {
+    .half-column {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .management-filter-container,
+    .manage-content-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
