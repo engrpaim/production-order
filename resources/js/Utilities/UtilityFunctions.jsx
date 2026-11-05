@@ -54,13 +54,24 @@ const handleDownload = async (data, title) => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sheet 1');
 
-    console.log(excelDate);
+    excelDate.map((items)=>{
+        
+        items['Lot_No'] = items?.["Daily_Check"]["Lot_No"]
+        items['ip_address'] = items?.["Machine_Details"]["ip_address"]
+        items['permission'] = items?.["Machine_Details"]["permission"]
+
+        console.log('Check Items: ',items);
+    })
+
+    console.log("Download:",excelDate);
     worksheet.columns = [
         { header: 'Model', key: 'Model_Name', width: 20 },
         { header: 'Work Order ID', key: 'Work_Order', width: 20 },
+        { header: 'Lot Number', key: 'Lot_No', width: 20 },
         { header: 'Quantity', key: 'Quantity', width: 20 },
         { header: 'Loader', key: 'Loader', width: 20 },
-        { header: 'Loading Time', key: 'Loading_time', width: 20 },
+        { header: 'Basket Number', key: 'Basket_Number', width: 20 },
+        { header: 'Basket Type', key: 'Basket_Type', width: 20 },
         { header: 'Nickel 1', key: 'Nickel_1', width: 20 },
         { header: 'Nickel 2', key: 'Nickel_2', width: 20 },
         { header: 'Container', key: 'Container', width: 20 },
@@ -69,7 +80,10 @@ const handleDownload = async (data, title) => {
         { header: 'Unloader', key: 'Unloader', width: 20 },
         { header: 'Unloading Time', key: 'Unloading_time', width: 20 },
         { header: 'Endorsed To', key: 'Endorsed_To', width: 30 },
-        { header: 'Location', key: 'CurrentLocation', width: 20 }
+        { header: 'Status', key: 'Status', width: 30 },
+        { header: 'Location', key: 'CurrentLocation', width: 20 },
+        { header: 'I.P Address', key: 'ip_address', width: 20 },
+        { header: 'Permission', key: 'permission', width: 20 },
     ];
 
 
