@@ -63,7 +63,7 @@ const handleDownload = async (data, title) => {
         console.log('Check Items: ',items);
     })
 
-    console.log("Download:",excelDate);
+    console.log("Download: ",excelDate);
     worksheet.columns = [
         { header: 'Model', key: 'Model_Name', width: 20 },
         { header: 'Work Order ID', key: 'Work_Order', width: 20 },
@@ -71,7 +71,6 @@ const handleDownload = async (data, title) => {
         { header: 'Quantity', key: 'Quantity', width: 20 },
         { header: 'Loader', key: 'Loader', width: 20 },
         { header: 'Basket Number', key: 'Basket_Number', width: 20 },
-        { header: 'Basket Type', key: 'Basket_Type', width: 20 },
         { header: 'Nickel 1', key: 'Nickel_1', width: 20 },
         { header: 'Nickel 2', key: 'Nickel_2', width: 20 },
         { header: 'Container', key: 'Container', width: 20 },
