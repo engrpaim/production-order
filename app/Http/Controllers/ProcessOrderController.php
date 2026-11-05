@@ -3,25 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\BatchNumber;
-use Inertia\Inertia;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\DailyCheckFile;
 use App\Models\DatalistModel;
 use App\Models\ExcessModel;
+use App\Models\MachineAllocation;
 use App\Models\OrderModelList;
 use App\Models\Parameters;
-use App\Models\RoutingCheck;
-use App\Models\MachineAllocation;
 use App\Models\ProcessOutputInventory;
 use App\Models\ProductionOrderModel;
+use App\Models\RoutingCheck;
 use App\Models\WeightInventory;
-use Illuminate\Routing\Events\Routing;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Bus\Batch;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Events\Routing;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 use Nette\Schema\Message;
 use Ramsey\Uuid\Type\Integer;
-use Exception;
 
 class ProcessOrderController extends Controller
 {
@@ -445,8 +445,8 @@ class ProcessOrderController extends Controller
         $get = $request->all();
 
         $model = $request->get('model') ?? null;
-        $date_start = $request->get('date_start') ?? null;
-        $date_end = $request->get('date_end') ?? null;
+        $date_start = $request->get('date_start') ??  null;
+        $date_end = $request->get('date_end') ??  null;
         $serial = $request->get('serial') ?? null;
         $location = $request->get('location') ?? null;
         $items = [
@@ -454,7 +454,7 @@ class ProcessOrderController extends Controller
             'Work_Order' => $serial,
             'CurrentLocation' => $location
         ];
-
+                
         $query = ProductionOrderModel::query();
         $query2 = ProductionOrderModel::query();
         foreach($items as $key => $value){
@@ -495,8 +495,19 @@ class ProcessOrderController extends Controller
             ]);
             
         }else{
-            $result = ProductionOrderModel::limit(1000)->orderBy('created_at', 'asc')->paginate(15, ['*'], 'order');
-            $excelData = ProductionOrderModel::limit(1000)->orderBy('created_at', 'asc')->get(); 
+            $startDefault = Carbon::today()->addHours(6);
+            $endDefault = Carbon::tomorrow()->addHours(6);
+
+            $result = ProductionOrderModel::limit(1000)->orderBy('created_at', 'asc')->whereBetween('Loading_time', [
+                                                    $startDefault->toDateTimeString(),
+                                                    $endDefault->toDateTimeString(),
+                                                ])->paginate(15, ['*'], 'order');
+
+            $excelData = ProductionOrderModel::limit(1000)->orderBy('created_at', 'asc')->whereBetween('Loading_time', [
+                                                    $startDefault->toDateTimeString(),
+                                                    $endDefault->toDateTimeString(),
+                                                ])->get(); 
+
             $dataExcel =  $excelData  ? json_encode($excelData->toArray()):null;
 
             return Inertia::render('Main', [
