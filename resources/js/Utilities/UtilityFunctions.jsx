@@ -59,11 +59,14 @@ const handleDownload = async (data, title) => {
         items['Lot_No'] = items?.["Daily_Check"]["Lot_No"]
         items['ip_address'] = items?.["Machine_Details"]["ip_address"]
         items['permission'] = items?.["Machine_Details"]["permission"]
+        items['Pre_Treatment'] = items?.["Model_Details"]["Pre_Treatment"]
+        items['Post_Treatment'] = items?.["Model_Details"]["Post_Treatment"]
 
         console.log('Check Items: ',items);
     })
 
     console.log("Download: ",excelDate);
+
     worksheet.columns = [
         { header: 'Model', key: 'Model_Name', width: 20 },
         { header: 'Work Order ID', key: 'Work_Order', width: 20 },
@@ -71,6 +74,8 @@ const handleDownload = async (data, title) => {
         { header: 'Quantity', key: 'Quantity', width: 20 },
         { header: 'Loader', key: 'Loader', width: 20 },
         { header: 'Basket Number', key: 'Basket_Number', width: 20 },
+        { header: 'Pre Treatment', key: 'Pre_Treatment', width: 20 },
+        { header: 'Post Treatment', key: 'Post_Treatment', width: 20 },
         { header: 'Nickel 1', key: 'Nickel_1', width: 20 },
         { header: 'Nickel 2', key: 'Nickel_2', width: 20 },
         { header: 'Container', key: 'Container', width: 20 },
