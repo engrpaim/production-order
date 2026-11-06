@@ -118,16 +118,19 @@
 .loader-column {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
   gap: 1rem;
+  width: 100%;
   margin: 2rem;
   overflow: auto;
 }
 
 .loader-data {
   display: flex;
-  flex-wrap: wrap;
   flex-direction: row;
-  width: 21rem;
+  min-width:fit-content;
+  max-width: fit-content;
   justify-content: space-between;
   gap: 2rem;
 }

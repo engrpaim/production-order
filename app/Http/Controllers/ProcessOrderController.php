@@ -498,16 +498,16 @@ class ProcessOrderController extends Controller
             $startDefault = Carbon::today()->addHours(6);
             $endDefault = Carbon::tomorrow()->addHours(6);
 
-            $result = ProductionOrderModel::limit(1000)->orderBy('created_at', 'asc')->whereBetween('Loading_time', [
+            $result = ProductionOrderModel::limit(1000)->orderBy('created_at', 'desc')->whereBetween('Loading_time', [
                                                     $startDefault->toDateTimeString(),
                                                     $endDefault->toDateTimeString(),
                                                 ])->paginate(15, ['*'], 'order');
 
-            $excelData = ProductionOrderModel::limit(1000)->orderBy('created_at', 'asc')->whereBetween('Loading_time', [
+            $excelData = ProductionOrderModel::limit(1000)->orderBy('created_at', 'desc')->whereBetween('Loading_time', [
                                                     $startDefault->toDateTimeString(),
                                                     $endDefault->toDateTimeString(),
                                                 ])->get(); 
-
+                                                
             $dataExcel =  $excelData  ? json_encode($excelData->toArray()):null;
 
             return Inertia::render('Main', [

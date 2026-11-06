@@ -49,7 +49,7 @@ export default function ScannerTab({ routing, order, location, model, data, work
 
             if (IdCode == '00') {
                 IdCode = 'Operator';
-            } else {
+            } else if  (IdCode == '01') {
                 IdCode = 'PIC';
             }
             console.log('POSTING: ', hasValidKey, location.permission.toUpperCase());

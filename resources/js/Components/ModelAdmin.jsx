@@ -442,8 +442,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                                             }
                                                                         </select>
                                                                     </div>
-                                                                </div>
-                                                                <div className="loader-row">
+                                                              
 
                                                                     <div className="loader-data">
                                                                         <p>Post-Treatment:</p>

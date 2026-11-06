@@ -120,13 +120,12 @@ export default function MachineAdmin({ machine_manage }) {
                                                                     <option value="Plating line 2">Plating line 2</option>
                                                                 </select>
                                                             </div>
-                                                            <div className="loader-data" style={{ width: '35rem' }}>
+                                                            <div className="loader-data" >
                                                                 <p>I.P&nbsp;Adress:</p>
                                                                 <div className="loader-row" >
                                                                     <input
                                                                         className={dataConfirmation && dataConfirmation.index && dataConfirmation.index.includes('ip1') ? 'red-required' : dataConfirmation ? 'green-required' : ''}
                                                                         idName="ip1" onKeyDown={(e) => {
-
                                                                             handleEnterNext(e)
                                                                         }} onChange={(e) => setMachineDetails({ ...MachineDetails, ip1: e.target.value })} type='number' min="0" max="255" placeholder="255" style={{ width: '5rem' }} />.
                                                                     <input
