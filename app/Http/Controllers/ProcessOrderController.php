@@ -561,6 +561,8 @@ class ProcessOrderController extends Controller
             }
         }
 
+
+
         if(!$filter && !$model_manage ){
            
             return Inertia::render('Main', [
@@ -573,7 +575,6 @@ class ProcessOrderController extends Controller
                 'excess_all_data' => $excessDataBase,
                 'all_model' => $allModel,
                 'proto_all_data' => $protoList
-                
             ]);
         }
 
@@ -591,7 +592,6 @@ class ProcessOrderController extends Controller
                     'location' => $permissionLocation,
                     'all_model' => $allModel,
                     'proto_all_data' => $protoList
-                    
                 ]);
 
             case 'parameter_manage':

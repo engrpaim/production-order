@@ -10,7 +10,7 @@ import AILoader from '../Components/AILoader';
 import Notification from '../Components/Notification';
 import ViewAll from '../Components/ViewAll';
 import Admin from '../Components/Admin';
-
+import LoginAdmin from '../Components/LoginAdmin';
 export default function Main() {
     //Get last segment
         const currentUrl = window.location.pathname.split('/').filter(Boolean).pop() || 'Home';
@@ -68,17 +68,20 @@ export default function Main() {
                             :capitalizedFirstLetter.toLowerCase() == 'home' ? 
                                 <Home/>
                             :capitalizedFirstLetter.toLowerCase() == 'admin' && location && location ?
-                                <Admin all_model={all_model} 
-                                       model_manage={model_manage} 
-                                       parameter_manage={parameter_manage} 
-                                       selector_parameters={selector_parameters} 
-                                       machine_manage={machine_manage} 
-                                       generated_woid={generated_woid} 
-                                       message={message} 
-                                       excess={excess}
-                                       excess_all_data={excess_all_data}
-                                       proto_all_data={proto_all_data}
-                                />
+                                <LoginAdmin>
+                                            <Admin all_model={all_model} 
+                                                model_manage={model_manage} 
+                                                parameter_manage={parameter_manage} 
+                                                selector_parameters={selector_parameters} 
+                                                machine_manage={machine_manage} 
+                                                generated_woid={generated_woid} 
+                                                message={message} 
+                                                excess={excess}
+                                                excess_all_data={excess_all_data}
+                                                proto_all_data={proto_all_data}
+                                            />
+                                </LoginAdmin>
+                                
                             :null
                         }
                     </div>

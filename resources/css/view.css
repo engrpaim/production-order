@@ -27,7 +27,7 @@
 .view-content{
     display: flex;
     flex-direction: column;
-    width: 100%;
+    width: 90vw;
     background: #f8fbfc;
     padding: 2rem;
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;  
@@ -38,11 +38,12 @@
     width: 100%;
     animation: floatInFromBottom 1s ease-out forwards;
     position: relative;
+    
 }
 .view-table table{
     text-align: center;
     align-items: center;
-    width: 100vw;
+    width: 85vw;
     padding:1rem;
     overflow: auto;
   

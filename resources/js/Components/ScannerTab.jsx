@@ -48,12 +48,18 @@ export default function ScannerTab({ routing, order, location, model, data, work
             let IdCode = e.split(';')[0].trim();
 
             if (IdCode == '00') {
+
                 IdCode = 'Operator';
+
             } else if  (IdCode == '01') {
+
                 IdCode = 'PIC';
+
             }
+
+            const checkIDResult= IdCode !== 'PIC' && IdCode !== 'Operator' ? false:true;
             console.log('POSTING: ', hasValidKey, location.permission.toUpperCase());
-            if (hasValidKey && location.permission.toUpperCase() == 'LOADING') {
+            if (hasValidKey && location.permission.toUpperCase() == 'LOADING' && checkIDResult) {
 
                 console.error('Updated Items:', scannedItems);
 
@@ -83,7 +89,7 @@ export default function ScannerTab({ routing, order, location, model, data, work
                     }
                 });
 
-            } else if (hasValidKey && location.permission.toUpperCase() == 'UNLOADING') {
+            } else if (hasValidKey && location.permission.toUpperCase() == 'UNLOADING' && checkIDResult ) {
 
                 console.log('VALID KEYS!', hasValidKey);
                 setErrorCheck(false);

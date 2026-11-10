@@ -119,12 +119,14 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  align-items: center;
+  align-items: self-start;
   gap: 1rem;
-  width: 100%;
+  min-width: 20vw;
+  max-width: fit-content;
   margin: 2rem;
-  overflow: auto;
+ 
 }
+
 
 .loader-data {
   display: flex;
@@ -134,27 +136,72 @@
   justify-content: space-between;
   gap: 2rem;
 }
-
+.loader-data p {
+  width: 8rem;
+  
+}
 .loader-data input,
 .loader-data select {
+  /* Layout & Sizing */
+  width: 12rem;
+  padding: 0.6rem 0.85rem;
+  box-sizing: border-box;
   text-align: center;
-  padding: 3px;
-  width: 8rem;
-  min-width: fit-content;
-  height: fit-content;
-  border: 1px solid rgb(196, 190, 190);
-  border-radius: 7px;
+
+  /* Typography */
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: #2d3748;
+
+  /* Visual Styling */
+  background-color: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+
+  /* Smooth Transitions */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
 }
 
+/* Subtle Hover Effect */
+.loader-data input:hover,
+.loader-data select:hover {
+  border-color: #cbd5e1;
+  background-color: #ffffff;
+}
 
-.loader-data input:focus {
-  outline: 1px solid #257db0;
+/* Aesthetic Focus Glow */
+.loader-data input:focus,
+.loader-data select:focus {
+  background-color: #ffffff;
+  border-color: #6366f1; /* Modern indigo tint */
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* Custom Select Arrow Alignment */
+.loader-data select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  /* Centered text padding adjustment for select elements */
+  text-align-last: center; 
+}
+
+.loader-lines{
+  display: flex;
+  flex-direction: row;
+  width: 65vw;
+  margin:1rem;
+  gap:1rem
 }
 
 .loader-data span {
   display: flex;
   align-items: center;
+  height: 2rem;
   justify-content: space-between;
+  color: white;
   background: #257db0;
   min-width: 7rem;
   padding: 4px 15px;
@@ -163,6 +210,7 @@
   max-width: fit-content;
   gap: 1rem;
 }
+
 
 .close-btn {
   align-items: center;

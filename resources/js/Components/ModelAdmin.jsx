@@ -442,7 +442,8 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                                             }
                                                                         </select>
                                                                     </div>
-                                                              
+                                                                
+                                                            
 
                                                                     <div className="loader-data">
                                                                         <p>Post-Treatment:</p>
@@ -487,8 +488,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                                             className={submitted && redIndex.includes('Quantity') ? 'red-required' : submitted ? 'green-required' : ''}
                                                                             placeholder="quantity" />
                                                                     </div>
-                                                                </div>
-                                                                <div className="loader-row">
+                                                               
                                                                     <div className="loader-data">
                                                                         <p>Model Number:</p>
                                                                         <input
@@ -616,7 +616,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
 
                                                                 <div className="loader-row">
                                                                     <div className="loader-data" style={{ width: '100%', height: '12vh', background: '#FFEDD4' }}>
-                                                                        <div style={{ display: 'flex', flexDirection: 'row', gap: '1rem', height: 'fit-content', flexWrap: 'wrap', background: '#FFEDD4', padding: '1rem', borderRadius: '1rem', width: '100%' }}>
+                                                                        <div className="loader-lines">
                                                                             <p>Allowed Lines:&nbsp;</p>
                                                                             {
                                                                                 updateModel && updateModel.Allowed_Lines && updateModel.Allowed_Lines.map((lines) =>
