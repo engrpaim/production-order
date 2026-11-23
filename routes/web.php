@@ -36,9 +36,11 @@ Route::get('/production-order/home', function () {
 Route::post('/production-order/encode', [ProcessOrderController::class, 'saveLoading']);
 
 Route::get('/production-order/view', [ProcessOrderController::class, 'getProductionOrder']);
+
+Route::post('/production-order/admin',[ProcessOrderController::class, 'postAdminHandler' ]);
+
 Route::middleware('auth')->group(function () {
     //Admin routes
     Route::get('/production-order/admin',[ProcessOrderController::class, 'getAdminManagement']);
-    Route::post('/production-order/admin',[ProcessOrderController::class, 'postAdminHandler' ]);
 });
 
