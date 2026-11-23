@@ -62,6 +62,29 @@ h1 {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
+.user-container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap:1rem;
+    
+}
+
+.user-container p {
+    color:#d0ecfc;
+}
+
+.user-container button {
+    padding: 0.3rem 0.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+}
+.user-container button:hover {
+    color:white;
+    background: rgba(139, 187, 242, 0.9);
+}
+
 .justify-center {
     display: flex;
     flex-direction: column;

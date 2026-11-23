@@ -99,9 +99,11 @@
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
-  width: 90%;
+  width: fit-content;
   margin: 1px;
   gap: 1rem;
+  justify-content: center;
+  align-items: center;
 }
 
 .loader-row input,
@@ -131,6 +133,7 @@
 .loader-data {
   display: flex;
   flex-direction: row;
+  align-items: center;
   min-width:fit-content;
   max-width: fit-content;
   justify-content: space-between;

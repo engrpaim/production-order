@@ -37,7 +37,7 @@
 .manage-content {
     display: flex;
     flex-direction: column;
-    width: 100%;
+    width: 100vw;
     background: #ffffff;
     padding: 2rem;
     border-radius: 16px;

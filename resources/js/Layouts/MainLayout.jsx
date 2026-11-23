@@ -1,5 +1,5 @@
 import React from 'react';
-import {Head, usePage} from '@inertiajs/react';
+import { Head, usePage , router } from '@inertiajs/react';
 
 /**
  * MainLayout component that wraps page content with navigation and sets the page title dynamically
@@ -10,9 +10,18 @@ import {Head, usePage} from '@inertiajs/react';
  *
  * @returns {JSX.Element} The layout with navigation and dynamic page title.
  */
-export default function MainLayout({children,location}){
-    console.log('Navigation bar: ',location);
-    return(
+
+
+export default function MainLayout({ children, location, auth }) {
+    console.log('Navigation bar: ', location);
+    
+   
+    
+    const handleLogout = (e) => {
+        e.preventDefault();
+        router.post('/production-order/admin' , { method: 'logout'});
+    };
+    return (
         <div className='main-container'>
             <nav className='nav-container'>
                 <div className='nav-item-container'>
@@ -25,7 +34,15 @@ export default function MainLayout({children,location}){
                         <a href="/production-order/encode">Encode</a>
                         <a href="/production-order/view">View</a>
                         {location && location.permission && location.permission === 'admin' && <a href="/production-order/admin">Admin</a>}
+                        {
+                            auth && auth.user ?
+                            <div className='user-container'>
+                                <p>{auth.user.username}</p>
+                                <button onClick={(e)=>handleLogout(e)}  >Log out</button>
+                            </div> : null
+                        }
                     </div>
+
                 </div>
             </nav>
             <main>{children}</main>

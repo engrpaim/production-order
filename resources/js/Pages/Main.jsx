@@ -17,7 +17,7 @@ export default function Main() {
 
         const capitalizedFirstLetter = currentUrl.charAt(0).toUpperCase()+currentUrl.slice(1);
 
-        const { appName, serial ,data ,model , routing ,location, order,error,loading,message , orderList , filter_serial , model_manage,parameter_manage,selector_parameters , machine_manage, all_model,generated_woid,excess ,excess_all_data, proto_all_data , exceList} = usePage().props;
+        const { auth , appName, serial ,data ,model , routing ,location, order,error,loading,message , orderList , filter_serial , model_manage,parameter_manage,selector_parameters , machine_manage, all_model,generated_woid,excess ,excess_all_data, proto_all_data , exceList,loginError,loginSuccess , user_manage} = usePage().props;
       
         const [ handleData , setData ] = useState(data);
         const [ handleModel,setModelOrder] = useState(model);
@@ -49,6 +49,9 @@ export default function Main() {
         
           console.log('Production Order: ' , data, model ,order , ' State: ' , handleData , handleModel,handleOrder,handleError );
           console.log('View ListX: ' , orderList,capitalizedFirstLetter,location);
+          console.log('Admin log in:',loginError,loginSuccess);
+          console.log('Auth Main:',auth);
+          console.log('User Manage:',user_manage );
     return (
         <>
            <Head title={capitalizedFirstLetter} />
@@ -57,7 +60,7 @@ export default function Main() {
            <main  className="main-layout" style={{ background: capitalizedFirstLetter.toLowerCase() == 'home'  ?  `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0,0.6)), url(${HomePicture}) no-repeat center center fixed` :null 
                                                     }}>
                 { messageData && <Notification theme={messageData.theme ?? ''} message={messageData.message ?? ''} /> }
-                <MainLayout location={location}>
+                <MainLayout location={location} auth={auth}>
                     <div className='children-container'>
 
                         {
@@ -68,8 +71,9 @@ export default function Main() {
                             :capitalizedFirstLetter.toLowerCase() == 'home' ? 
                                 <Home/>
                             :capitalizedFirstLetter.toLowerCase() == 'admin' && location && location ?
-                                <LoginAdmin>
-                                            <Admin all_model={all_model} 
+                                <LoginAdmin loginError={loginError} loginSuccess={loginSuccess} auth={auth}>
+                                            <Admin 
+                                                all_model={all_model} 
                                                 model_manage={model_manage} 
                                                 parameter_manage={parameter_manage} 
                                                 selector_parameters={selector_parameters} 
@@ -77,8 +81,11 @@ export default function Main() {
                                                 generated_woid={generated_woid} 
                                                 message={message} 
                                                 excess={excess}
+                                                user_manage={user_manage}
                                                 excess_all_data={excess_all_data}
                                                 proto_all_data={proto_all_data}
+                                                auth={auth}
+                                                
                                             />
                                 </LoginAdmin>
                                 

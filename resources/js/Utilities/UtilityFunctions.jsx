@@ -64,10 +64,11 @@ const handleDownload = async (data, title) => {
 
         console.log('Check Items: ',items);
     })
-
+    
     console.log("Download: ",excelDate);
 
     worksheet.columns = [
+        { header: 'Loading', key: 'Loading_time', width: 20 },
         { header: 'Model', key: 'Model_Name', width: 20 },
         { header: 'Work Order ID', key: 'Work_Order', width: 20 },
         { header: 'Lot Number', key: 'Lot_No', width: 20 },

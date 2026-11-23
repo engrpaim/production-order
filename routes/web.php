@@ -31,14 +31,14 @@ Route::get('/production-order/home', function () {
     ]);
 });
 
-Route::get('/production-order/encode', [ProcessOrderController::class, 'getDailyCheck']);
+
 
 Route::post('/production-order/encode', [ProcessOrderController::class, 'saveLoading']);
 
 Route::get('/production-order/view', [ProcessOrderController::class, 'getProductionOrder']);
-
-//Admin routes
-Route::get('/production-order/admin',[ProcessOrderController::class, 'getAdminManagement']);
-Route::post('/production-order/admin',[ProcessOrderController::class, 'postAdminHandler']);
-
+Route::middleware('auth')->group(function () {
+    //Admin routes
+    Route::get('/production-order/admin',[ProcessOrderController::class, 'getAdminManagement']);
+    Route::post('/production-order/admin',[ProcessOrderController::class, 'postAdminHandler' ]);
+});
 

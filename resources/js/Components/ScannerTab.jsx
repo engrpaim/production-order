@@ -58,7 +58,6 @@ export default function ScannerTab({ routing, order, location, model, data, work
             }
 
             const checkIDResult= IdCode !== 'PIC' && IdCode !== 'Operator' ? false:true;
-            console.log('POSTING: ', hasValidKey, location.permission.toUpperCase());
             if (hasValidKey && location.permission.toUpperCase() == 'LOADING' && checkIDResult) {
 
                 console.error('Updated Items:', scannedItems);

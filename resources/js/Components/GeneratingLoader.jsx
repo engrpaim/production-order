@@ -49,6 +49,9 @@ export default function GeneratingLoader({ BatchData, WoidData, Details, generat
 
                     setWorkOrderId(generated_woid);
 
+                },
+                onError:(e)=>{
+                    console.log(e)
                 }
             });
     }
@@ -83,7 +86,7 @@ export default function GeneratingLoader({ BatchData, WoidData, Details, generat
                     {
                         !WorkOrderId && Batch.length > 0 || !generation && Batch.length > 0 ?
                             <div className="generate-data">
-                                <GeneratingStatus message={generation ? "Generating Work Orde I.D" : "Generate Wordk Order I.D?"} loading={!(Batch.length > 0) || generation} status="generate" />
+                                <GeneratingStatus message={generation ? "Generating Work Order I.D" : "Generate Wordk Order I.D?"} loading={!(Batch.length > 0) || generation} status="generate" />
                                 {!generation && !Details.excess || !generation && Details.excess > 0 && shelfState  ? <button onClick={() => handleGenerateWOID('generate', Details, Batch, 'generate', 'batching')} className="generate-button">Generate</button>:null}
                             </div>
                             : WorkOrderId && Batch.length > 0 ?

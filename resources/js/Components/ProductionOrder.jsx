@@ -4,7 +4,7 @@ import Batching from "./Batching";
 import AILoader from "./AILoader";
 import ExcessView from "./ExcessView";
 import OrderProtoView from "./OrderProtoView";
-export default function ProductionOrder({all_model, generated_woid,message,excess,excess_all_data,proto_all_data}) {
+export default function ProductionOrder({all_model, generated_woid,message,excess,excess_all_data,proto_all_data , auth}) {
     const [optionSelected, setOptionSelected] = useState('order');
     const [loader ,setLoader] = useState(true)
     console.log('Batching Proto: ' , all_model , excess_all_data);
@@ -31,7 +31,7 @@ export default function ProductionOrder({all_model, generated_woid,message,exces
                     optionSelected === 'order' ?
                         <OrderProtoView proto_all_data={proto_all_data}/>
                     :optionSelected === 'batching' ?
-                        <Batching all_model={all_model} generated_woid={generated_woid} message={message} excess={excess}/>
+                        <Batching all_model={all_model} generated_woid={generated_woid} message={message} excess={excess} auth={auth}/>
                     :optionSelected === 'excess' ?
                         <ExcessView excess_all_data={excess_all_data}/>
                     :null

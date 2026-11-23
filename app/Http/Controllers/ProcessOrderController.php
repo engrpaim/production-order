@@ -13,6 +13,7 @@ use App\Models\ProcessOutputInventory;
 use App\Models\ProductionOrderModel;
 use App\Models\RoutingCheck;
 use App\Models\WeightInventory;
+use App\Models\UserLoginModel;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Bus\Batch;
@@ -22,7 +23,8 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Nette\Schema\Message;
 use Ramsey\Uuid\Type\Integer;
-
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 class ProcessOrderController extends Controller
 {
      public function dataBaseBank(string $database)
@@ -31,7 +33,8 @@ class ProcessOrderController extends Controller
                 'model' =>  OrderModelList::class,
                 'parameter' =>  Parameters::class,
                 'machine' => MachineAllocation::class,
-                'excess' => ExcessModel::class
+                'excess' => ExcessModel::class,
+                'user' => UserLoginModel::class,
             ];
 
             return $bank[$database];
@@ -56,7 +59,7 @@ class ProcessOrderController extends Controller
         $parameter = Parameters::orderBy('updated_at', 'desc')->paginate(10,['*'],'paramters');
         $machine = MachineAllocation::orderBy('updated_at', 'desc')->paginate(10,['*'],'machine');
         $excessDataBase = ExcessModel::where('status','hold')->paginate(10,['*'], 'excess');
-
+        $userList =  UserLoginModel::limit(1000)->orderBy('created_at', 'desc')->paginate(10,['*'],'user_list'); 
         $selector_options = ['Media Size', 'Pre-treatment' , 'Post-treatment'  , 'Condition Number' ,'Nickel 1','Nickel 2','Poly Bag','Basket Number','Container','Endorsement' ,'Basket Type','Magnet Type','Drying Method','Plating Specs','Nickel_1_2_A'];
         $finalResult = [];
         $permissionLocation = $this->locationPermission();
@@ -79,6 +82,7 @@ class ProcessOrderController extends Controller
                     'location' =>  $permissionLocation,
                     'excess_all_data' => $excessDataBase,
                     'all_model' => $allModel,
+                    'user_manage' => $userList,
                 ]; 
             default:
                 break;
@@ -523,8 +527,8 @@ class ProcessOrderController extends Controller
     
 
     public function getAdminManagement(Request $request){
-     
         $data = $request->all();
+        
         $filter = $data['filter_manage'] ?? false;
         $model_manage = $data['model_manage'] ?? false;
         $parameter_type = $data['parameter_type'] ?? false;
@@ -536,9 +540,13 @@ class ProcessOrderController extends Controller
         $lot_number = $data['lot_number'] ?? null;
         $work_order_id = $data['work_order_id'] ?? null;       
         $currentIp = $request->ip();
-
+        $id_number = $data['id_number'] ?? null; 
+        $user_status = $data['status'] ?? null;
         $checkIFadmin = MachineAllocation::where('ip_address','=',$currentIp)->first();
-
+        $error = $request->session()->get('loginError');
+        $loginSucess = $request->session()->get('loginSuccess');
+        if($error) session()->pull('loginError');
+        if($loginSucess) session()->pull('loginSuccess');
         if($checkIFadmin && $checkIFadmin->permission !== 'admin' || !$checkIFadmin) return redirect('/production-order/');
   
         $model = OrderModelList::limit(1000)->orderBy('updated_at', 'desc')
@@ -548,6 +556,7 @@ class ProcessOrderController extends Controller
         $excessDataBase = ExcessModel::where('status','hold')->orderBy('created_at' , 'desc')->paginate(10,['*'], 'excess');
         $allModel = OrderModelList::select('*')->orderBy('Model', 'asc')->get();
         $protoList =  BatchNumber::limit(1000)->orderBy('created_at', 'desc')->paginate(10,['*'],'order_list');
+        $userList =  UserLoginModel::limit(1000)->orderBy('created_at', 'desc')->paginate(10,['*'],'user_list'); 
 
         $selector_options = ['Media Size', 'Pre-treatment' , 'Post-treatment'  , 'Condition Number' ,'Nickel 1','Nickel 2','Poly Bag','Basket Number','Container','Endorsement','Basket Type','Magnet Type','Drying Method','Plating Specs','Nickel_1_2_A'];
         $finalResult = [];
@@ -564,7 +573,7 @@ class ProcessOrderController extends Controller
 
 
         if(!$filter && !$model_manage ){
-           
+          
             return Inertia::render('Main', [
                 'appName' => config('app.name'),
                 'model_manage' =>  $model ?? null,
@@ -574,15 +583,20 @@ class ProcessOrderController extends Controller
                 'location' => $permissionLocation,
                 'excess_all_data' => $excessDataBase,
                 'all_model' => $allModel,
-                'proto_all_data' => $protoList
+                'proto_all_data' => $protoList,
+                'loginError' => $error,
+                'loginSuccess' => $loginSucess,
+                'user_manage' => $userList,
             ]);
         }
 
         switch( $filter ){
             case 'model_manage':
+
                 $model = OrderModelList::where('model','LIKE',"%{$model_manage}%")->orderBy('updated_at', 'desc')
                             ->paginate(10,['*'], 'order')
                             ->withQueryString();
+
                 return Inertia::render('Main', [
                     'appName' => config('app.name'),
                     'model_manage' =>  $model ?? null,
@@ -591,7 +605,8 @@ class ProcessOrderController extends Controller
                     'machine_manage' => $machine,
                     'location' => $permissionLocation,
                     'all_model' => $allModel,
-                    'proto_all_data' => $protoList
+                    'proto_all_data' => $protoList,
+                    'user_manage' => $userList,
                 ]);
 
             case 'parameter_manage':
@@ -606,7 +621,8 @@ class ProcessOrderController extends Controller
                     'machine_manage' => $machine,
                     'location' => $permissionLocation,
                     'all_model' => $allModel,
-                    'proto_all_data' => $protoList
+                    'proto_all_data' => $protoList,
+                    'user_manage' => $userList,
                 ]);
 
             case 'machine_manage':
@@ -621,7 +637,8 @@ class ProcessOrderController extends Controller
                     'machine_manage' => $machine,
                     'location' => $permissionLocation,
                     'all_model' => $allModel,
-                    'proto_all_data' => $protoList
+                    'proto_all_data' => $protoList,
+                    'user_manage' => $userList,
                 ]);
 
             case 'excess':
@@ -642,7 +659,8 @@ class ProcessOrderController extends Controller
                     'location' => $permissionLocation,
                     'excess_all_data' => $excess,
                     'all_model' => $allModel,
-                    'proto_all_data' => $protoList
+                    'proto_all_data' => $protoList,
+                    'user_manage' => $userList,
                 ]);
             case 'proto_order':
               
@@ -662,7 +680,24 @@ class ProcessOrderController extends Controller
                     'location' => $permissionLocation,
                     'excess_all_data' => $excessDataBase,
                     'all_model' => $allModel,
-                    'proto_all_data' => $protoList
+                    'proto_all_data' => $protoList,
+                    'user_manage' => $userList,
+                ]);
+            case 'user_manage':
+              
+                $userList = UserLoginModel::where('id_number','LIKE',"%{$id_number}%")->where('status','LIKE',"%{$user_status}%")->orderBy('updated_at', 'desc')
+                            ->paginate(10,['*'], 'machine_filter')
+                            ->withQueryString();
+                return Inertia::render('Main', [
+                    'appName' => config('app.name'),
+                    'model_manage' =>  $model ?? null,
+                    'parameter_manage' => $parameter??null,
+                    'selector_parameters' =>  $finalResult,
+                    'machine_manage' => $machine,
+                    'location' => $permissionLocation,
+                    'all_model' => $allModel,
+                    'proto_all_data' => $protoList,
+                    'user_manage' => $userList,
                 ]);
 
             default:
@@ -674,7 +709,8 @@ class ProcessOrderController extends Controller
                     'machine_manage' => $machine,
                     'location' => $permissionLocation,
                     'all_model' => $allModel,
-                    'proto_all_data' => $protoList
+                    'proto_all_data' => $protoList,
+                    'user_manage' => $userList,
                 ]);
                 
         }
@@ -786,10 +822,27 @@ class ProcessOrderController extends Controller
             $action = $data['action'] ?? null;
             $requestData = $data['data']?? null;
             $database = $data['database']?? null;
-         
-            if(!$action && !$requestData  && !$database ) return redirect()->back();
-      
+            
+            //log in 
+            $id_number = $data['id_number']?? null;
+            $password = $data['password']?? null;
+            $isLogIn = null;
+            $credentials = $data;
+            $loginController  = new LogInController;
+              
+            if( array_key_exists('method',$credentials) && $credentials['method'] === 'logout'){
 
+                $loginController->logout();
+            }
+               
+            if((!$id_number || !$password) && !Auth::check() ){
+                return redirect()->back();
+            }
+            
+            if(!Auth::check()) $isLogIn = $loginController->login($credentials);
+
+            if(!$action && !$requestData  && !$database && !$isLogIn ) return redirect()->back();
+            
             $clientIP = $request->ip();
             $generateController = new GenerateController;
 
@@ -808,6 +861,7 @@ class ProcessOrderController extends Controller
 
                 case 'update':
                     $result = $this->updateData($requestData ,$database);
+
                     if($result){
                        $refresh =$this->refresh('Updated Successfully' , 'success-notification' , 'model' );
                        return Inertia::render('Main',  $refresh );
@@ -815,6 +869,7 @@ class ProcessOrderController extends Controller
                        $refresh =$this->refresh('Error update!' , 'error-notification' , 'model' );
                        return Inertia::render('Main',  $refresh );
                     }
+
                 case 'create':
                    
                     $result = $this->createNewData($requestData ,$database);
@@ -827,7 +882,7 @@ class ProcessOrderController extends Controller
                     }
                     break;
                  case 'generate':
-                    
+                  
                    
                     $result = $generateController->GenerateBatch($requestData , $action ,  $clientIP );
                         

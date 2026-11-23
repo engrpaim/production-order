@@ -472,6 +472,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                                                 <option value="" disabled selected={!currentLine ? true : false}>select line</option>
                                                                                 <option value="Plating line 1" >Plating line 1</option>
                                                                                 <option value="Plating line 2" >Plating line 2</option>
+                                                                                <option value="Plating line 3" >Plating line 3</option>
                                                                             </select>
                                                                             <button onClick={() => handleRemoveLine(currentLine, 'add')} className="add-btn">+</button>
                                                                         </div>
@@ -784,6 +785,7 @@ export default function ModelAdmin({ model_manage, parameter_manage, selector_pa
                                                             <option value="" disabled selected={!currentLine ? true : false}>select line</option>
                                                             <option value="Plating line 1" >Plating line 1</option>
                                                             <option value="Plating line 2" >Plating line 2</option>
+                                                            <option value="Plating line 3" >Plating line 3</option>
                                                         </select>
                                                         <button onClick={() => handleRemoveLine(currentLine, 'create')} className="add-btn">+</button>
                                                     </div>

@@ -4,8 +4,8 @@ import AILoader from "./AILoader";
 import Confirm from "./Confirm";
 import GeneratingLoader from "./GeneratingLoader";
 import { checkIfRequired } from "../Utilities/UtilityFunctions";
-export default function Batching({ all_model , generated_woid , message ,excess}) {
-   console.log('Current Message:' ,all_model, message , excess);
+export default function Batching({ all_model , generated_woid , message ,excess,auth}) {
+   console.log('Current Message:' ,all_model, message , excess , auth);
     const [ProtoState, setProtoState] = useState(false);
     const [BatchData, setBatchData] = useState([]);
     const [loader, setLoader] = useState(false);
@@ -104,16 +104,16 @@ export default function Batching({ all_model , generated_woid , message ,excess}
             
             if (TotalBatchWithExcess + 1 !== current) {
                 verify += batchQuantity
-                GeneratedBatch.push({ batch: index + 1, quantity: batchQuantity, condition: conditionLot, batch_number: `${lotNumber}-${setSuffix}`, code: ModelCode, model: Model , remarks: remarksLot})
+                GeneratedBatch.push({ batch: index + 1, quantity: batchQuantity, condition: conditionLot, batch_number: `${lotNumber}-${setSuffix}`, code: ModelCode, model: Model , remarks: remarksLot , user:auth.user.username})
             } else {
                 verify += TotalExcess
-                excess > 0 ? GeneratedBatch.push({ batch: index + 1, quantity: TotalExcess, condition: conditionLot, batch_number: `${lotNumber}-${setSuffix}`, code: ModelCode, model: Model , remarks: remarksLot }) : null
+                excess > 0 ? GeneratedBatch.push({ batch: index + 1, quantity: TotalExcess, condition: conditionLot, batch_number: `${lotNumber}-${setSuffix}`, code: ModelCode, model: Model , remarks: remarksLot , user:auth.user.username }) : null
             }
 
         })
 
         setBatchData(GeneratedBatch)
-        setDetails({ excess: TotalExcess, total: excess > 0 ? TotalBatchWithExcess + 1 : TotalBatchWithExcess, quantity: batchQuantity, model: Model ,lot_number: lotNumber, lot_quantity:verify , hold_excess:excessData})
+        setDetails({ excess: TotalExcess, total: excess > 0 ? TotalBatchWithExcess + 1 : TotalBatchWithExcess, quantity: batchQuantity, model: Model ,lot_number: lotNumber, lot_quantity:verify , hold_excess:excessData , user:auth.user.username})
         console.log('Generated Batches: ', GeneratedBatch, verify)
     }
     
