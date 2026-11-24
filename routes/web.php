@@ -5,7 +5,7 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ProcessOrderController;
 use App\Models\MachineAllocation;
-use Exception;
+
 //default
 Route::get('/', function () {
     return redirect('/production-order');
@@ -22,7 +22,7 @@ Route::get('/production-order/home', function () {
         $location = MachineAllocation::where('ip_address' , $ip)->first();
         if($location) $location = $location->toArray();
     } 
-    catch(Exception $e){
+    catch(Throwable $e){
         $location = null;
     }
     
