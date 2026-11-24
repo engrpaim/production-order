@@ -177,7 +177,7 @@ class ProcessOrderController extends Controller
       
         //Get Machine Permission
         $clientIP = $request->ip();
-        $machineAllocation = MachineAllocation::select('*')->where('ip_address', $clientIP)->first();
+        $machineAllocation = MachineAllocation::where('ip_address', $clientIP)->first();
        
         if( $serial != '' ||  $serial != null){
 
@@ -194,13 +194,13 @@ class ProcessOrderController extends Controller
             }
 
             // @return Routing details
-            $routing = RoutingCheck::select('*')->where('RoutingCode', $record->RoutingCode)->get();
+            $routing = RoutingCheck::where('RoutingCode', $record->RoutingCode)->get();
            
             // @return Model details
-            $modelDetails = OrderModelList::select('*')->where('Model',$record->Model_Name)->first();
+            $modelDetails = OrderModelList::where('Model',$record->Model_Name)->first();
              
             // @return Production Order
-            $productionFind = ProductionOrderModel::select('*')->where('Work_Order',$serial)->first();
+            $productionFind = ProductionOrderModel::where('Work_Order',$serial)->first();
   
 
             return Inertia::render('Main', [
