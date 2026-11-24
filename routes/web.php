@@ -14,6 +14,9 @@ Route::get('/production-order', function () {
     return redirect('/production-order/home');
 });
 
+Route::get('/production-order/login', function () {
+    return redirect('/production-order/home');
+})->name('login');
 Route::get('/production-order/home', function () {
     $ip = request()->ip();
 
@@ -21,7 +24,7 @@ Route::get('/production-order/home', function () {
         $location = MachineAllocation::where('ip_address' , $ip)->first();
         if($location) $location = $location->toArray();
     } 
-    catch(Exeption $e){
+    catch(Throwable $e){
         $location = null;
     }
     
@@ -42,5 +45,5 @@ Route::post('/production-order/admin',[ProcessOrderController::class, 'postAdmin
 Route::middleware('auth')->group(function () {
     //Admin routes
     Route::get('/production-order/admin',[ProcessOrderController::class, 'getAdminManagement']);
-})->name('login');
+});
 
