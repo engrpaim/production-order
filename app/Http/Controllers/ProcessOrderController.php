@@ -177,12 +177,12 @@ class ProcessOrderController extends Controller
       
         //Get Machine Permission
         $clientIP = $request->ip();
-        $machineAllocation = MachineAllocation::where('ip_address', $clientIP)->first();
+        $machineAllocation = MachineAllocation::select('*')->where('ip_address', $clientIP)->first();
        
         if( $serial != '' ||  $serial != null){
 
             // @return if Serial exist in DailyCheckFile table exit if not return error
-            $record = DailyCheckFile::where('ID', $serial)->first();
+            $record = DailyCheckFile::select('*')->where('ID','=' ,$serial)->first();
         
             if(!$record){
                 return Inertia::render('Main', [
@@ -194,13 +194,13 @@ class ProcessOrderController extends Controller
             }
 
             // @return Routing details
-            $routing = RoutingCheck::where('RoutingCode', $record->RoutingCode)->get();
+            $routing = RoutingCheck::select('*')->where('RoutingCode', $record->RoutingCode)->get();
            
             // @return Model details
-            $modelDetails = OrderModelList::where('Model',$record->Model_Name)->first();
+            $modelDetails = OrderModelList::select('*')->where('Model',$record->Model_Name)->first();
              
             // @return Production Order
-            $productionFind = ProductionOrderModel::where('Work_Order',$serial)->first();
+            $productionFind = ProductionOrderModel::select('*')->where('Work_Order',$serial)->first();
   
 
             return Inertia::render('Main', [
