@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ProcessOrderController;
+use App\Http\Controllers\LogInController;
 use App\Models\MachineAllocation;
 
 //default
@@ -33,14 +34,15 @@ Route::get('/production-order/home', function () {
 });
 
 Route::get('/production-order/encode', [ProcessOrderController::class, 'getDailyCheck']);
-
 Route::post('/production-order/encode', [ProcessOrderController::class, 'saveLoading']);
 
 Route::get('/production-order/view', [ProcessOrderController::class, 'getProductionOrder']);
 
-Route::post('/production-order/admin',[ProcessOrderController::class, 'postAdminHandler' ]);
+
+Route::match(['get', 'post'],'/production-order/login', [LogInController::class, 'login'])->name('login');
 
 Route::middleware('auth')->group(function () {
     //Admin routes
+    Route::post('/production-order/admin',[ProcessOrderController::class, 'postAdminHandler' ]);
     Route::get('/production-order/admin',[ProcessOrderController::class, 'getAdminManagement']);
 });

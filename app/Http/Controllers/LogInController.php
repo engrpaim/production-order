@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Session;
+use App\Models\MachineAllocation;
 use App\Models\UserLoginModel;
+use Exception;
 use Illuminate\Http\Request;
 class LogInController extends Controller
 {
@@ -35,11 +37,27 @@ class LogInController extends Controller
         request()->session()->invalidate();
         request()->session()->regenerateToken();
 
-        return redirect('/production-order/admin');
+        return redirect('/production-order/login');
     }
 
-    public function login(array $data){
+    public function login(Request $request){
+        $ip = request()->ip();
 
+        try{
+            $location = MachineAllocation::where('ip_address' , $ip)->first();
+            if($location) $location = $location->toArray();
+        } 
+        catch(Exception $e){
+            $location = null;
+        }
+
+    
+        if(!$request->all())  return Inertia::render('Main', 
+                                                        [
+                                                            'appName' => config('app.name'),
+                                                            'location' => $location 
+                                                        ]);
+        $data = $request->all();
         $method = $data["method"] ;
        
         $requestData = $method === 'login' ?

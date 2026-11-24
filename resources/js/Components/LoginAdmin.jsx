@@ -109,7 +109,7 @@ export default function LoginAdmin({ children,loginError,loginSuccess , auth}) {
             return;
         }
 
-        registerPost('/production-order/admin', {
+        registerPost('/production-order/login', {
             preserveScroll:true,
             onSuccess: (page) => {
                 if (page.props.loginSuccess) {
@@ -130,7 +130,7 @@ export default function LoginAdmin({ children,loginError,loginSuccess , auth}) {
                             },3000);
 
                     setTimeout(()=>{
-                        window.location.href = "/production-order/admin"
+                        window.location.href = "/production-order/login"
                     },4000);
                    
                 }else if (page.props.loginError){
@@ -151,7 +151,7 @@ export default function LoginAdmin({ children,loginError,loginSuccess , auth}) {
     const handleLogin = (e) => {
         e.preventDefault();
         console.log('Log In processing.......', loginData);
-        loginPost('/production-order/admin', {
+        loginPost('/production-order/login', {
             onSuccess:(page)=>{
                 if (page.props.loginError){
                      setErrorState(page.props.loginError)

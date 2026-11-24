@@ -1,4 +1,4 @@
-import React ,{ useState ,useEffect }from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import MainLayout from '../Layouts/MainLayout';
 import '../../css/footer.css'
@@ -13,83 +13,83 @@ import Admin from '../Components/Admin';
 import LoginAdmin from '../Components/LoginAdmin';
 export default function Main() {
     //Get last segment
-        const currentUrl = window.location.pathname.split('/').filter(Boolean).pop() || 'Home';
+    const currentUrl = window.location.pathname.split('/').filter(Boolean).pop() || 'Home';
 
-        const capitalizedFirstLetter = currentUrl.charAt(0).toUpperCase()+currentUrl.slice(1);
+    const capitalizedFirstLetter = currentUrl.charAt(0).toUpperCase() + currentUrl.slice(1);
 
-        const { auth , appName, serial ,data ,model , routing ,location, order,error,loading,message , orderList , filter_serial , model_manage,parameter_manage,selector_parameters , machine_manage, all_model,generated_woid,excess ,excess_all_data, proto_all_data , exceList,loginError,loginSuccess , user_manage} = usePage().props;
-      
-        const [ handleData , setData ] = useState(data);
-        const [ handleModel,setModelOrder] = useState(model);
-        const [ handleOrder,setOrder] = useState(order);
-        const [ handleError,setError] = useState(error);
-        const [ loader, setLoader] = useState(false);
-        const [ messageData ,setMessageData] = useState(false);
-        
-        function setAll(){
-             setData(data);
-            setModelOrder(model);
-            setOrder(order);
-            setError(error);
-            setLoader(loading);
-        }
+    const { auth, appName, serial, data, model, routing, location, order, error, loading, message, orderList, filter_serial, model_manage, parameter_manage, selector_parameters, machine_manage, all_model, generated_woid, excess, excess_all_data, proto_all_data, exceList, loginError, loginSuccess, user_manage } = usePage().props;
 
-        function notification(){
-            setTimeout(()=>{
-                setMessageData(false)
-            },2000)
-        }
-        useEffect(() => {
-            setTimeout(()=>{
-               setMessageData(message);
-               setAll()
-               notification();
-            },1000)
-        }, [data,model,order,error,loader,message]);
-        
-          console.log('Production Order: ' , data, model ,order , ' State: ' , handleData , handleModel,handleOrder,handleError );
-          console.log('View ListX: ' , orderList,capitalizedFirstLetter,location);
-          console.log('Admin log in:',loginError,loginSuccess);
-          console.log('Auth Main:',auth);
-          console.log('User Manage:',user_manage );
+    const [handleData, setData] = useState(data);
+    const [handleModel, setModelOrder] = useState(model);
+    const [handleOrder, setOrder] = useState(order);
+    const [handleError, setError] = useState(error);
+    const [loader, setLoader] = useState(false);
+    const [messageData, setMessageData] = useState(false);
+
+    function setAll() {
+        setData(data);
+        setModelOrder(model);
+        setOrder(order);
+        setError(error);
+        setLoader(loading);
+    }
+
+    function notification() {
+        setTimeout(() => {
+            setMessageData(false)
+        }, 2000)
+    }
+    useEffect(() => {
+        setTimeout(() => {
+            setMessageData(message);
+            setAll()
+            notification();
+        }, 1000)
+    }, [data, model, order, error, loader, message]);
+
+    console.log('Production Order: ', data, model, order, ' State: ', handleData, handleModel, handleOrder, handleError);
+    console.log('View ListX: ', orderList, capitalizedFirstLetter, location);
+    console.log('Admin log in:', loginError, loginSuccess);
+    console.log('Auth Main:', auth);
+    console.log('User Manage:', user_manage);
     return (
         <>
-           <Head title={capitalizedFirstLetter} />
-           { loader && (<AILoader/>)}
-       
-           <main  className="main-layout" style={{ background: capitalizedFirstLetter.toLowerCase() == 'home'  ?  `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0,0.6)), url(${HomePicture}) no-repeat center center fixed` :null 
-                                                    }}>
-                { messageData && <Notification theme={messageData.theme ?? ''} message={messageData.message ?? ''} /> }
+            <Head title={capitalizedFirstLetter} />
+            {loader && (<AILoader />)}
+
+            <main className="main-layout" style={{
+                background: capitalizedFirstLetter.toLowerCase() == 'home' ? `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0,0.6)), url(${HomePicture}) no-repeat center center fixed` : null
+            }}>
+                {messageData && <Notification theme={messageData.theme ?? ''} message={messageData.message ?? ''} />}
                 <MainLayout location={location} auth={auth}>
                     <div className='children-container'>
 
                         {
                             capitalizedFirstLetter.toLowerCase() == 'encode' ?
-                                <Process  data={handleData} model={handleModel} location={location} routing={routing} order={handleOrder} error={handleError} loader={loader} setLoader={setLoader}/>
-                            :capitalizedFirstLetter.toLowerCase() == 'view' ?
-                                <ViewAll list={orderList} setLoader={setLoader} filter_serial={filter_serial} location={location} exceList={exceList}/>
-                            :capitalizedFirstLetter.toLowerCase() == 'home' ? 
-                                <Home/>
-                            :capitalizedFirstLetter.toLowerCase() == 'admin' && location && location ?
-                                <LoginAdmin loginError={loginError} loginSuccess={loginSuccess} auth={auth}>
-                                            <Admin 
-                                                all_model={all_model} 
-                                                model_manage={model_manage} 
-                                                parameter_manage={parameter_manage} 
-                                                selector_parameters={selector_parameters} 
-                                                machine_manage={machine_manage} 
-                                                generated_woid={generated_woid} 
-                                                message={message} 
+                                <Process data={handleData} model={handleModel} location={location} routing={routing} order={handleOrder} error={handleError} loader={loader} setLoader={setLoader} />
+                                : capitalizedFirstLetter.toLowerCase() == 'view' ?
+                                    <ViewAll list={orderList} setLoader={setLoader} filter_serial={filter_serial} location={location} exceList={exceList} />
+                                    : capitalizedFirstLetter.toLowerCase() == 'home' ?
+                                        <Home />
+                                        : capitalizedFirstLetter.toLowerCase() == 'admin' && location && location ?
+                                            <Admin
+                                                all_model={all_model}
+                                                model_manage={model_manage}
+                                                parameter_manage={parameter_manage}
+                                                selector_parameters={selector_parameters}
+                                                machine_manage={machine_manage}
+                                                generated_woid={generated_woid}
+                                                message={message}
                                                 excess={excess}
                                                 user_manage={user_manage}
                                                 excess_all_data={excess_all_data}
                                                 proto_all_data={proto_all_data}
                                                 auth={auth}
-                                                
+
                                             />
-                                </LoginAdmin>
-                                
-                            :null
+                                            : capitalizedFirstLetter.toLowerCase() == 'login' && !auth.user ?
+                                                <LoginAdmin loginError={loginError} loginSuccess={loginSuccess} auth={auth} />
+                                                : null
                         }
                     </div>
                 </MainLayout>
@@ -98,8 +98,8 @@ export default function Main() {
                 <div className='main-footer'>
                     <div className='upper-footer'>
                         <div className='footer-col'>
-                           <img src={AELogo} alt="Company Logo" className="logo" style={{ width:"5rem", height:"5rem" , alignSelf:"center" }}/>
-                           <h4 style={{ alignSelf:"center" }} >Automation Engineering</h4>
+                            <img src={AELogo} alt="Company Logo" className="logo" style={{ width: "5rem", height: "5rem", alignSelf: "center" }} />
+                            <h4 style={{ alignSelf: "center" }} >Automation Engineering</h4>
                         </div>
                         <div className='footer-col'>
                             <h4>Automation Engineer - Software Team</h4>
@@ -110,7 +110,7 @@ export default function Main() {
                         <div className='footer-col'>
                             <h4>Contact Us!</h4>
                             <h4>Have questions? Reach out anytime.</h4>
-                            <a style={{  textDecoration:'underline' , color:"blue"}} href="mailto:ae@smp.com.ph?cc=automation@smp.com.ph;automation2@smp.com.ph;automation3@smp.com.ph;edzel@smp.com.ph;myke@smp.com.ph&subject=Support:%20Production%20Order%20Website">ae@smp.com.ph</a>
+                            <a style={{ textDecoration: 'underline', color: "blue" }} href="mailto:ae@smp.com.ph?cc=automation@smp.com.ph;automation2@smp.com.ph;automation3@smp.com.ph;edzel@smp.com.ph;myke@smp.com.ph&subject=Support:%20Production%20Order%20Website">ae@smp.com.ph</a>
                         </div>
                     </div>
                     <div className='lower-footer'>
@@ -118,7 +118,7 @@ export default function Main() {
                     </div>
                 </div>
             </footer>
-            
+
         </>
     );
 }
