@@ -71,7 +71,7 @@ export default function Main() {
                                     <ViewAll list={orderList} setLoader={setLoader} filter_serial={filter_serial} location={location} exceList={exceList} />
                                     : capitalizedFirstLetter.toLowerCase() == 'home' ?
                                         <Home />
-                                        : capitalizedFirstLetter.toLowerCase() == 'admin' && location && location ?
+                                        : capitalizedFirstLetter.toLowerCase() == 'admin' && location && location || capitalizedFirstLetter.toLowerCase() == 'login' && auth.user?
                                             <Admin
                                                 all_model={all_model}
                                                 model_manage={model_manage}

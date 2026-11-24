@@ -23,7 +23,7 @@ Route::get('/production-order/home', function () {
         $location = MachineAllocation::where('ip_address' , $ip)->first();
         if($location) $location = $location->toArray();
     } 
-    catch(Throwable $e){
+    catch(\Throwable $e){
         $location = null;
     }
     
@@ -40,9 +40,9 @@ Route::get('/production-order/view', [ProcessOrderController::class, 'getProduct
 
 
 Route::match(['get', 'post'],'/production-order/login', [LogInController::class, 'login'])->name('login');
-
+Route::post('/production-order/admin',[ProcessOrderController::class, 'postAdminHandler' ]);
 Route::middleware('auth')->group(function () {
     //Admin routes
-    Route::post('/production-order/admin',[ProcessOrderController::class, 'postAdminHandler' ]);
+
     Route::get('/production-order/admin',[ProcessOrderController::class, 'getAdminManagement']);
 });

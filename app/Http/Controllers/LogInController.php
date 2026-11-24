@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 class LogInController extends Controller
 {
     public function registerUser(array $data){
-       
+ 
         $userName = $data['first_name'] . "(".$data['id_number'].")" ;
         $data["username"] =  $userName;
         $data["remember_token"] =  'not remembered';
@@ -26,10 +26,10 @@ class LogInController extends Controller
             Session::put('loginError','Duplicate User');
             return redirect()->back();
         }
-
+              dd( $data);
         $addUser = UserLoginModel::create($data)->toArray();
         Session::put('loginSuccess', $addUser["username"].' successfully registered!');
-        return redirect()->back();
+        return redirect('/production-order/login');
     }
 
      public function logout(){
