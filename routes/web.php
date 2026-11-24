@@ -14,9 +14,6 @@ Route::get('/production-order', function () {
     return redirect('/production-order/home');
 });
 
-Route::get('/production-order/login', function () {
-    return redirect('/production-order/home');
-})->name('login');
 Route::get('/production-order/home', function () {
     $ip = request()->ip();
 
