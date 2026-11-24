@@ -35,7 +35,9 @@ Route::get('/production-order', function () {
 });
 
 Route::get('/production-order/home', fn () => $renderMain('home'));
-Route::get('/production-order/encode', fn () => $renderMain('encode'));
+Route::get('/production-order/encode', function () {
+    return Inertia::render('Main');
+});
 
 
 Route::post('/production-order/encode', [ProcessOrderController::class, 'saveLoading']);
