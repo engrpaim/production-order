@@ -24,9 +24,9 @@ class LogInController extends Controller
         
         if($checkIfIdExist){
             Session::put('loginError','Duplicate User');
-            return redirect()->back();
+            return redirect('/production-order/login');
         }
-              dd( $data);
+             
         $addUser = UserLoginModel::create($data)->toArray();
         Session::put('loginSuccess', $addUser["username"].' successfully registered!');
         return redirect('/production-order/login');
