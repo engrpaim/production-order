@@ -42,5 +42,5 @@ Route::post('/production-order/admin',[ProcessOrderController::class, 'postAdmin
 Route::middleware('auth')->group(function () {
     //Admin routes
     Route::get('/production-order/admin',[ProcessOrderController::class, 'getAdminManagement']);
-});
+})->name('login');
 
