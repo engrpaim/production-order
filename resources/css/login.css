@@ -1,3 +1,15 @@
+@keyframes floatInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Main Login Split-Screen Layout */
 .login-container {
     display: flex;
@@ -44,6 +56,7 @@
     min-height: 100vh;
     box-shadow: -10px 0 25px rgba(0, 0, 0, 0.03);
     z-index: 10;
+    animation: floatInFromBottom 1.5s ease-out forwards;
 }
 
 /* Form Input Groups */
