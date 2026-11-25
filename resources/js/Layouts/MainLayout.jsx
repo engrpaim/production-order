@@ -33,7 +33,7 @@ export default function MainLayout({ children, location, auth }) {
                         <a href="/production-order/home">Home</a>
                         <a href="/production-order/encode">Encode</a>
                         <a href="/production-order/view">View</a>
-                        {location && location.permission && location.permission === 'admin' && <a href="/production-order/login">Log In</a>}
+                        {location && location.permission && location.permission === 'admin' && auth && !auth.user&& <a href="/production-order/login">Log In</a>}
                         {
                             auth && auth.user ?
                             <div className='user-container'>

@@ -33,11 +33,11 @@ class LogInController extends Controller
     }
 
      public function logout(){
+        //remove auth and session
         Auth::logout();
         request()->session()->invalidate();
         request()->session()->regenerateToken();
-
-        return redirect('/production-order/login');
+  
     }
 
     public function login(Request $request){
@@ -62,7 +62,12 @@ class LogInController extends Controller
         $data = $request->all();
         $method = $data["method"] ;
 
-        if($method === 'logout') $this->logout();
+        //log out user
+        if($method === 'logout'){ 
+            $this->logout();
+            return redirect('/production-order/login');
+        }
+
         $requestData = $method === 'login' ?
         [
             'id_number' => ['required'],
