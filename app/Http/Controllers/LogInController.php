@@ -23,13 +23,13 @@ class LogInController extends Controller
         $checkIfIdExist = UserLoginModel::where('id_number', '=', $data['id_number'])->first();
         
         if($checkIfIdExist){
-            Session::put('loginError','Duplicate User');
-            return redirect('/production-order/login');
+            return false;
+            
         }
              
         $addUser = UserLoginModel::create($data)->toArray();
-        Session::put('loginSuccess', $addUser["username"].' successfully registered!');
-        return redirect('/production-order/login');
+        return [ 'loginSuccess' => $addUser["username"].' successfully registered!'];
+       
     }
 
      public function logout(){
@@ -41,6 +41,8 @@ class LogInController extends Controller
     }
 
     public function login(Request $request){
+
+        
         $ip = request()->ip();
 
         try{
@@ -59,7 +61,8 @@ class LogInController extends Controller
                                                         ]);
         $data = $request->all();
         $method = $data["method"] ;
-       
+
+        if($method === 'logout') $this->logout();
         $requestData = $method === 'login' ?
         [
             'id_number' => ['required'],
@@ -78,33 +81,53 @@ class LogInController extends Controller
         $resultData = null;
     
         $validator = Validator::make($data , $requestData );
-
+      
         if($validator->fails()){
-            return false;
+             return Inertia::render('Main', 
+                                            [
+                                                'appName' => config('app.name'),
+                                                'location' => $location,
+                                                'loginError' =>'Required I.D and password!'
+                                            ]);
         }
 
 
         if($data && $data["method"] && $data["method"] === 'register'){
             $resultData = $this->registerUser($data);
-            if($resultData ) return true;
-            return false;
+
+            if($resultData ) return Inertia::render('Main', 
+                                            [
+                                                'appName' => config('app.name'),
+                                                'location' => $location,
+                                                'loginSuccess' =>$resultData["loginSuccess"]
+                                            ]);
+            return Inertia::render('Main', 
+                                            [
+                                                'appName' => config('app.name'),
+                                                'location' => $location,
+                                                'loginError' =>'User already registered!'
+                                            ]);
         }
 
         $credentials = $validator->validated();
+     
         $checkUserStatus = UserLoginModel::select('status')->where('id_number','=',   $data['id_number'] )->first();
 
         if(!$checkUserStatus ||  $checkUserStatus && array_key_exists('status',$checkUserStatus->toArray()) && in_array($checkUserStatus['status'] , ['requesting' , 'inactive' , 'rejected']) ){
-            Session::put('loginError', 'Username not exist or not yet approved');
-            return redirect()->back();
+            return Inertia::render('Main', 
+                                            [
+                                                'appName' => config('app.name'),
+                                                'location' => $location,
+                                                'loginError' =>!$checkUserStatus ? 'User not found': 'User not yet approved'
+                                            ]);
         }
         
         if($method === 'login' && Auth::attempt($credentials)){
             request()->session()->regenerate();
             return redirect()->intended('/production-order/admin');
         }
+        
 
-        Session::put('loginError', 'Wrong I.D or password!');
-        return redirect()->back();
 
     }
 

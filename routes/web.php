@@ -40,6 +40,7 @@ Route::get('/production-order/view', [ProcessOrderController::class, 'getProduct
 
 
 Route::match(['get', 'post'],'/production-order/login', [LogInController::class, 'login'])->name('login');
+
 Route::post('/production-order/admin',[ProcessOrderController::class, 'postAdminHandler' ]);
 Route::middleware('auth')->group(function () {
     //Admin routes

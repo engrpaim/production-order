@@ -23,8 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Nette\Schema\Message;
 use Ramsey\Uuid\Type\Integer;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Auth;
+
 class ProcessOrderController extends Controller
 {
      public function dataBaseBank(string $database)
@@ -822,26 +821,9 @@ class ProcessOrderController extends Controller
             $action = $data['action'] ?? null;
             $requestData = $data['data']?? null;
             $database = $data['database']?? null;
-            
-            //log in 
-            $id_number = $data['id_number']?? null;
-            $password = $data['password']?? null;
-            $isLogIn = null;
-            $credentials = $data;
-            $loginController  = new LogInController;
-              
-            if( array_key_exists('method',$credentials) && $credentials['method'] === 'logout'){
+           
 
-                $loginController->logout();
-            }
-               
-            if((!$id_number || !$password) && !Auth::check() ){
-                return redirect()->back();
-            }
-            
-            if(!Auth::check()) $isLogIn = $loginController->login($credentials);
-
-            if(!$action && !$requestData  && !$database && !$isLogIn ) return redirect()->back();
+            if(!$action && !$requestData  && !$database ) return redirect()->back();
             
             $clientIP = $request->ip();
             $generateController = new GenerateController;
@@ -880,7 +862,7 @@ class ProcessOrderController extends Controller
                         $refresh =$this->refresh('Data Already exsist!' , 'error-notification' , 'model' );
                        return Inertia::render('Main',  $refresh );
                     }
-                    break;
+                
                  case 'generate':
                   
                    

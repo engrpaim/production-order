@@ -147,7 +147,7 @@ export default function LoginAdmin({ children,loginError,loginSuccess , auth}) {
         })
 
     }
-
+console.log('Checkking : ' , loginSuccess , loginError);
     const handleLogin = (e) => {
         e.preventDefault();
         console.log('Log In processing.......', loginData);
@@ -167,6 +167,8 @@ export default function LoginAdmin({ children,loginError,loginSuccess , auth}) {
             }
         })
     }
+
+    console.log(loginError , loginSuccess);
     return (
         <>
             {

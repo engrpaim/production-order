@@ -19,7 +19,7 @@ export default function MainLayout({ children, location, auth }) {
     
     const handleLogout = (e) => {
         e.preventDefault();
-        router.post('/production-order/admin' , { method: 'logout'});
+        router.post('/production-order/login' , { method: 'logout'});
     };
     return (
         <div className='main-container'>
