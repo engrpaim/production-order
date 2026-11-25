@@ -54,7 +54,11 @@ class LogInController extends Controller
         }
 
     
-        if(!$request->all())  return redirect('/production-order/login');
+        if(!$request->all())  return Inertia::render('Main', 
+                                                        [
+                                                            'appName' => config('app.name'),
+                                                            'location' => $location 
+                                                        ]);
         $data = $request->all();
         $method = $data["method"] ;
 
