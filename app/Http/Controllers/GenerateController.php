@@ -38,7 +38,7 @@ class GenerateController extends ProcessOrderController
         if(!$uniqueNumber) return false;
     
         $checkIfExist = LotNumber::where('lot_number','=',$uniqueNumber )->first();
-       
+      
         if(!$checkIfExist){
             try{
                 $result = LotNumber::create([
@@ -152,7 +152,10 @@ class GenerateController extends ProcessOrderController
 
             $holdExcess = $detailsExcess->hold_excess ?? null;
             
-          
+            $currentGeneration = [ 
+                    'min' => 0,
+                    'max' => 0
+            ] ; 
             //Excess
             //Create data for lot_number db
             foreach($batchNumber as $value){    
@@ -168,8 +171,13 @@ class GenerateController extends ProcessOrderController
                 $data_id = $lotNumberSave["id"];
                 $status = 'batching';
                 $data_lot_number = $lotNumberSave["lot_number"];
-                $currentBatchAddition > 0 ? $batch = $batch +$currentBatchAddition:null;
+                $currentBatchAddition > 0 ? $batch = $batch + $currentBatchAddition:null;
                 $currentBatchAddition > 0 ? $generated_batch_number = $data_lot_number ."-".sprintf('%05d',$batch):null;
+
+
+                $batch  < $currentGeneration['min']  || $currentGeneration['min'] === 0 ? $currentGeneration['min'] = $batch:null;
+                $batch > $currentGeneration['max']  ? $currentGeneration['max'] = $batch:null;
+                
                
                 if($requiredQuantity !== $quantity){ 
                     $dataExcess[] = [
@@ -190,6 +198,7 @@ class GenerateController extends ProcessOrderController
                     'generated_batch_number' => $generated_batch_number,
                     'quantity' => $quantity,
                     'work_order_id' =>$woid, 
+                    'number_batch' => $batch,
                     'status' => $status,
                     'route_code' =>$route,
                     'updated_at' => $date1,
@@ -201,7 +210,7 @@ class GenerateController extends ProcessOrderController
 
                 ];
             }
-
+          
 
             //Process Output list
             foreach($batchNumber as $value){
@@ -259,7 +268,7 @@ class GenerateController extends ProcessOrderController
                     $data_id = $lotNumberSave["id"];
                     $status = 'batching';
                     $data_lot_number = $lotNumberSave["lot_number"];
-                    $currentBatchAddition > 0 ? $batch = $batch +$currentBatchAddition:null;
+                    $currentBatchAddition > 0 ? $batch = $batch + $currentBatchAddition:null;
                     $currentBatchAddition > 0 ? $generated_batch_number = $data_lot_number ."-".sprintf('%05d',$batch):null;
 
                     $location = $date1 .'%P2 Plating%'.$clientIP;
@@ -369,7 +378,7 @@ class GenerateController extends ProcessOrderController
                     LotNumber::where('id',$data_id)->update(['status' => 'done']);
                     BatchNumber::where('data_id',$data_id)->update(['status' => 'done']);
 
-                    return true;
+                    return $currentGeneration;
 
                 }
             }catch(Exception $e){
@@ -437,6 +446,7 @@ class GenerateController extends ProcessOrderController
                 if(!$checkLot) return false;
                 
                 $checkCurrentBatch = LotNumber::where('lot_number' , $checkLot)->first();
+                
                 if($checkCurrentBatch)  $currentBatchAddition  = $checkCurrentBatch->total_batches? $checkCurrentBatch->total_batches:0;
                 // saving in lot_number
                 $lotNumberSave = $this->LotNumberSave($lotNumber , $clientIP ,$status , $checkRouting["RoutingCode"] ?? ''  );
@@ -445,12 +455,12 @@ class GenerateController extends ProcessOrderController
                 // saving in datalist
                 $batchSaved = $this->saveToInventory( $batchNumber , $lotNumberSave , $checkRouting["RoutingCode"] ?? ''  , $routingProto , $clientIP,$requiredQuantity , $detailsExcess,$shelf , $currentBatchAddition);
                 if(!$batchSaved) return false;
-             
+        
                 $updateBatch = BatchNumber::where('data_id',$lotNumberSave["id"])->update(['status' => 'production']);
                 if(!$updateBatch) return false;
               
-                $generatedWOID = BatchNumber::select('*')->where('data_lot_number','=', $lotNumber->lot_number)->get();
-                
+                $generatedWOID = BatchNumber::select('*')->whereBetween('number_batch',[$batchSaved["min"] , $batchSaved["max"]])->where('data_lot_number','=', $lotNumber->lot_number)->get();
+                     
                 if($generatedWOID)return  $generatedWOID->toArray();
           
                 return false;

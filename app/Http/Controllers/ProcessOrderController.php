@@ -865,9 +865,9 @@ class ProcessOrderController extends Controller
                 
                  case 'generate':
                   
-                   
+                 
                     $result = $generateController->GenerateBatch($requestData , $action ,  $clientIP );
-                        
+                
                     if($result){
                        $refresh =$this->refresh('Generated QR successfully!' , 'success-notification' , 'model' );
                        $refresh['message']['generation_status'] = true;

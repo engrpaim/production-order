@@ -20,7 +20,7 @@
     overflow: hidden;
 }
 
-/* Left Hero / Branding Panel */
+
 .login-left {
     flex: 1;
     background: linear-gradient(135deg, rgba(83, 114, 150, 0.95), rgba(184, 218, 235, 0.85));
@@ -29,7 +29,6 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-  
     box-shadow: inset -10px 0 20px rgba(0, 0, 0, 0.05);
 }
 
@@ -42,6 +41,7 @@
     mix-blend-mode: multiply;
     opacity: 0.75;
     display: block;
+    animation: floatInFromBottom 1.5s ease-out forwards;
 }
 
 /* Right Form Panel */

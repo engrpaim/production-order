@@ -37,6 +37,7 @@ export default function GeneratingLoader({ BatchData, WoidData, Details, generat
         if (!action || !lot_number || !batch_generated || !database) return
         const mergeData = { lot_number: lot_number, batch_generated: batch_generated, status: status , shelf:shelfState , details:Details}
         const allData = JSON.stringify(mergeData)
+        console.log('GENERATED BATCH',batch_generated,Details);
         await router.post('/production-order/admin',
             {
                 action: action,
