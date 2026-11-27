@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('Order_models', function (Blueprint $table) {
+        Schema::table('Order_Models', function (Blueprint $table) {
             $table->string('Copper_1_2')->nullable()->default(null);
             $table->string('Copper_2_2')->nullable()->default(null);
             $table->string('Container_2')->default(null);
@@ -35,7 +35,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('order_models', function (Blueprint $table) {
-            
+
         });
     }
 };
